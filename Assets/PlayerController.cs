@@ -74,7 +74,7 @@ public class PlayerController : MonoBehaviour
             jumpForces = Vector3.up * jumpForce;
         }
 
-        rb.AddForce(jumpForces, ForceMode.Impulse);
+        rb.AddForce(jumpForces, ForceMode.VelocityChange);
     }
     private bool IsGrounded()
     {
