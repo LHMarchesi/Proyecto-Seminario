@@ -215,9 +215,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 290414213}
-  - component: {fileID: 290414212}
   - component: {fileID: 290414211}
   - component: {fileID: 290414214}
+  - component: {fileID: 290414215}
   m_Layer: 0
   m_Name: Mjolnir
   m_TagString: Untagged
@@ -252,26 +252,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &290414212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 290414210}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07be436bd994843429c4bf14312aadec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hand: {fileID: 848282418}
-  throwPower: 10
-  retractPower: 10
-  damage: 10
-  throwKey: 101
-  retractKey: 113
-  isHeld: 0
-  isRetracting: 0
 --- !u!4 &290414213
 Transform:
   m_ObjectHideFlags: 0
@@ -310,6 +290,28 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &290414215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 290414210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07be436bd994843429c4bf14312aadec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hand: {fileID: 848282418}
+  minThrowPower: 10
+  maxThrowPower: 50
+  torqueForce: 30
+  retractPower: 30
+  damage: 10
+  throwKey: 101
+  retractKey: 32
+  isHeld: 0
+  isRetracting: 0
 --- !u!1 &384575524
 GameObject:
   m_ObjectHideFlags: 0
@@ -919,7 +921,9 @@ GameObject:
   - component: {fileID: 1036431232}
   - component: {fileID: 1036431227}
   - component: {fileID: 1036431231}
+  - component: {fileID: 1036431235}
   - component: {fileID: 1036431226}
+  - component: {fileID: 1036431234}
   - component: {fileID: 1036431233}
   m_Layer: 0
   m_Name: Player
@@ -1027,8 +1031,8 @@ MonoBehaviour:
     m_ActionName: UI/TrackedDeviceOrientation
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1036431231}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 1036431235}
+        m_TargetAssemblyTypeName: HandleAttack, Assembly-CSharp
         m_MethodName: OnAttack
         m_Mode: 0
         m_Arguments:
@@ -1111,18 +1115,6 @@ MonoBehaviour:
   maxForce: 4
   mouseSens: 0.1
   jumpForce: 0
-  attackDistance: 3
-  attackDelay: 0.4
-  attackSpeed: 1
-  attackLayer:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  hitEffect: {fileID: 5334228485563152753, guid: e82b4fe14777cb24487e0b11a675578a, type: 3}
-  swordSwing: {fileID: 8300000, guid: d9b87ec5d8adfdf48bc283031dea0811, type: 3}
-  hitSound: {fileID: 8300000, guid: 7b36e1318c766974893b59340aa13c46, type: 3}
-  attacking: 0
-  readyToAttack: 1
-  attackCount: 0
 --- !u!54 &1036431232
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1246,6 +1238,43 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1036431234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036431225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c5635970f217149a0dbbfa4d59c7a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentAnimation: 
+--- !u!114 &1036431235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036431225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28f7ce076dcf7ce44a672adcff950623, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackDistance: 3
+  attackDelay: 0.4
+  attackSpeed: 1
+  attackLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  hitEffect: {fileID: 5334228485563152753, guid: e82b4fe14777cb24487e0b11a675578a, type: 3}
+  swordSwing: {fileID: 8300000, guid: d9b87ec5d8adfdf48bc283031dea0811, type: 3}
+  hitSound: {fileID: 8300000, guid: 7b36e1318c766974893b59340aa13c46, type: 3}
+  attacking: 0
+  readyToAttack: 1
+  attackCount: 0
 --- !u!1 &1513276105
 GameObject:
   m_ObjectHideFlags: 0
