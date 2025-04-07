@@ -6,7 +6,7 @@ using UnityEngine;
 public class HandleAttack : MonoBehaviour
 {
     AudioSource audioSource;
-    HandleAnimations handleAnimations;
+    HandleInputs handleInputs;
 
     [Header("Attacking")]
     [SerializeField] private float attackDistance = 3f;
@@ -27,12 +27,13 @@ public class HandleAttack : MonoBehaviour
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        handleAnimations = GetComponent<HandleAnimations>();
+        handleInputs = GetComponent<HandleInputs>();
     }
 
-    public void OnAttack(InputAction.CallbackContext context)
+    private void Update()
     {
-        Attack();
+        if (handleInputs.IsAttacking())
+            Attack();
     }
 
     public void Attack()
@@ -47,17 +48,6 @@ public class HandleAttack : MonoBehaviour
 
         audioSource.pitch = Random.Range(0.9f, 1.1f);
         audioSource.PlayOneShot(swordSwing);
-
-        if (attackCount == 0)
-        {
-            handleAnimations.ChangeAnimationState(HandleAnimations.ATTACK1);
-            attackCount++;
-        }
-        else
-        {
-            handleAnimations.ChangeAnimationState(HandleAnimations.ATTACK2);
-            attackCount = 0;
-        }
     }
 
     void ResetAttack()

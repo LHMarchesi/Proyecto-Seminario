@@ -3,21 +3,19 @@ using UnityEngine;
 public class Mjolnir : MonoBehaviour
 {
     private Rigidbody rb;
+    private HandleAnimations handleAnimations;
+    private HandleInputs handleInputs;
     private Animator animator;
 
     [Header("References")]
     [SerializeField] private Transform hand;
-  
+
     [Header("Settings")]
     [SerializeField] private float minThrowPower;         // Fuerza mínima al lanzar
     [SerializeField] private float maxThrowPower;
     [SerializeField] private float torqueForce;
     [SerializeField] private float retractPower;
     [SerializeField] private float damage;
-
-    [Header("Throwing Keys")]
-    public KeyCode throwKey;
-    public KeyCode retractKey;
 
     [Header("Debug")]
     [SerializeField] private bool isHeld;
@@ -26,38 +24,44 @@ public class Mjolnir : MonoBehaviour
     private float throwChargeTime = 0f;
     private float maxChargeTime = 3f;
     private bool isChargingThrow = false;
+    private bool wasThrowing = false;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+        handleAnimations = GetComponentInParent<HandleAnimations>();
+        handleInputs = GetComponentInParent<HandleInputs>();
         Catch();
     }
 
     void Update()
     {
-        if (isHeld && Input.GetKey(throwKey))
+        bool isCurrentlyThrowing = handleInputs.IsThrowing();
+
+        if (isHeld && isCurrentlyThrowing)
         {
             if (!isChargingThrow)
-            {
                 isChargingThrow = true;  // Comienza a cargar el lanzamiento
-            }
+
             throwChargeTime += Time.deltaTime;  // Incrementa el tiempo de carga 
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
         }
 
         // Lanzar el Mjolnir al soltar el botón
-        else if (isChargingThrow && Input.GetKeyUp(throwKey))
+        else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing)
         {
             Throw();
             throwChargeTime = 0f;  // Resetea el tiempo de carga
             isChargingThrow = false;
         }
-        else if (!isHeld && Input.GetKey(retractKey))
+
+        wasThrowing = isCurrentlyThrowing; // Guarda el estado actual para la próxima iteración
+        if (!isHeld && handleInputs.IsCatching())
         {
             isRetracting = true;
         }
-        else if (!isHeld && Input.GetKeyUp(retractKey))
+        else if (!isHeld && !handleInputs.IsCatching())
         {
             isRetracting = false;
         }
@@ -112,6 +116,4 @@ public class Mjolnir : MonoBehaviour
         transform.parent = hand; // Assing to the hand
         transform.position = hand.position;
     }
-
-    public bool isMjolnirHeld() { return isHeld; }
 }

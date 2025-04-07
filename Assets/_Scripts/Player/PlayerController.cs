@@ -5,19 +5,11 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private GameObject camHolder;
     [SerializeField] private float speed, maxForce, mouseSens, jumpForce;
-    private Vector2 move, look;
     private float lookRotation;
     Rigidbody rb;
+    HandleInputs handleInputs;
  
-    public void OnMove(InputAction.CallbackContext context)
-    {
-        move = context.ReadValue<Vector2>();
-    }
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        look = context.ReadValue<Vector2>();
-    }
-   
+ 
     public void OnJump(InputAction.CallbackContext context)
     {
         //   Jump();
@@ -26,6 +18,8 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        handleInputs = GetComponent<HandleInputs>();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -45,6 +39,7 @@ public class PlayerController : MonoBehaviour
     private void LookWithMouse()
     {
         //Turn
+        Vector2 look = handleInputs.GetLookVector2();
         transform.Rotate(Vector3.up * look.x * mouseSens);
 
         // Look
@@ -54,6 +49,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Move()
     {
+        Vector2 move = handleInputs.GetMoveVector2();
         // Find target velocity
         Vector3 currentVelocity = rb.velocity;
         Vector3 targetVelocity = new Vector3(move.x, 0, move.y);
