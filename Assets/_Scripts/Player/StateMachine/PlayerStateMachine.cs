@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class PlayerStateMachine : MonoBehaviour
 {
-    public PlayerState currentState;
+    [SerializeField] public PlayerState currentState;
+    private PlayerContext playerContext;
 
     public IdleState idleState;
     public WalkState walkState;
@@ -11,21 +12,15 @@ public class PlayerStateMachine : MonoBehaviour
     public StartThrowingState startThrowingState;
     public CatchingState catchingState;
 
-    public HandleInputs Inputs { get; private set; }
-
-    private HandleAnimations handleAnimations;
-
+   
     void Awake()
     {
-        Inputs = GetComponent<HandleInputs>();
-        handleAnimations = GetComponent<HandleAnimations>();
-
-        idleState = new IdleState(this, handleAnimations);
-        walkState = new WalkState(this, handleAnimations);
-        attackState = new AttackState(this, handleAnimations);
-        secondAttackState = new SecondAttackState(this, handleAnimations);
-        startThrowingState = new StartThrowingState(this, handleAnimations);
-        catchingState = new CatchingState(this, handleAnimations);
+        idleState = new IdleState(this, playerContext);
+        walkState = new WalkState(this, playerContext);
+        attackState = new AttackState(this, playerContext);
+        secondAttackState = new SecondAttackState(this, playerContext);
+        startThrowingState = new StartThrowingState(this, playerContext);
+        catchingState = new CatchingState(this, playerContext);
     }
 
     void Start()
@@ -45,5 +40,13 @@ public class PlayerStateMachine : MonoBehaviour
 
         currentState = newState;
         currentState.Enter();
+    }
+
+    public void GoToIdleOrWalk()
+    {
+        if (playerContext.Inputs.GetMoveVector2() != Vector2.zero)
+            ChangeState(walkState);
+        else
+            ChangeState(idleState);
     }
 }

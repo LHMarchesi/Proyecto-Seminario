@@ -1,11 +1,9 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class HandleAnimations : MonoBehaviour
 {
     Animator animator;
     private string currentAnimation;
-  
 
     void Awake()
     {

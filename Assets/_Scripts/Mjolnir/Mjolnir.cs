@@ -3,7 +3,6 @@ using UnityEngine;
 public class Mjolnir : MonoBehaviour
 {
     private Rigidbody rb;
-    private HandleAnimations handleAnimations;
     private HandleInputs handleInputs;
     private Animator animator;
 
@@ -30,15 +29,14 @@ public class Mjolnir : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        handleAnimations = GetComponentInParent<HandleAnimations>();
         handleInputs = GetComponentInParent<HandleInputs>();
         Catch();
     }
 
     void Update()
     {
+        // Handle Throw//
         bool isCurrentlyThrowing = handleInputs.IsThrowing();
-
         if (isHeld && isCurrentlyThrowing)
         {
             if (!isChargingThrow)
@@ -47,16 +45,16 @@ public class Mjolnir : MonoBehaviour
             throwChargeTime += Time.deltaTime;  // Incrementa el tiempo de carga 
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
         }
-
-        // Lanzar el Mjolnir al soltar el botón
-        else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing)
+        else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing) // Lanzar el Mjolnir al soltar el botón
         {
             Throw();
             throwChargeTime = 0f;  // Resetea el tiempo de carga
             isChargingThrow = false;
         }
-
         wasThrowing = isCurrentlyThrowing; // Guarda el estado actual para la próxima iteración
+
+
+        // Handle Catch //
         if (!isHeld && handleInputs.IsCatching())
         {
             isRetracting = true;
@@ -86,7 +84,7 @@ public class Mjolnir : MonoBehaviour
 
         transform.parent = null;
 
-        // Aplicar la fuerza y el torque para el lanzamiento
+        // Aplicar fuerza y torque para el lanzamiento
         rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
         rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
         isHeld = false;

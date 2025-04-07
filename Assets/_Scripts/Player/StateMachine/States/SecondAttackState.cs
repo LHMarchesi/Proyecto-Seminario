@@ -6,13 +6,13 @@ public class SecondAttackState : PlayerState
     private float timer = 0f;
     private bool queuedNextAttack;
 
-    public SecondAttackState(PlayerStateMachine stateMachine, HandleAnimations handleAnimations)
-        : base(stateMachine, handleAnimations) { }
+    public SecondAttackState(PlayerStateMachine stateMachine, PlayerContext playerContext)
+        : base(stateMachine, playerContext) { }
 
 
     public override void Enter()
     {
-        handleAnimations.ChangeAnimationState("Attack2");
+        playerContext.handleAnimations.ChangeAnimationState("Attack2");
         timer = 0f;
     }
 
@@ -22,7 +22,7 @@ public class SecondAttackState : PlayerState
 
         if (timer >= attackDuration)
         {
-            if (stateMachine.Inputs.GetMoveVector2() != Vector2.zero)
+            if (playerContext.Inputs.GetMoveVector2() != Vector2.zero)
                 stateMachine.ChangeState(stateMachine.walkState);
             else
                 stateMachine.ChangeState(stateMachine.idleState);

@@ -6,12 +6,12 @@ public class AttackState : PlayerState
     private float timer = 0f;
     private bool queuedNextAttack;
 
-    public AttackState(PlayerStateMachine stateMachine, HandleAnimations handleAnimations)
-        : base(stateMachine, handleAnimations) { }
+    public AttackState(PlayerStateMachine stateMachine, PlayerContext playerContext)
+        : base(stateMachine, playerContext) { }
 
     public override void Enter()
     {
-        handleAnimations.ChangeAnimationState("Attack1");
+        playerContext.handleAnimations.ChangeAnimationState("Attack1");
         queuedNextAttack = false;
         timer = 0f;
     }
@@ -21,7 +21,7 @@ public class AttackState : PlayerState
         timer += Time.deltaTime;
 
         // Permitir encadenar combo si presiona ataque nuevamente
-        if (stateMachine.Inputs.IsAttacking() && timer > 0.3f && !queuedNextAttack)
+        if (playerContext.Inputs.IsAttacking() && timer > 0.3f && !queuedNextAttack)
         {
             queuedNextAttack = true;
         }
@@ -31,15 +31,7 @@ public class AttackState : PlayerState
             if (queuedNextAttack)
                 stateMachine.ChangeState(stateMachine.secondAttackState);
             else
-                GoToIdleOrWalk();
+                stateMachine.GoToIdleOrWalk();
         }
-    }
-
-    private void GoToIdleOrWalk()
-    {
-        if (stateMachine.Inputs.GetMoveVector2() != Vector2.zero)
-            stateMachine.ChangeState(stateMachine.walkState);
-        else
-            stateMachine.ChangeState(stateMachine.idleState);
     }
 }

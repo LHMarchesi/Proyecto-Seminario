@@ -4,12 +4,12 @@ using System.Collections.Generic;
 public abstract class PlayerState
 {
     protected PlayerStateMachine stateMachine;
-    protected HandleAnimations handleAnimations;
+    protected PlayerContext playerContext;
 
-    public PlayerState(PlayerStateMachine stateMachine, HandleAnimations handleAnimations)
+    public PlayerState(PlayerStateMachine stateMachine, PlayerContext playerContext)
     {
         this.stateMachine = stateMachine;
-        this.handleAnimations = handleAnimations;
+        this.playerContext = playerContext;
     }
 
     public virtual void Enter() { }

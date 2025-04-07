@@ -2,23 +2,23 @@ using UnityEngine;
 
 public class IdleState : PlayerState
 {
-    public IdleState(PlayerStateMachine stateMachine, HandleAnimations handleAnimations)
-        : base(stateMachine, handleAnimations) { }
+    public IdleState(PlayerStateMachine stateMachine, PlayerContext playerContext)
+        : base(stateMachine, playerContext) { }
 
     public override void Enter()
     {
-        handleAnimations.ChangeAnimationState("Idle");
+        playerContext.handleAnimations.ChangeAnimationState("Idle");
     }
 
     public override void Update()
     {
-        if (stateMachine.Inputs.GetMoveVector2() != Vector2.zero)
+        if (playerContext.Inputs.GetMoveVector2() != Vector2.zero)
             stateMachine.ChangeState(stateMachine.walkState);
 
-        if (stateMachine.Inputs.IsAttacking())
+        if (playerContext.Inputs.IsAttacking())
             stateMachine.ChangeState(stateMachine.attackState);
 
-        if (stateMachine.Inputs.IsThrowing())
+        if (playerContext.Inputs.IsThrowing())
             stateMachine.ChangeState(stateMachine.startThrowingState);
     }
 }

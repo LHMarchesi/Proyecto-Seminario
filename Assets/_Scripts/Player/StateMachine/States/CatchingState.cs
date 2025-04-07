@@ -1,17 +1,20 @@
+using UnityEngine;
 public class CatchingState : PlayerState
 {
-    public CatchingState(PlayerStateMachine stateMachine, HandleAnimations handleAnimations) : base(stateMachine, handleAnimations)
+    public CatchingState(PlayerStateMachine stateMachine, PlayerContext playerContext) : base(stateMachine, playerContext)
     {
     }
 
     public override void Enter()
     {
-        handleAnimations.ChangeAnimationState("Catch");
+        playerContext.handleAnimations.ChangeAnimationState("Catch");
     }
 
     public override void Update()
     {
-        if (stateMachine.Inputs.IsCatching())
-            stateMachine.ChangeState(stateMachine.catchingState);
+        if (!playerContext.Inputs.IsCatching())
+        {
+           stateMachine.GoToIdleOrWalk();
+        }
     }
 }
