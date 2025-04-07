@@ -4,36 +4,33 @@ using UnityEngine.Rendering;
 public class StartThrowingState : PlayerState
 {
     private float chargeTime = 0f;
-    private float maxChargeTime = 3f;
-    private SliderPassValue slider;
+    private float maxChargeTime = 1.5f;
+    
 
-    public StartThrowingState(PlayerStateMachine stateMachine, PlayerContext playerContext, SliderPassValue slider ) : base(stateMachine, playerContext)
+    public StartThrowingState(PlayerStateMachine stateMachine, PlayerContext playerContext ) : base(stateMachine, playerContext)
     {
-        this.slider = slider;
     }
 
     public override void Enter()
     {
         chargeTime = 0f;
-        slider.ChangeValue(0f); // Show Slider
         playerContext.handleAnimations.ChangeAnimationState("ChargeThrow");
     }
 
     public override void Update()
     {
         // Cargando mientras el jugador mantiene el botón
-        if (playerContext.Inputs.IsThrowing())
+        if (playerContext.Inputs.IsThrowing()  && playerContext.mjolnir.IsHeld())
         {
             chargeTime += Time.deltaTime;
             chargeTime = Mathf.Clamp(chargeTime, 0f, maxChargeTime);
-            slider.ChangeValue(chargeTime / maxChargeTime); // Update slider from charge
+            UIManager.Instance.powerSlider.ChangeValue(chargeTime / maxChargeTime); // Update slider from charge
         }
         // Al soltar el botón, lanzar el martillo
         else
         {
-            slider.ChangeValue(0f);
-            slider.Disable(); // Disable slider
-            stateMachine.ChangeState(stateMachine.idleState);
+            UIManager.Instance.powerSlider.Disable(); // Disable slider
+            stateMachine.GoToIdleOrWalk();
         }
 
 

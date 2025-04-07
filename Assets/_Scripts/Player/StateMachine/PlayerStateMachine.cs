@@ -15,6 +15,8 @@ public class PlayerStateMachine : MonoBehaviour
    
     void Awake()
     {
+        playerContext = GetComponent<PlayerContext>();
+
         idleState = new IdleState(this, playerContext);
         walkState = new WalkState(this, playerContext);
         attackState = new AttackState(this, playerContext);

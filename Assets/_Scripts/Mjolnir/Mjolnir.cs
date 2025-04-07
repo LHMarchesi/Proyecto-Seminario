@@ -21,7 +21,7 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private bool isRetracting;
 
     private float throwChargeTime = 0f;
-    private float maxChargeTime = 3f;
+    private float maxChargeTime = 1.5f;
     private bool isChargingThrow = false;
     private bool wasThrowing = false;
 
@@ -114,4 +114,6 @@ public class Mjolnir : MonoBehaviour
         transform.parent = hand; // Assing to the hand
         transform.position = hand.position;
     }
+
+    public bool IsHeld() { return isHeld; }
 }

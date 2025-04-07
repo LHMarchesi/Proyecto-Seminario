@@ -3,20 +3,22 @@ using UnityEngine.UI;
 
 public class SliderPassValue : MonoBehaviour
 {
-    [SerializeField] private Slider slider;
-    void Start()
+    private Slider slider;
+    void Awake()
     {
-        slider.enabled = false;
+        slider = GetComponent<Slider>();
+        Disable();
     }
 
     public void ChangeValue(float value)
     {
-        slider.enabled = true;
+        slider.gameObject.SetActive(true);
         slider.value = value;
     }
 
     public void Disable()
     {
-        slider.enabled = false;
+        slider.value = 0;
+        slider.gameObject.SetActive(false);
     }
 }
