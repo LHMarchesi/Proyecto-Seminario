@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Mjolnir : MonoBehaviour
@@ -10,7 +11,7 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private Transform hand;
 
     [Header("Settings")]
-    [SerializeField] private float minThrowPower;         // Fuerza mínima al lanzar
+    [SerializeField] private float minThrowPower;
     [SerializeField] private float maxThrowPower;
     [SerializeField] private float torqueForce;
     [SerializeField] private float retractPower;
@@ -77,6 +78,7 @@ public class Mjolnir : MonoBehaviour
 
     void Throw()
     {
+        StartCoroutine(WaitForCurrentAnimationEnd());
         animator.enabled = false;
         rb.isKinematic = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -94,13 +96,17 @@ public class Mjolnir : MonoBehaviour
 
     void Retract()
     {
-        if (Vector3.Distance(hand.position, transform.position) < 1)
+        if (Vector3.Distance(hand.position, transform.position) < 1) // If close enough
         {
             Catch();
         }
 
+        rb.isKinematic = false;
         Vector3 directionToHand = hand.position - transform.position;
-        rb.velocity = (directionToHand.normalized * retractPower);
+        rb.AddForce(directionToHand.normalized * retractPower, ForceMode.VelocityChange);
+
+        // Limit max Velocity
+        rb.velocity = Vector3.ClampMagnitude(rb.velocity, retractPower);
     }
 
     void Catch()
@@ -118,4 +124,18 @@ public class Mjolnir : MonoBehaviour
     }
 
     public bool IsHeld() { return isHeld; }
+
+    private IEnumerator WaitForCurrentAnimationEnd()
+    {
+        // Obtener el nombre del estado actual (o el índice si lo prefieres)
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        // Esperar mientras la animación esté en progreso
+        while (stateInfo.normalizedTime < 1f)  // NormalizedTime es un valor entre 0 y 1
+        {
+            // Actualizamos la información del estado
+            stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            yield return null; // Esperamos un frame
+        }
+    }
 }

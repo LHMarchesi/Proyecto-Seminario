@@ -8,12 +8,13 @@ public class PlayerStateMachine : MonoBehaviour
     // PLAYER STATES
     public IdleState idleState;
     public WalkState walkState;
+    public ThrowState throwState;
     public AttackState attackState;
     public SecondAttackState secondAttackState;
     public StartThrowingState startThrowingState;
     public CatchingState catchingState;
 
-   
+
     void Awake()
     {
         playerContext = GetComponent<PlayerContext>();
@@ -21,6 +22,7 @@ public class PlayerStateMachine : MonoBehaviour
         // Initialize states
         idleState = new IdleState(this, playerContext);
         walkState = new WalkState(this, playerContext);
+        throwState = new ThrowState(this, playerContext);
         attackState = new AttackState(this, playerContext);
         secondAttackState = new SecondAttackState(this, playerContext);
         startThrowingState = new StartThrowingState(this, playerContext);
@@ -43,14 +45,20 @@ public class PlayerStateMachine : MonoBehaviour
             currentState.Exit();
 
         currentState = newState;
+        UIManager.Instance.stateText.text = "PlayerState : " + newState.ToString();
         currentState.Enter();
     }
 
-    public void GoToIdleOrWalk()
+    public void ResetAnimations()
     {
-        if (playerContext.handleInputs.GetMoveVector2() != Vector2.zero)
+        if (playerContext.handleInputs.IsCatching() && !playerContext.mjolnir.IsHeld()) // Check for tryng Catch
+        {
+            ChangeState(catchingState);
+        }
+        else if (playerContext.handleInputs.GetMoveVector2() != Vector2.zero) // Check for player movement
+        {
             ChangeState(walkState);
-        else
+        }else
             ChangeState(idleState);
     }
 }

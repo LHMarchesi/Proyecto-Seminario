@@ -31,7 +31,7 @@ public class AttackState : PlayerState
             if (queuedNextAttack) // Jump to Second attack state
                 stateMachine.ChangeState(stateMachine.secondAttackState);
             else
-                stateMachine.GoToIdleOrWalk();
+                stateMachine.ResetAnimations();
         }
     }
 }

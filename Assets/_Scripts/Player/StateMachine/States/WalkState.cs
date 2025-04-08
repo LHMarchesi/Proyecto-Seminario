@@ -12,8 +12,7 @@ public class WalkState : PlayerState
 
     public override void Update()
     {
-        if (playerContext.handleInputs.GetMoveVector2() == Vector2.zero)
-            stateMachine.ChangeState(stateMachine.idleState);
+        stateMachine.ResetAnimations();
 
         if (playerContext.handleInputs.IsAttacking())
             stateMachine.ChangeState(stateMachine.attackState);
