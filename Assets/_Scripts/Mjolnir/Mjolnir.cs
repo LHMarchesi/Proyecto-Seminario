@@ -3,7 +3,7 @@ using UnityEngine;
 public class Mjolnir : MonoBehaviour
 {
     private Rigidbody rb;
-    private HandleInputs handleInputs;
+    private PlayerContext playerContext;
     private Animator animator;
 
     [Header("References")]
@@ -29,37 +29,39 @@ public class Mjolnir : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        handleInputs = GetComponentInParent<HandleInputs>();
+        playerContext = GetComponentInParent<PlayerContext>();
         Catch();
     }
 
     void Update()
     {
-        // Handle Throw//
-        bool isCurrentlyThrowing = handleInputs.IsThrowing();
+        // HADNLE THROW //
+        //
+        bool isCurrentlyThrowing = playerContext.handleInputs.IsThrowing();
         if (isHeld && isCurrentlyThrowing)
         {
             if (!isChargingThrow)
-                isChargingThrow = true;  // Comienza a cargar el lanzamiento
+                isChargingThrow = true;  // Start charging the throw
 
-            throwChargeTime += Time.deltaTime;  // Incrementa el tiempo de carga 
+            throwChargeTime += Time.deltaTime;  // Increment time charge
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
         }
-        else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing) // Lanzar el Mjolnir al soltar el botón
+        else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing) // Throw at button release
         {
             Throw();
-            throwChargeTime = 0f;  // Resetea el tiempo de carga
+            throwChargeTime = 0f;  // Reset throw
             isChargingThrow = false;
         }
-        wasThrowing = isCurrentlyThrowing; // Guarda el estado actual para la próxima iteración
+        wasThrowing = isCurrentlyThrowing; // Save state 
 
 
-        // Handle Catch //
-        if (!isHeld && handleInputs.IsCatching())
+        // HADNLE CATCH //
+        //
+        if (!isHeld && playerContext.handleInputs.IsCatching())
         {
             isRetracting = true;
         }
-        else if (!isHeld && !handleInputs.IsCatching())
+        else if (!isHeld && !playerContext.handleInputs.IsCatching())
         {
             isRetracting = false;
         }
@@ -79,12 +81,12 @@ public class Mjolnir : MonoBehaviour
         rb.isKinematic = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
-        Vector3 cameraForward = Camera.main.transform.forward; // Calcular la dirección del lanzamiento según la cámara
-        float finalThrowPower = Mathf.Lerp(minThrowPower, maxThrowPower, throwChargeTime);  // Calcular la fuerza del lanzamiento según el tiempo de carga
+        Vector3 cameraForward = Camera.main.transform.forward; // Calculate direction towards camera
+        float finalThrowPower = Mathf.Lerp(minThrowPower, maxThrowPower, throwChargeTime);  // Calculate the force acordding to the loading time
 
         transform.parent = null;
 
-        // Aplicar fuerza y torque para el lanzamiento
+        // Apply force and torque
         rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
         rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
         isHeld = false;

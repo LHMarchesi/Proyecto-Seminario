@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.InputSystem;
 using UnityEngine;
 
 public class HandleAttack : MonoBehaviour
 {
-    AudioSource audioSource;
-    HandleInputs handleInputs;
+    private AudioSource audioSource;
+    private PlayerContext playerContext;
 
     [Header("Attacking")]
     [SerializeField] private float attackDistance = 3f;
@@ -19,24 +16,24 @@ public class HandleAttack : MonoBehaviour
     [SerializeField] private AudioClip swordSwing;
     [SerializeField] private AudioClip hitSound;
 
-    [Header("Debug")]
-    [SerializeField] bool attacking = false;
-    [SerializeField] bool readyToAttack = true;
-    [SerializeField] int attackCount;
+
+    private bool attacking = false;
+    private bool readyToAttack = true;
+    private int attackCount;
 
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        handleInputs = GetComponent<HandleInputs>();
+        playerContext = GetComponent<PlayerContext>();
     }
 
     private void Update()
     {
-        if (handleInputs.IsAttacking())
+        if (playerContext.handleInputs.IsAttacking())
             Attack();
     }
 
-    public void Attack()
+    public void Attack() // Attack using forward RayCast
     {
         if (!readyToAttack || attacking) return;
 
@@ -46,7 +43,7 @@ public class HandleAttack : MonoBehaviour
         Invoke(nameof(ResetAttack), attackSpeed);
         Invoke(nameof(AttackRaycast), attackDelay);
 
-        audioSource.pitch = Random.Range(0.9f, 1.1f);
+        audioSource.pitch = Random.Range(0.9f, 1.1f);  // Play swing
         audioSource.PlayOneShot(swordSwing);
     }
 
@@ -56,7 +53,7 @@ public class HandleAttack : MonoBehaviour
         readyToAttack = true;
     }
 
-    void AttackRaycast()
+    void AttackRaycast() //  RayCast
     {
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, attackDistance, attackLayer))
         {
@@ -67,14 +64,9 @@ public class HandleAttack : MonoBehaviour
     void HitTarget(Vector3 pos)
     {
         audioSource.pitch = 1;
-        // audioSource.PlayOneShot(hitSound);
+        audioSource.PlayOneShot(hitSound);
 
-        GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity);
+        GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
         Destroy(GO, 10);
-    }
-
-    public bool isAttacking()
-    {
-        return attacking;
     }
 }

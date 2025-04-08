@@ -12,13 +12,13 @@ public class IdleState : PlayerState
 
     public override void Update()
     {
-        if (playerContext.Inputs.GetMoveVector2() != Vector2.zero)
-            stateMachine.ChangeState(stateMachine.walkState);
+        if (playerContext.handleInputs.GetMoveVector2() != Vector2.zero)
+            stateMachine.ChangeState(stateMachine.walkState); 
 
-        if (playerContext.Inputs.IsAttacking())
+        if (playerContext.handleInputs.IsAttacking())
             stateMachine.ChangeState(stateMachine.attackState);
 
-        if (playerContext.Inputs.IsThrowing())
+        if (playerContext.handleInputs.IsThrowing())
             stateMachine.ChangeState(stateMachine.startThrowingState);
     }
 }

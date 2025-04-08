@@ -2,9 +2,10 @@ using UnityEngine;
 
 public class PlayerStateMachine : MonoBehaviour
 {
-    [SerializeField] public PlayerState currentState;
+    public PlayerState currentState;
     private PlayerContext playerContext;
 
+    // PLAYER STATES
     public IdleState idleState;
     public WalkState walkState;
     public AttackState attackState;
@@ -17,6 +18,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         playerContext = GetComponent<PlayerContext>();
 
+        // Initialize states
         idleState = new IdleState(this, playerContext);
         walkState = new WalkState(this, playerContext);
         attackState = new AttackState(this, playerContext);
@@ -27,7 +29,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     void Start()
     {
-        ChangeState(idleState);
+        ChangeState(idleState); // Starting State
     }
 
     void Update()
@@ -46,7 +48,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void GoToIdleOrWalk()
     {
-        if (playerContext.Inputs.GetMoveVector2() != Vector2.zero)
+        if (playerContext.handleInputs.GetMoveVector2() != Vector2.zero)
             ChangeState(walkState);
         else
             ChangeState(idleState);

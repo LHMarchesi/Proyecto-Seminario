@@ -1,14 +1,14 @@
 using UnityEngine;
 
-public class PlayerContext : MonoBehaviour
+public class PlayerContext : MonoBehaviour // Save valuable data from the player
 {
-    public Mjolnir mjolnir;
-    public HandleInputs Inputs;
+    public HandleInputs handleInputs;
     public HandleAnimations handleAnimations;
+    public Mjolnir mjolnir;
 
     private void OnEnable()
     {
-        Inputs = GetComponent<HandleInputs>();
+        handleInputs = GetComponent<HandleInputs>();
         handleAnimations = GetComponent<HandleAnimations>();
         mjolnir = GetComponentInChildren<Mjolnir>();
     }

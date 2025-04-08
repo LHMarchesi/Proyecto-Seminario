@@ -20,15 +20,15 @@ public class AttackState : PlayerState
     {
         timer += Time.deltaTime;
 
-        // Permitir encadenar combo si presiona ataque nuevamente
-        if (playerContext.Inputs.IsAttacking() && timer > 0.3f && !queuedNextAttack)
+        // Allow combo if you press attack again
+        if (playerContext.handleInputs.IsAttacking() && timer > 0.3f && !queuedNextAttack)
         {
             queuedNextAttack = true;
         }
 
         if (timer >= attackDuration)
         {
-            if (queuedNextAttack)
+            if (queuedNextAttack) // Jump to Second attack state
                 stateMachine.ChangeState(stateMachine.secondAttackState);
             else
                 stateMachine.GoToIdleOrWalk();

@@ -20,23 +20,23 @@ public class StartThrowingState : PlayerState
     public override void Update()
     {
         // Cargando mientras el jugador mantiene el botón
-        if (playerContext.Inputs.IsThrowing()  && playerContext.mjolnir.IsHeld())
+        if (playerContext.handleInputs.IsThrowing()  && playerContext.mjolnir.IsHeld())
         {
             chargeTime += Time.deltaTime;
             chargeTime = Mathf.Clamp(chargeTime, 0f, maxChargeTime);
-            UIManager.Instance.powerSlider.ChangeValue(chargeTime / maxChargeTime); // Update slider from charge
+            UIManager.Instance.powerSlider.ChangeValue(chargeTime / maxChargeTime); // Update UI slider from charge
         }
         // Al soltar el botón, lanzar el martillo
         else
         {
-            UIManager.Instance.powerSlider.Disable(); // Disable slider
+            UIManager.Instance.powerSlider.Disable(); // Disable UI slider
             stateMachine.GoToIdleOrWalk();
         }
 
 
 
 
-        if (playerContext.Inputs.IsCatching())
+        if (playerContext.handleInputs.IsCatching())
             stateMachine.ChangeState(stateMachine.catchingState);
     }
 }

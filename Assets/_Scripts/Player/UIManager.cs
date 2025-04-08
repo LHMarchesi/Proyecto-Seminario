@@ -9,11 +9,11 @@ public class UIManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject); // Evita duplicados
+            Destroy(gameObject); // Singleton UI Manager
             return;
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject); // Opcional: mantener entre escenas
+        DontDestroyOnLoad(gameObject); 
     }
 }

@@ -22,7 +22,7 @@ public class SecondAttackState : PlayerState
 
         if (timer >= attackDuration)
         {
-            if (playerContext.Inputs.GetMoveVector2() != Vector2.zero)
+            if (playerContext.handleInputs.GetMoveVector2() != Vector2.zero)
                 stateMachine.ChangeState(stateMachine.walkState);
             else
                 stateMachine.ChangeState(stateMachine.idleState);

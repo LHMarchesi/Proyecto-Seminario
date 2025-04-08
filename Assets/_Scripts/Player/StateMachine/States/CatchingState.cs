@@ -12,7 +12,7 @@ public class CatchingState : PlayerState
 
     public override void Update()
     {
-        if (!playerContext.Inputs.IsCatching())
+        if (!playerContext.handleInputs.IsCatching())
         {
            stateMachine.GoToIdleOrWalk();
         }

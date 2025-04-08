@@ -1,24 +1,17 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private GameObject camHolder;
     [SerializeField] private float speed, maxForce, mouseSens, jumpForce;
     private float lookRotation;
-    Rigidbody rb;
-    HandleInputs handleInputs;
+    private Rigidbody rb;
+    private PlayerContext playerContext;
  
- 
-    public void OnJump(InputAction.CallbackContext context)
-    {
-        //   Jump();
-    }
-
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        handleInputs = GetComponent<HandleInputs>();
+        playerContext = GetComponent<PlayerContext>();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -39,7 +32,7 @@ public class PlayerController : MonoBehaviour
     private void LookWithMouse()
     {
         //Turn
-        Vector2 look = handleInputs.GetLookVector2();
+        Vector2 look = playerContext.handleInputs.GetLookVector2();
         transform.Rotate(Vector3.up * look.x * mouseSens);
 
         // Look
@@ -49,7 +42,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Move()
     {
-        Vector2 move = handleInputs.GetMoveVector2();
+        Vector2 move = playerContext.handleInputs.GetMoveVector2();
         // Find target velocity
         Vector3 currentVelocity = rb.velocity;
         Vector3 targetVelocity = new Vector3(move.x, 0, move.y);
