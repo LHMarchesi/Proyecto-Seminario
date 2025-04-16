@@ -29,7 +29,7 @@ public class HandleAttack : MonoBehaviour
 
     private void Update()
     {
-        if (playerContext.handleInputs.IsAttacking())
+        if (playerContext.HandleInputs.IsAttacking())
             Attack();
     }
 

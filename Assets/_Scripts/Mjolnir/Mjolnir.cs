@@ -6,6 +6,7 @@ public class Mjolnir : MonoBehaviour
     private Rigidbody rb;
     private PlayerContext playerContext;
     private Animator animator;
+    private Quaternion startRotation;
 
     [Header("References")]
     [SerializeField] private Transform hand;
@@ -31,6 +32,7 @@ public class Mjolnir : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         playerContext = GetComponentInParent<PlayerContext>();
+        startRotation = transform.rotation;
         Catch();
     }
 
@@ -38,7 +40,7 @@ public class Mjolnir : MonoBehaviour
     {
         // HADNLE THROW //
         //
-        bool isCurrentlyThrowing = playerContext.handleInputs.IsThrowing();
+        bool isCurrentlyThrowing = playerContext.HandleInputs.IsThrowing();
         if (isHeld && isCurrentlyThrowing)
         {
             if (!isChargingThrow)
@@ -58,11 +60,11 @@ public class Mjolnir : MonoBehaviour
 
         // HADNLE CATCH //
         //
-        if (!isHeld && playerContext.handleInputs.IsCatching())
+        if (!isHeld && playerContext.HandleInputs.IsCatching())
         {
             isRetracting = true;
         }
-        else if (!isHeld && !playerContext.handleInputs.IsCatching())
+        else if (!isHeld && !playerContext.HandleInputs.IsCatching())
         {
             isRetracting = false;
         }
@@ -79,7 +81,6 @@ public class Mjolnir : MonoBehaviour
     void Throw()
     {
         StartCoroutine(WaitForCurrentAnimationEnd());
-        animator.enabled = false;
         rb.isKinematic = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
@@ -96,31 +97,39 @@ public class Mjolnir : MonoBehaviour
 
     void Retract()
     {
-        if (Vector3.Distance(hand.position, transform.position) < 1) // If close enough
+        if (isHeld) return; // Avoid running if already held
+
+        // Ensure the rigidbody is not kinematic before applying physics
+        if (rb.isKinematic)
         {
-            Catch();
+            rb.isKinematic = false;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
-        rb.isKinematic = false;
+        if (Vector3.Distance(hand.position, transform.position) < 1f)
+        {
+            Catch();
+            return;
+        }
+
         Vector3 directionToHand = hand.position - transform.position;
         rb.AddForce(directionToHand.normalized * retractPower, ForceMode.VelocityChange);
 
         // Limit max Velocity
         rb.velocity = Vector3.ClampMagnitude(rb.velocity, retractPower);
     }
-
     void Catch()
     {
-        animator.enabled = true;
         isHeld = true;
         isRetracting = false;
 
         rb.velocity = Vector3.zero; // Reset rb values
+        rb.angularVelocity = Vector3.zero; 
         rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
 
         transform.parent = hand; // Assing to the hand
-        transform.position = hand.position;
+        transform.SetPositionAndRotation(hand.position, startRotation);
     }
 
     public bool IsHeld() { return isHeld; }

@@ -11,7 +11,7 @@ public class AttackState : PlayerState
 
     public override void Enter()
     {
-        playerContext.handleAnimations.ChangeAnimationState("Attack1");
+        playerContext.HandleAnimations.ChangeAnimationState("Attack1");
         queuedNextAttack = false;
         timer = 0f;
     }
@@ -21,7 +21,7 @@ public class AttackState : PlayerState
         timer += Time.deltaTime;
 
         // Allow combo if you press attack again
-        if (playerContext.handleInputs.IsAttacking() && timer > 0.3f && !queuedNextAttack)
+        if (playerContext.HandleInputs.IsAttacking() && timer > 0.3f && !queuedNextAttack)
         {
             queuedNextAttack = true;
         }

@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
     private void LookWithMouse()
     {
         //Turn
-        Vector2 look = playerContext.handleInputs.GetLookVector2();
+        Vector2 look = playerContext.HandleInputs.GetLookVector2();
         transform.Rotate(Vector3.up * look.x * mouseSens);
 
         // Look
@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Move()
     {
-        Vector2 move = playerContext.handleInputs.GetMoveVector2();
+        Vector2 move = playerContext.HandleInputs.GetMoveVector2();
         // Find target velocity
         Vector3 currentVelocity = rb.velocity;
         Vector3 targetVelocity = new Vector3(move.x, 0, move.y);

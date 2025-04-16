@@ -7,14 +7,14 @@ public class WalkState : PlayerState
 
     public override void Enter()
     {
-        playerContext.handleAnimations.ChangeAnimationState("Walking");
+        playerContext.HandleAnimations.ChangeAnimationState("Walking");
     }
 
     public override void Update()
     {
         stateMachine.ResetAnimations();
 
-        if (playerContext.handleInputs.IsAttacking())
+        if (playerContext.HandleInputs.IsAttacking())
             stateMachine.ChangeState(stateMachine.attackState);
     }
 }

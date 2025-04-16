@@ -51,11 +51,11 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void ResetAnimations()
     {
-        if (playerContext.handleInputs.IsCatching() && !playerContext.mjolnir.IsHeld()) // Check for tryng Catch
+        if (playerContext.HandleInputs.IsCatching() && !playerContext.Mjolnir.IsHeld()) // Check for tryng Catch
         {
             ChangeState(catchingState);
         }
-        else if (playerContext.handleInputs.GetMoveVector2() != Vector2.zero) // Check for player movement
+        else if (playerContext.HandleInputs.GetMoveVector2() != Vector2.zero) // Check for player movement
         {
             ChangeState(walkState);
         }else

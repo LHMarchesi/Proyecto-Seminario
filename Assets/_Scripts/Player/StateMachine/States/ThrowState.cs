@@ -6,14 +6,13 @@
 
     public override void Enter()
     {
-        playerContext.handleAnimations.ChangeAnimationState("Throw");
+        playerContext.HandleAnimations.ChangeAnimationState("Throw");
     }
 
     public override void Update()
     {
-        if (playerContext.handleInputs.IsCatching())
+        if (playerContext.HandleInputs.IsCatching())
             stateMachine.ChangeState(stateMachine.catchingState);
-        else
-            stateMachine.ResetAnimations();
+       
     }
 }

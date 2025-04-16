@@ -10,15 +10,15 @@ public class CatchingState : PlayerState
 
     public override void Enter()
     {
-        playerContext.handleAnimations.ChangeAnimationState("Catching");
+        playerContext.HandleAnimations.ChangeAnimationState("Catching");
         timer = 0f;
     }
 
     public override void Update()
     {
-        if (playerContext.mjolnir.IsHeld())
+        if (playerContext.Mjolnir.IsHeld())
         {
-            playerContext.handleAnimations.ChangeAnimationState("Catch");
+            playerContext.HandleAnimations.ChangeAnimationState("Catch");
 
             timer += Time.deltaTime;
             if (timer > delay)
