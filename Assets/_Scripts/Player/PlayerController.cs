@@ -32,7 +32,10 @@ public class PlayerController : MonoBehaviour
     {
         Move();
     }
-
+    private void Update()
+    {
+        Jump();
+    }
 
     private void LookWithMouse()
     {
@@ -58,24 +61,29 @@ public class PlayerController : MonoBehaviour
         Vector3 velocityChange = (targetVelocity - currentVelocity); // Calculate force & fix falling
         velocityChange = new Vector3(velocityChange.x, 0, velocityChange.z);
 
-        Vector3.ClampMagnitude(velocityChange, maxForce); // Limit Force
+        Vector3.ClampMagnitude(velocityChange, maxForce); // Limit Speed
 
         rb.AddForce(velocityChange, ForceMode.VelocityChange);
     }
     private void Jump()
     {
         Vector3 jumpForces = Vector3.zero;
-        if (IsGrounded())
+        if (IsGrounded() && playerContext.HandleInputs.IsJumping())
         {
             jumpForces = Vector3.up * jumpForce;
         }
 
-        rb.AddForce(jumpForces, ForceMode.VelocityChange);
+        rb.AddForce(jumpForces, ForceMode.Impulse);
     }
     private bool IsGrounded()
     {
-        bool hit = Physics.Raycast((transform.position - new Vector3(0, -1, 0)), Vector3.down, .7f, LayerMask.GetMask("Ground"));
-        Debug.DrawRay((transform.position - new Vector3(0, -1, 0)), Vector3.down, Color.blue, .7f);
+        Vector3 boxCenter = transform.position + Vector3.down * 1f;
+        Vector3 boxHalfExtents = new Vector3(0.3f, 0.1f, 0.3f); // ajustalo según el tamaño de tu personaje
+        bool hit = Physics.CheckBox(boxCenter, boxHalfExtents, Quaternion.identity, LayerMask.GetMask("Ground"));
+
+        Debug.DrawLine(boxCenter + Vector3.left * boxHalfExtents.x, boxCenter + Vector3.right * boxHalfExtents.x, Color.red, 0.1f);
+        Debug.DrawLine(boxCenter + Vector3.forward * boxHalfExtents.z, boxCenter + Vector3.back * boxHalfExtents.z, Color.red, 0.1f);
+
         return hit;
     }
 
