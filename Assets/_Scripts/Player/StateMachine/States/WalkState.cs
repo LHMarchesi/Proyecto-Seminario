@@ -8,6 +8,7 @@ public class WalkState : PlayerState
     public override void Enter()
     {
         playerContext.HandleAnimations.ChangeAnimationState("Walking");
+        playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.WalkingSpeed);
     }
 
     public override void Update()
@@ -16,5 +17,8 @@ public class WalkState : PlayerState
 
         if (playerContext.HandleInputs.IsAttacking())
             stateMachine.ChangeState(stateMachine.attackState);
+
+        if (playerContext.HandleInputs.IsRunning())
+            stateMachine.ChangeState(stateMachine.runningState);
     }
 }

@@ -21,3 +21,4 @@ public class IdleState : PlayerState
             stateMachine.ChangeState(stateMachine.startThrowingState);
     }
 }
+

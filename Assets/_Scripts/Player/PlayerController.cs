@@ -3,11 +3,16 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private GameObject camHolder;
-    [SerializeField] private float speed, maxForce, mouseSens, jumpForce;
+    [SerializeField] private float walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce;
     private float lookRotation;
     private Rigidbody rb;
     private PlayerContext playerContext;
- 
+
+    public float WalkingSpeed => walkingSpeed;
+    public float RunningSpeed => runningSpeed;
+
+    private float currentSpeed;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -46,7 +51,7 @@ public class PlayerController : MonoBehaviour
         // Find target velocity
         Vector3 currentVelocity = rb.velocity;
         Vector3 targetVelocity = new Vector3(move.x, 0, move.y);
-        targetVelocity *= speed;
+        targetVelocity *= currentSpeed;
 
         targetVelocity = transform.TransformDirection(targetVelocity); // Aling direction
 
@@ -72,6 +77,11 @@ public class PlayerController : MonoBehaviour
         bool hit = Physics.Raycast((transform.position - new Vector3(0, -1, 0)), Vector3.down, .7f, LayerMask.GetMask("Ground"));
         Debug.DrawRay((transform.position - new Vector3(0, -1, 0)), Vector3.down, Color.blue, .7f);
         return hit;
+    }
+
+    public void ChangeSpeed(float newSpeed)
+    {
+        currentSpeed = newSpeed;
     }
 }
 

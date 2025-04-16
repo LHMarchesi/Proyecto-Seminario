@@ -5,7 +5,6 @@ public class Mjolnir : MonoBehaviour
 {
     private Rigidbody rb;
     private PlayerContext playerContext;
-    private Animator animator;
     private Quaternion startRotation;
 
     [Header("References")]
@@ -30,7 +29,6 @@ public class Mjolnir : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        animator = GetComponent<Animator>();
         playerContext = GetComponentInParent<PlayerContext>();
         startRotation = transform.rotation;
         Catch();
@@ -80,7 +78,6 @@ public class Mjolnir : MonoBehaviour
 
     void Throw()
     {
-        StartCoroutine(WaitForCurrentAnimationEnd());
         rb.isKinematic = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
@@ -133,18 +130,4 @@ public class Mjolnir : MonoBehaviour
     }
 
     public bool IsHeld() { return isHeld; }
-
-    private IEnumerator WaitForCurrentAnimationEnd()
-    {
-        // Obtener el nombre del estado actual (o el índice si lo prefieres)
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-        // Esperar mientras la animación esté en progreso
-        while (stateInfo.normalizedTime < 1f)  // NormalizedTime es un valor entre 0 y 1
-        {
-            // Actualizamos la información del estado
-            stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            yield return null; // Esperamos un frame
-        }
-    }
 }
