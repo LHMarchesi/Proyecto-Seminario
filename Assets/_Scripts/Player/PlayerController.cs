@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
-    [SerializeField] private float walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce;
+    [SerializeField] private float currentHealth, walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce;
     private float lookRotation;
     private Rigidbody rb;
     private PlayerContext playerContext;
@@ -86,10 +86,24 @@ public class PlayerController : MonoBehaviour
 
         return hit;
     }
-
     public void ChangeSpeed(float newSpeed)
     {
         currentSpeed = newSpeed;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+        Debug.Log("player damaged");
+        UIManager.Instance.ShowDamageFlash();
+        if (currentHealth <= 0)
+            Die();
+    }
+
+    protected virtual void Die()
+    {
+        Debug.Log("Lose");
+        //GameManager.Instance.Lose();
     }
 }
 
