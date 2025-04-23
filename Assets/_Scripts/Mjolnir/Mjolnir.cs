@@ -1,11 +1,14 @@
 using System.Collections;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
+using UnityEngine.InputSystem.HID;
 
 public class Mjolnir : MonoBehaviour
 {
     private Rigidbody rb;
     private PlayerContext playerContext;
     private Quaternion startRotation;
+    private BoxCollider boxCollider;
 
     [Header("References")]
     [SerializeField] private Transform hand;
@@ -26,9 +29,10 @@ public class Mjolnir : MonoBehaviour
     private bool isChargingThrow = false;
     private bool wasThrowing = false;
 
-    void Start()
+    void OnEnable()
     {
         rb = GetComponent<Rigidbody>();
+        boxCollider = GetComponent<BoxCollider>();
         playerContext = GetComponentInParent<PlayerContext>();
         startRotation = transform.rotation;
         Catch();
@@ -127,6 +131,22 @@ public class Mjolnir : MonoBehaviour
 
         transform.parent = hand; // Assing to the hand
         transform.SetPositionAndRotation(hand.position, startRotation);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        IDamageable damageable = collision.collider.GetComponent<IDamageable>();
+
+        if (damageable != null)
+        {
+            boxCollider.isTrigger = true;
+            damageable?.TakeDamage(damage);
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        boxCollider.isTrigger = false;
     }
 
     public bool IsHeld() { return isHeld; }
