@@ -3,20 +3,24 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
-    [SerializeField] private float currentHealth, walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce;
-    private float lookRotation;
-    private Rigidbody rb;
+    [SerializeField] private float maxHealth, walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce;
+
+    public float WalkingSpeed { get => walkingSpeed; private set { } }
+    public float RunningSpeed { get => runningSpeed; private set { } }
+    public float CurrentHealth { get => currentHealth; private set { } }
+    public float MaxHealth { get => maxHealth; private set { } }
+
     private PlayerContext playerContext;
-
-    public float WalkingSpeed => walkingSpeed;
-    public float RunningSpeed => runningSpeed;
-
+    private Rigidbody rb;
+    private float currentHealth;
     private float currentSpeed;
+    private float lookRotation;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         playerContext = GetComponent<PlayerContext>();
+        currentHealth = maxHealth;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -94,8 +98,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
-        Debug.Log("player damaged");
-        UIManager.Instance.ShowDamageFlash();
+        UIManager.Instance.OnPlayerTakeDamage();
         if (currentHealth <= 0)
             Die();
     }

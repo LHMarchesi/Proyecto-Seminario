@@ -6,9 +6,16 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 { 
     public static UIManager Instance { get; private set; }
-    public SliderPassValue powerSlider;
-    public TextMeshProUGUI stateText;
-    public Image damagePanel;
+    public SliderPassValue PowerSlider { get => powerSlider; set => powerSlider = value; }
+    public SliderPassValue HealthSlider { get => healthSlider; set => healthSlider = value; }
+    public TextMeshProUGUI StateText { get => stateText; set => stateText = value; }
+
+    [SerializeField] private PlayerContext playerContext;
+    [SerializeField] private SliderPassValue powerSlider;
+    [SerializeField] private SliderPassValue healthSlider;
+    [SerializeField] private TextMeshProUGUI stateText;
+    [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private Image damagePanel;
 
     private void Awake()
     {
@@ -19,21 +26,23 @@ public class UIManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject); 
+        DontDestroyOnLoad(gameObject);
+
+        HealthSlider.ChangeValue(playerContext.PlayerController.MaxHealth);
     }
 
-    public void ShowDamageFlash()
+    private void ShowDamageFlash()
     {
-        StopAllCoroutines(); // Detenemos si había uno ya corriendo
+        StopAllCoroutines(); 
         StartCoroutine(DamageFlashCoroutine());
     }
 
     private IEnumerator DamageFlashCoroutine()
     {
-        damagePanel.gameObject.SetActive(true);
+        damagePanel.gameObject.SetActive(true); // Aparece con alfa fuerte
 
         Color color = damagePanel.color;
-        color.a = 0.6f; // Aparece con alfa fuerte
+        color.a = 0.6f;
         damagePanel.color = color;
 
         float duration = 0.5f;
@@ -46,7 +55,14 @@ public class UIManager : MonoBehaviour
             damagePanel.color = color;
             yield return null;
         }
+         
+        damagePanel.gameObject.SetActive(false); // Desaparece
+    }
 
-        damagePanel.gameObject.SetActive(false);
+    public void OnPlayerTakeDamage()
+    {
+        HealthSlider.ChangeValue(playerContext.PlayerController.CurrentHealth);
+        healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
+        ShowDamageFlash();
     }
 }

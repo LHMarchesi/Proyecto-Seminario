@@ -20,5 +20,8 @@ public class WalkState : PlayerState
 
         if (playerContext.HandleInputs.IsRunning())
             stateMachine.ChangeState(stateMachine.runningState);
+
+        if (playerContext.HandleInputs.IsThrowing())
+            stateMachine.ChangeState(stateMachine.startThrowingState);
     }
 }
