@@ -62,7 +62,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         transform.forward = direction;
     }
 
-    protected void MoveTowardsTarget()
+    protected virtual void MoveTowardsTarget()
     {
         if (target == null) return;
 
