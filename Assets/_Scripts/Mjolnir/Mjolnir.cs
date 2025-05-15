@@ -137,6 +137,9 @@ public class Mjolnir : MonoBehaviour
     {
         IDamageable damageable = collision.collider.GetComponent<IDamageable>();
 
+        if (damageable == playerContext.PlayerController.GetComponent<IDamageable>()) //Dont damage player
+            return;
+
         if (damageable != null)
         {
             boxCollider.isTrigger = true;
