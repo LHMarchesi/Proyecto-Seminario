@@ -105,6 +105,89 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1240877907077082303
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5368059974989172167}
+  - component: {fileID: 8362442967259842552}
+  - component: {fileID: 2792351247552142144}
+  m_Layer: 0
+  m_Name: Cube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5368059974989172167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240877907077082303}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.619, z: -0.2186}
+  m_LocalScale: {x: 0.0896, y: 0.0896, z: 0.47911173}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 162225506340358473}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &8362442967259842552
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240877907077082303}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &2792351247552142144
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240877907077082303}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: fa91d9da8bbefe24baf4f8e0092a77e3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1458227383599353469
 GameObject:
   m_ObjectHideFlags: 0
@@ -134,6 +217,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 5368059974989172167}
   - {fileID: 5799395784125692538}
   m_Father: {fileID: 1062747013407456577}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -157,6 +241,7 @@ GameObject:
   - component: {fileID: 4954803785488674306}
   - component: {fileID: 5178993475993913805}
   - component: {fileID: 1305882095604940057}
+  - component: {fileID: 6940841863655091258}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -252,10 +337,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camHolder: {fileID: 7102955668428886019}
-  speed: 4
-  maxForce: 4
+  walkingSpeed: 5
+  runningSpeed: 7
+  maxForce: 10
   mouseSens: 0.1
-  jumpForce: 0
+  jumpForce: 3
 --- !u!114 &8619436737391512889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,15 +357,13 @@ MonoBehaviour:
   attackDistance: 3
   attackDelay: 0.4
   attackSpeed: 1
+  attackDamage: 1
   attackLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 64
   hitEffect: {fileID: 5334228485563152753, guid: e82b4fe14777cb24487e0b11a675578a, type: 3}
   swordSwing: {fileID: 8300000, guid: d9b87ec5d8adfdf48bc283031dea0811, type: 3}
   hitSound: {fileID: 8300000, guid: 7b36e1318c766974893b59340aa13c46, type: 3}
-  attacking: 0
-  readyToAttack: 1
-  attackCount: 0
 --- !u!114 &140456891218448462
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -449,6 +533,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 1c7798ae-0bfd-4b1b-b704-1a109136203e
     m_ActionName: Player/CatchMjolnir[/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 221075756901104824}
+        m_TargetAssemblyTypeName: HandleInputs, Assembly-CSharp
+        m_MethodName: OnRunning
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 2c787c39-7c18-4073-ae53-70dfdddfeac6
+    m_ActionName: Player/Run[/Keyboard/shift]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 221075756901104824}
+        m_TargetAssemblyTypeName: HandleInputs, Assembly-CSharp
+        m_MethodName: OnJump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 434094e2-fefe-478f-a120-cbe0e1612da2
+    m_ActionName: Player/Jump[/Keyboard/space]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -574,9 +690,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35a460cf35a7d64f987521e6320cdab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mjolnir: {fileID: 0}
-  Inputs: {fileID: 0}
-  handleAnimations: {fileID: 0}
+--- !u!95 &6940841863655091258
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4279772628873052960}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9460756cd8a14bc40a1e26c02fd91d0d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &7102955668428886019
 GameObject:
   m_ObjectHideFlags: 0
@@ -816,7 +950,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5799395784125692538}
   - component: {fileID: 5387085913033484236}
-  - component: {fileID: 42097644149310359}
   - component: {fileID: 5280581773701204615}
   m_Layer: 0
   m_Name: Mjolnir
@@ -869,27 +1002,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!95 &42097644149310359
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9219341821283588911}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 622954c462b057646ae63b31df7a2e3d, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &5280581773701204615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -906,7 +1018,7 @@ MonoBehaviour:
   minThrowPower: 10
   maxThrowPower: 50
   torqueForce: 30
-  retractPower: 30
+  retractPower: 15
   damage: 10
   isHeld: 0
   isRetracting: 0

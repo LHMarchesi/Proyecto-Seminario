@@ -5,16 +5,24 @@ public class CatchingState : PlayerState
     {
     }
 
+    float timer = 0f;
+    float delay = .5f;
+
     public override void Enter()
     {
-        playerContext.handleAnimations.ChangeAnimationState("Catch");
+        playerContext.HandleAnimations.ChangeAnimationState("Catching");
+        timer = 0f;
     }
 
     public override void Update()
     {
-        if (!playerContext.handleInputs.IsCatching())
+        if (playerContext.Mjolnir.IsHeld())
         {
-           stateMachine.GoToIdleOrWalk();
+            playerContext.HandleAnimations.ChangeAnimationState("Catch");
+
+            timer += Time.deltaTime;
+            if (timer > delay)
+                stateMachine.ChangeState(stateMachine.idleState);
         }
     }
 }

@@ -12,7 +12,7 @@ public class SecondAttackState : PlayerState
 
     public override void Enter()
     {
-        playerContext.handleAnimations.ChangeAnimationState("Attack2");
+        playerContext.HandleAnimations.ChangeAnimationState("Attack2");
         timer = 0f;
     }
 
@@ -22,7 +22,7 @@ public class SecondAttackState : PlayerState
 
         if (timer >= attackDuration)
         {
-            if (playerContext.handleInputs.GetMoveVector2() != Vector2.zero)
+            if (playerContext.HandleInputs.GetMoveVector2() != Vector2.zero)
                 stateMachine.ChangeState(stateMachine.walkState);
             else
                 stateMachine.ChangeState(stateMachine.idleState);

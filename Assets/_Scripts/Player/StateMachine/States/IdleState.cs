@@ -7,18 +7,18 @@ public class IdleState : PlayerState
 
     public override void Enter()
     {
-        playerContext.handleAnimations.ChangeAnimationState("Idle");
+        playerContext.HandleAnimations.ChangeAnimationState("Idle");
     }
 
     public override void Update()
     {
-        if (playerContext.handleInputs.GetMoveVector2() != Vector2.zero)
-            stateMachine.ChangeState(stateMachine.walkState); 
+        stateMachine.ResetAnimations();
 
-        if (playerContext.handleInputs.IsAttacking())
+        if (playerContext.HandleInputs.IsAttacking())
             stateMachine.ChangeState(stateMachine.attackState);
 
-        if (playerContext.handleInputs.IsThrowing())
+        if (playerContext.HandleInputs.IsThrowing())
             stateMachine.ChangeState(stateMachine.startThrowingState);
     }
 }
+

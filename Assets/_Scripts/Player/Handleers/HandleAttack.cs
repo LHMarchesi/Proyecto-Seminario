@@ -6,10 +6,10 @@ public class HandleAttack : MonoBehaviour
     private PlayerContext playerContext;
 
     [Header("Attacking")]
-    [SerializeField] private float attackDistance = 3f;
-    [SerializeField] private float attackDelay = 0.4f;
-    [SerializeField] private float attackSpeed = 1f;
-    //  [SerializeField] private int attackDamage = 1;
+    [SerializeField] private float attackDistance;
+    [SerializeField] private float attackDelay;
+    [SerializeField] private float attackSpeed;
+    [SerializeField] private int attackDamage;
     [SerializeField] private LayerMask attackLayer;
 
     [SerializeField] private GameObject hitEffect;
@@ -29,7 +29,7 @@ public class HandleAttack : MonoBehaviour
 
     private void Update()
     {
-        if (playerContext.handleInputs.IsAttacking())
+        if (playerContext.HandleInputs.IsAttacking())
             Attack();
     }
 
@@ -58,6 +58,11 @@ public class HandleAttack : MonoBehaviour
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, attackDistance, attackLayer))
         {
             HitTarget(hit.point);
+            IDamageable damagable = hit.collider.gameObject.GetComponent<IDamageable>();  //Interfaz IDamageable
+            if (damagable != null)
+            {
+                damagable.TakeDamage(attackDamage); // Llamamos al método
+            }
         }
     }
 
