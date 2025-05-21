@@ -1,7 +1,4 @@
-using System.Collections;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
 
 public class Mjolnir : MonoBehaviour
 {
@@ -20,9 +17,8 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float retractPower;
     [SerializeField] private float damage;
 
-    [Header("Debug")]
-    [SerializeField] private bool isHeld;
-    [SerializeField] private bool isRetracting;
+    private bool isHeld;
+    private bool isRetracting;
 
     private float throwChargeTime = 0f;
     private float maxChargeTime = 1.5f;
@@ -34,7 +30,7 @@ public class Mjolnir : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         boxCollider = GetComponent<BoxCollider>();
         playerContext = GetComponentInParent<PlayerContext>();
-        startRotation = transform.rotation;
+        startRotation = transform.localRotation;
         Catch();
     }
 
@@ -107,7 +103,7 @@ public class Mjolnir : MonoBehaviour
             rb.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
-        if (Vector3.Distance(hand.position, transform.position) < 1f)
+        if (Vector3.Distance(hand.position, transform.position) < 2f)
         {
             Catch();
             return;
@@ -123,14 +119,13 @@ public class Mjolnir : MonoBehaviour
     {
         isHeld = true;
         isRetracting = false;
-
-        rb.velocity = Vector3.zero; // Reset rb values
-        rb.angularVelocity = Vector3.zero; 
+        
         rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
 
         transform.parent = hand; // Assing to the hand
-        transform.SetPositionAndRotation(hand.position, startRotation);
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = startRotation;
     }
 
     private void OnCollisionEnter(Collision collision)
