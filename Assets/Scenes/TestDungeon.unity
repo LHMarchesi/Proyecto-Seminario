@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -123,6 +123,78 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &577921424
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 577921426}
+  - component: {fileID: 577921425}
+  m_Layer: 0
+  m_Name: Generator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &577921425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577921424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff83e81d1856a5458e4a7045629ced6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  size: {x: 10, y: 5}
+  startPos: 0
+  rooms:
+  - room: {fileID: 8298390429947610297, guid: b3150e35c918b214496dd1230be32c1e, type: 3}
+    minPosition: {x: 0, y: 0}
+    maxPosition: {x: 0, y: 0}
+    obligatory: 1
+  - room: {fileID: 8298390429947610297, guid: 376858697291ba94791621090388b824, type: 3}
+    minPosition: {x: 0, y: 0}
+    maxPosition: {x: 10, y: 5}
+    obligatory: 0
+  - room: {fileID: 8298390429947610297, guid: fa18f62bea3329b46ac38ddd5437413d, type: 3}
+    minPosition: {x: 0, y: 0}
+    maxPosition: {x: 10, y: 5}
+    obligatory: 0
+  - room: {fileID: 8298390429947610297, guid: ca42feb2d752e2d489a6a0455acf0ad2, type: 3}
+    minPosition: {x: 0, y: 0}
+    maxPosition: {x: 10, y: 5}
+    obligatory: 0
+  - room: {fileID: 8298390429947610297, guid: 8a04533145e48f0418176ce8fafd925b, type: 3}
+    minPosition: {x: 0, y: 0}
+    maxPosition: {x: 10, y: 5}
+    obligatory: 0
+  - room: {fileID: 8298390429947610297, guid: ca6d22a4f62c63d4d8287b8edc691df6, type: 3}
+    minPosition: {x: 9, y: 4}
+    maxPosition: {x: 10, y: 5}
+    obligatory: 1
+  offset: {x: 32, y: 32}
+--- !u!4 &577921426
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577921424}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1450503650
 GameObject:
   m_ObjectHideFlags: 0
@@ -315,3 +387,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1450503653}
   - {fileID: 1723404377}
+  - {fileID: 577921426}
