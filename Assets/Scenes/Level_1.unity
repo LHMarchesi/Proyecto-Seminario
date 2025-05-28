@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4116,9 +4117,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1536921359047625878, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: maxForce
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 4279772628873052960, guid: a7630a00b79f3294393851b790b546c0, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8619436737391512889, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: attackSpeed
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

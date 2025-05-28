@@ -9,7 +9,7 @@ public class HandleAttack : MonoBehaviour
     [SerializeField] private float attackDistance;
     [SerializeField] private float attackDelay;
     [SerializeField] private float attackSpeed;
-    [SerializeField] private int attackDamage;
+    [SerializeField] public int attackDamage;
     [SerializeField] private LayerMask attackLayer;
 
     [SerializeField] private GameObject hitEffect;
