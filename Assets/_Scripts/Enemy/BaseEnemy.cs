@@ -43,7 +43,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     {
         transform.position = spawnPosition;
         currentHealth = stats.maxHealth;
-        //gameObject.SetActive(false); // Para pooling
+        gameObject.SetActive(false); // Para pooling
     }
 
     protected virtual void Spawn()
