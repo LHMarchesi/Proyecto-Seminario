@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class Mjolnir : MonoBehaviour
@@ -6,6 +5,7 @@ public class Mjolnir : MonoBehaviour
     private Rigidbody rb;
     private PlayerContext playerContext;
     private Quaternion startRotation;
+    private BoxCollider boxCollider;
 
     [Header("References")]
     [SerializeField] private Transform hand;
@@ -17,20 +17,20 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float retractPower;
     [SerializeField] private float damage;
 
-    [Header("Debug")]
-    [SerializeField] private bool isHeld;
-    [SerializeField] private bool isRetracting;
+    private bool isHeld;
+    private bool isRetracting;
 
     private float throwChargeTime = 0f;
     private float maxChargeTime = 1.5f;
     private bool isChargingThrow = false;
     private bool wasThrowing = false;
 
-    void Start()
+    void OnEnable()
     {
         rb = GetComponent<Rigidbody>();
+        boxCollider = GetComponent<BoxCollider>();
         playerContext = GetComponentInParent<PlayerContext>();
-        startRotation = transform.rotation;
+        startRotation = transform.localRotation;
         Catch();
     }
 
@@ -103,7 +103,7 @@ public class Mjolnir : MonoBehaviour
             rb.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
-        if (Vector3.Distance(hand.position, transform.position) < 1f)
+        if (Vector3.Distance(hand.position, transform.position) < 2f)
         {
             Catch();
             return;
@@ -119,14 +119,32 @@ public class Mjolnir : MonoBehaviour
     {
         isHeld = true;
         isRetracting = false;
-
-        rb.velocity = Vector3.zero; // Reset rb values
-        rb.angularVelocity = Vector3.zero; 
+        
         rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
 
         transform.parent = hand; // Assing to the hand
-        transform.SetPositionAndRotation(hand.position, startRotation);
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = startRotation;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        IDamageable damageable = collision.collider.GetComponent<IDamageable>();
+
+        if (damageable == playerContext.PlayerController.GetComponent<IDamageable>()) //Dont damage player
+            return;
+
+        if (damageable != null)
+        {
+            boxCollider.isTrigger = true;
+            damageable?.TakeDamage(damage);
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        boxCollider.isTrigger = false;
     }
 
     public bool IsHeld() { return isHeld; }

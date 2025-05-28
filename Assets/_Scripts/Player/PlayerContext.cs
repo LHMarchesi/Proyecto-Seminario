@@ -15,7 +15,7 @@ public class PlayerContext : MonoBehaviour // Save valuable data from the player
     private void OnEnable()
     {
         HandleInputs = GetComponent<HandleInputs>();
-        HandleAnimations = GetComponent<HandleAnimations>();
+        HandleAnimations = GetComponentInChildren<HandleAnimations>();
         playerController = GetComponent<PlayerController>();
         Mjolnir = GetComponentInChildren<Mjolnir>();
     }

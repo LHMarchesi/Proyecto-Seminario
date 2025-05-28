@@ -23,14 +23,14 @@ public class StartThrowingState : PlayerState
         {
             chargeTime += Time.deltaTime;
             chargeTime = Mathf.Clamp(chargeTime, 0f, maxChargeTime);
-            UIManager.Instance.powerSlider.ChangeValue(chargeTime / maxChargeTime); // Update UI slider from charge
+            UIManager.Instance.PowerSlider.ChangeValue(chargeTime / maxChargeTime); // Update UI slider from charge
         }
         // Al soltar el botón, lanzar el martillo
         else
         {
            
             stateMachine.ChangeState(stateMachine.throwState);
-            UIManager.Instance.powerSlider.Disable(); // Disable UI 
+            UIManager.Instance.PowerSlider.Disable(); // Disable UI 
         }
     }
   

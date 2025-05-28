@@ -19,6 +19,9 @@ public class IdleState : PlayerState
 
         if (playerContext.HandleInputs.IsThrowing())
             stateMachine.ChangeState(stateMachine.startThrowingState);
+
+        if (playerContext.HandleInputs.IsDashing() && playerContext.PlayerController.CanDash())
+            stateMachine.ChangeState(stateMachine.dashState);
     }
 }
 
