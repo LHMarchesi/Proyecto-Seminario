@@ -5,7 +5,6 @@ public class Mjolnir : MonoBehaviour
     private Rigidbody rb;
     private PlayerContext playerContext;
     private Quaternion startRotation;
-    private BoxCollider boxCollider;
 
     [Header("References")]
     [SerializeField] private Transform hand;
@@ -14,7 +13,7 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float minThrowPower;
     [SerializeField] private float maxThrowPower;
     [SerializeField] private float torqueForce;
-    [SerializeField] private float retractPower;
+    [SerializeField] private float maxRetractPower;
     [SerializeField] private float damage;
 
     private bool isHeld;
@@ -28,8 +27,8 @@ public class Mjolnir : MonoBehaviour
     void OnEnable()
     {
         rb = GetComponent<Rigidbody>();
-        boxCollider = GetComponent<BoxCollider>();
         playerContext = GetComponentInParent<PlayerContext>();
+
         startRotation = transform.localRotation;
         Catch();
     }
@@ -64,6 +63,8 @@ public class Mjolnir : MonoBehaviour
         }
         else if (!isHeld && !playerContext.HandleInputs.IsCatching())
         {
+            rb.isKinematic = false;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
             isRetracting = false;
         }
     }
@@ -71,15 +72,14 @@ public class Mjolnir : MonoBehaviour
     private void FixedUpdate()
     {
         if (isRetracting)
-        {
             Retract();
-        }
     }
 
     void Throw()
     {
         rb.isKinematic = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
+        isHeld = false;
 
         Vector3 cameraForward = Camera.main.transform.forward; // Calculate direction towards camera
         float finalThrowPower = Mathf.Lerp(minThrowPower, maxThrowPower, throwChargeTime);  // Calculate the force acordding to the loading time
@@ -89,39 +89,31 @@ public class Mjolnir : MonoBehaviour
         // Apply force and torque
         rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
         rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
-        isHeld = false;
     }
 
     void Retract()
     {
         if (isHeld) return; // Avoid running if already held
 
-        // Ensure the rigidbody is not kinematic before applying physics
-        if (rb.isKinematic)
-        {
-            rb.isKinematic = false;
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
-        }
+        Vector3 directionToHand = hand.position - transform.position;
+        Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
-        if (Vector3.Distance(hand.position, transform.position) < 2f)
+        rb.isKinematic = true; // Detenemos la física
+        transform.position = Vector3.MoveTowards(transform.position, hand.position, maxRetractPower * Time.deltaTime);
+
+        if (Vector3.Distance(hand.position, transform.position) < .5f)
         {
             Catch();
-            return;
         }
-
-        Vector3 directionToHand = hand.position - transform.position;
-        rb.AddForce(directionToHand.normalized * retractPower, ForceMode.VelocityChange);
-
-        // Limit max Velocity
-        rb.velocity = Vector3.ClampMagnitude(rb.velocity, retractPower);
     }
+
     void Catch()
     {
-        isHeld = true;
-        isRetracting = false;
-        
         rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
+        isHeld = true;
+        isRetracting = false;
 
         transform.parent = hand; // Assing to the hand
         transform.localPosition = Vector3.zero;
@@ -130,6 +122,8 @@ public class Mjolnir : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (isHeld) return;
+
         IDamageable damageable = collision.collider.GetComponent<IDamageable>();
 
         if (damageable == playerContext.PlayerController.GetComponent<IDamageable>()) //Dont damage player
@@ -137,15 +131,10 @@ public class Mjolnir : MonoBehaviour
 
         if (damageable != null)
         {
-            boxCollider.isTrigger = true;
             damageable?.TakeDamage(damage);
         }
     }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        boxCollider.isTrigger = false;
-    }
 
     public bool IsHeld() { return isHeld; }
 }

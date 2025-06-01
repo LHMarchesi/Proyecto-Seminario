@@ -111,8 +111,8 @@ Transform:
   m_GameObject: {fileID: 2680918964557395247}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.29, y: 0, z: 0.41}
-  m_LocalScale: {x: 0.38409624, y: 0.38409624, z: 1.0563798}
+  m_LocalPosition: {x: 0.4, y: 0.41, z: 0.41}
+  m_LocalScale: {x: 0.38409624, y: 0.38409624, z: 1.2291309}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7584834659849636189}
@@ -145,7 +145,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 22391291fc23e14439be3767bd5b9a93, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -256,7 +256,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: cfb4651a65bafee48ab16ce7e83e0018, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -316,7 +316,7 @@ MonoBehaviour:
   stats: {fileID: 11400000, guid: 230ceb26813eec042bbb0285263b5249, type: 2}
   projectilePrefab: {fileID: 3521136703259344462, guid: a9bddeb62a7811e49936db5b19dd0a84, type: 3}
   firePoint: {fileID: 1171324123391565948}
-  projectileSpeed: 15
+  projectileSpeed: 7
 --- !u!114 &8813208972098258607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -373,7 +373,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0

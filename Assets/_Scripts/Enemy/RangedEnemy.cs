@@ -7,7 +7,6 @@ public class RangedEnemy : BaseEnemy
         Idle,
         Chasing,
         Attacking,
-        Damaged
     }
 
     [Header("Ranged Settings")]
@@ -44,6 +43,7 @@ public class RangedEnemy : BaseEnemy
         switch (currentState)
         {
             case RangedEnemyState.Idle:
+                rb.angularVelocity = Vector3.zero;
                 handleAnimations.ChangeAnimationState("Idle_RangedEnemy");
                 if (distance < stats.detectionRange)
                     currentState = RangedEnemyState.Chasing;
@@ -60,7 +60,8 @@ public class RangedEnemy : BaseEnemy
                 }
                 else
                 {
-                    ChaseTarget();
+                    FaceTarget();
+                    MoveTowardsTarget();
                 }
                 break;
 
@@ -75,19 +76,15 @@ public class RangedEnemy : BaseEnemy
                     Attack();
                 }
                 break;
-
-            case RangedEnemyState.Damaged:
-                // Remain in damaged until animation/event exits
-                break;
         }
     }
 
     protected override void OnDamage(float damage)
     {
-        handleAnimations.ChangeAnimationState("TakeDamage_RangedEnemy");
+        Invoke(nameof(EndDamageState), 0.1f);
         base.OnDamage(damage);
-        currentState = RangedEnemyState.Damaged;
-        Invoke(nameof(EndDamageState), 0.3f);
+        handleAnimations.ChangeAnimationState("TakeDamage_RangedEnemy");
+        GetKnockback(stats.knockbackAmmount);
     }
 
     private void EndDamageState()
@@ -95,30 +92,33 @@ public class RangedEnemy : BaseEnemy
         currentState = RangedEnemyState.Chasing;
     }
 
-    private void ChaseTarget()
+    protected override void Die()
     {
-        handleAnimations.ChangeAnimationState("Chasing_RangedEnemy");
-        MoveTowardsTarget();
-        FaceTarget();
+        base.Die();
+        handleAnimations.ChangeAnimationState("Die_RangedEnemy");
+        Invoke(nameof(Spawn), 2f); // Respawn after 2 seconds
     }
 
-    private void Attack()
+
+    protected override void MoveTowardsTarget()
     {
-        // Only shoot when cooldown elapsed
-        if (attackCooldown > 0f) return;
+        base.MoveTowardsTarget();
+        handleAnimations.ChangeAnimationState("Chasing_RangedEnemy");
+    }
 
-        // Trigger shoot animation
+    protected override void Attack()
+    {
+         if (attackCooldown > 0f) return;
+
         handleAnimations.ChangeAnimationState("Shoot_RangedEnemy");
-
         ShootProjectile();
-        // Reset cooldown based on attackSpeed (shots per second)
-        attackCooldown = 1f / stats.attackSpeed;
+        attackCooldown = 1f / stats.attackSpeed; 
     }
 
     private void ShootProjectile()
     {
-        // Instantiate and launch
         Projectile proj = projectilePool.Get();
+        proj.transform.SetParent(null);
         proj.Initialize(firePoint.forward * projectileSpeed, stats.attackDamage, projectilePool);
         proj.transform.position = firePoint.position;
         proj.transform.rotation = firePoint.rotation;
