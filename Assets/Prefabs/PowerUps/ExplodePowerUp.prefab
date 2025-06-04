@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2634156678045871731
+--- !u!1 &3024337285511993676
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,47 +8,48 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7884264994316171268}
-  - component: {fileID: 731472175538128656}
-  - component: {fileID: 5409398253153524083}
-  - component: {fileID: 3529749699638382958}
+  - component: {fileID: 8930776318300106300}
+  - component: {fileID: 7638080149222190631}
+  - component: {fileID: 1458167507936080234}
+  - component: {fileID: 8874845782405167267}
+  - component: {fileID: 3455677785749040278}
   m_Layer: 0
-  m_Name: Lightning
+  m_Name: ExplodePowerUp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7884264994316171268
+--- !u!4 &8930776318300106300
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2634156678045871731}
+  m_GameObject: {fileID: 3024337285511993676}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.84, y: 9.616466, z: -14.357}
-  m_LocalScale: {x: 0.09990411, y: 6.729976, z: 0.09990411}
+  m_LocalRotation: {x: 0.005657649, y: -0.99977803, z: -0.0013142427, w: -0.020256236}
+  m_LocalPosition: {x: -20.594208, y: 2.02, z: 13.993822}
+  m_LocalScale: {x: 0.50289, y: 1, z: 0.47493}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &731472175538128656
+  m_LocalEulerAnglesHint: {x: -0.164, y: -182.32, z: -0.645}
+--- !u!33 &7638080149222190631
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2634156678045871731}
+  m_GameObject: {fileID: 3024337285511993676}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &5409398253153524083
+--- !u!23 &1458167507936080234
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2634156678045871731}
+  m_GameObject: {fileID: 3024337285511993676}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -62,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bd0c7c62118d93841b38a2a9b87d7317, type: 2}
+  - {fileID: 2100000, guid: b70effc151895c347a2c65c1d131e03d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,13 +85,13 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &3529749699638382958
+--- !u!65 &8874845782405167267
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2634156678045871731}
+  m_GameObject: {fileID: 3024337285511993676}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -99,9 +100,29 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3455677785749040278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3024337285511993676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d8fa016a48fcdc4ba6e920568188f14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EffectPrefab: {fileID: 0}
+  explosionRange: 25
+  explosionForce: 10
+  explosionDamage: 30
+  cooldown: 5
+  EnemyLayer:
+    serializedVersion: 2
+    m_Bits: 64

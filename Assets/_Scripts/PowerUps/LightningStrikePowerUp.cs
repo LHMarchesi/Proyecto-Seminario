@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
 public class LightningStrikePowerUp : BasePowerUp
 {
     [SerializeField] private GameObject lightningEffectPrefab; // Prefab (Efecto)
     [SerializeField] private float cooldown;
+    [SerializeField] private float verticalOffset;
 
     private float lastStrikeTime = -Mathf.Infinity;
     protected override void ApplyEffect()
@@ -20,8 +22,8 @@ public class LightningStrikePowerUp : BasePowerUp
 
         if (enemyCollider == null) return;
 
-        Vector3 effectPosition = enemyCollider.bounds.center + Vector3.up * 7f; // Lo posiciona en el centro
-        Quaternion effectRotation = Quaternion.identity; 
+        Vector3 effectPosition = enemyCollider.bounds.center + Vector3.up * verticalOffset; // Lo posiciona en el centro
+        Quaternion effectRotation = Quaternion.identity;
 
         Instantiate(lightningEffectPrefab, effectPosition, effectRotation); // Lo instancia
         Debug.Log(enemyCollider.name);

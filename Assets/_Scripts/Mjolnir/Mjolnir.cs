@@ -16,8 +16,11 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float torqueForce;
     [SerializeField] private float maxRetractPower;
     [SerializeField] private float damage;
+    [SerializeField] private float homingStrength;
+    [SerializeField] private float homingDuration = 1f;
 
     public Action<Collider> OnHitEnemy;
+    public Action OnMjolnirThrow;
 
     private bool isHeld;
     private bool isRetracting;
@@ -75,11 +78,14 @@ public class Mjolnir : MonoBehaviour
     private void FixedUpdate()
     {
         if (isRetracting)
+        {
             Retract();
+        }
     }
-
+    
     void Throw()
     {
+        OnMjolnirThrow?.Invoke();
         rb.isKinematic = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         isHeld = false;
@@ -94,7 +100,13 @@ public class Mjolnir : MonoBehaviour
         rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
     }
 
-    void Retract()
+    public void ForceRetract(float force)
+    {
+        maxRetractPower = force;
+        isRetracting = true;
+    }
+
+    private void Retract()
     {
         if (isHeld) return; // Avoid running if already held
 
