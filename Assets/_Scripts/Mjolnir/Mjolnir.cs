@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Mjolnir : MonoBehaviour
@@ -15,6 +16,8 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float torqueForce;
     [SerializeField] private float maxRetractPower;
     [SerializeField] private float damage;
+
+    public Action<Collider> OnHitEnemy;
 
     private bool isHeld;
     private bool isRetracting;
@@ -132,6 +135,7 @@ public class Mjolnir : MonoBehaviour
         if (damageable != null)
         {
             damageable?.TakeDamage(damage);
+            OnHitEnemy?.Invoke(collision.collider);
         }
     }
 

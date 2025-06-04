@@ -4,7 +4,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
     [SerializeField] private float maxHealth, walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce;
-    [SerializeField] private float dashCooldown = 1f;  
+    [SerializeField] private float dashCooldown = 1f;
     public float WalkingSpeed { get => walkingSpeed; private set { } }
     public float RunningSpeed { get => runningSpeed; private set { } }
     public float CurrentHealth { get => currentHealth; private set { } }
@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     private Vector3 dashDirection;
     private float dashSpeed;
 
-    private float lastDashTime = -Mathf.Infinity; 
+    private float lastDashTime = -Mathf.Infinity;
     public float DashCooldown => dashCooldown;
 
     void Awake()
@@ -130,6 +130,12 @@ public class PlayerController : MonoBehaviour, IDamageable
         UIManager.Instance.OnPlayerTakeDamage();
         if (currentHealth <= 0)
             Die();
+    }
+
+    public void AddHealth(float health)
+    {
+        currentHealth += health;
+        maxHealth += health;
     }
 
     protected virtual void Die()
