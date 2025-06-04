@@ -8,7 +8,7 @@ public class Mjolnir : MonoBehaviour
     private Rigidbody rb;
     private PlayerContext playerContext;
     private Quaternion startRotation;
-    private BoxCollider boxCollider;
+    public BoxCollider boxCollider;
 
     [Header("References")]
     [SerializeField] private Transform hand;
@@ -29,6 +29,19 @@ public class Mjolnir : MonoBehaviour
     private bool isChargingThrow = false;
     private bool wasThrowing = false;
 
+    [Header("TestHoming")]
+    [SerializeField] private GameObject target;
+    [SerializeField] private float distance;
+    [SerializeField] private float rotationForce;
+    [SerializeField] private bool homingOn;
+    [Header("TestSplit")]
+    [SerializeField]private bool explodeOn;
+    [SerializeField] private int explosionDamage;
+    [SerializeField] private float explosionRange;
+    [SerializeField] private float explosionForce;
+    public GameObject explosion;
+    public LayerMask whatIsEnemies;
+
     void OnEnable()
     {
         rb = GetComponent<Rigidbody>();
@@ -36,6 +49,28 @@ public class Mjolnir : MonoBehaviour
         playerContext = GetComponentInParent<PlayerContext>();
         startRotation = transform.rotation;
         Catch();
+    }
+
+    public GameObject FindClosestByTag(string Enemy)
+    {
+        GameObject[] gos;
+        gos = GameObject.FindGameObjectsWithTag(Enemy);
+        GameObject closest = null;
+        float distance = Mathf.Infinity;
+        Vector3 position = transform.position;
+        foreach (GameObject go in gos)
+        {
+            Vector3 diff = go.transform.position - position;
+            float curDistance = diff.sqrMagnitude;
+            if (curDistance < distance)
+            {
+                closest = go;
+                distance = curDistance;
+
+            }
+        }
+        Debug.Log(closest.name);
+        return closest;
     }
 
     void Update()
@@ -91,9 +126,37 @@ public class Mjolnir : MonoBehaviour
         transform.parent = null;
 
         // Apply force and torque
-        rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
-        rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
-        isHeld = false;
+        if(homingOn == false)
+        {
+            rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
+            rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
+            isHeld = false;
+        }
+        if (homingOn == true)
+        {
+            //rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
+            //rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
+            target = FindClosestByTag("Enemy");
+            distance = Vector3.Distance(transform.position, target.GetComponent<Transform>().position);
+            if (distance < 10)
+            {
+                Vector3 direction = target.GetComponent<Transform>().position - rb.position;
+                direction.Normalize();
+                Vector3 rotationAmount = Vector3.Cross(transform.forward, direction);
+                rb.angularVelocity = rotationAmount * rotationForce;
+                rb.velocity = transform.forward * finalThrowPower;
+            }
+
+            isHeld = false;
+        }
+
+    }
+
+    public static GameObject MakeMjolnirCopy(GameObject original)
+    {
+        Mjolnir newMjolnir = Instantiate(original).GetComponent<Mjolnir>();
+        newMjolnir.isHeld = false;
+        return newMjolnir.gameObject;
     }
 
     void Retract()
@@ -139,12 +202,37 @@ public class Mjolnir : MonoBehaviour
 
         if (damageable == playerContext.PlayerController.GetComponent<IDamageable>()) //Dont damage player
             return;
-
+        Debug.Log("Choque con" + collision.collider.name);
         if (damageable != null)
         {
-            boxCollider.isTrigger = true;
-            damageable?.TakeDamage(damage);
+            if(explodeOn == false)
+            {
+                boxCollider.isTrigger = true;
+                damageable?.TakeDamage(damage);
+            }
+            if (explodeOn == true)
+            {
+                Debug.Log("HAGO PUN");
+                boxCollider.isTrigger = true;
+                //if (explosion != null) Instantiate(explosion, transform.position, Quaternion.identity);
+                Collider[] enemies = Physics.OverlapSphere(transform.position, explosionRange, whatIsEnemies);
+                for (int i = 0; i < enemies.Length; i++)
+                {
+                    enemies[i].GetComponent<IDamageable>().TakeDamage(explosionDamage);
+                    if (enemies[i].GetComponent<Rigidbody>())
+                    {
+                        GetComponent<Rigidbody>().AddExplosionForce(explosionForce, transform.position, explosionRange);
+                    }
+                }
+            }
+
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, explosionRange);
     }
 
     private void OnCollisionExit(Collision collision)
