@@ -20,7 +20,7 @@ public class LightningStrikePowerUp : BasePowerUp
 
         if (enemyCollider == null) return;
 
-        Vector3 effectPosition = enemyCollider.bounds.center + Vector3.up * 0.5f; // Lo posiciona en el centro
+        Vector3 effectPosition = enemyCollider.bounds.center + Vector3.up * 7f; // Lo posiciona en el centro
         Quaternion effectRotation = Quaternion.identity; 
 
         Instantiate(lightningEffectPrefab, effectPosition, effectRotation); // Lo instancia
