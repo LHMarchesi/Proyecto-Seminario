@@ -19,9 +19,6 @@
 
         if (!playerContext.HandleInputs.IsRunning())
             stateMachine.ResetAnimations();
-
-        if (playerContext.HandleInputs.IsDashing() && playerContext.PlayerController.CanDash())
-            stateMachine.ChangeState(stateMachine.dashState);
     }
 }
 

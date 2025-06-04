@@ -15,7 +15,7 @@ public class AttackState : PlayerState
         queuedNextAttack = false;
         timer = 0f;
     }
-    
+
     public override void Update()
     {
         timer += Time.deltaTime;

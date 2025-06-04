@@ -4,7 +4,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
     [SerializeField] private float maxHealth, walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce;
-    [SerializeField] private float dashCooldown = 1f;
+
     public float WalkingSpeed { get => walkingSpeed; private set { } }
     public float RunningSpeed { get => runningSpeed; private set { } }
     public float CurrentHealth { get => currentHealth; private set { } }
@@ -15,12 +15,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     private float currentHealth;
     private float currentSpeed;
     private float lookRotation;
-    private bool isDashing;
-    private Vector3 dashDirection;
-    private float dashSpeed;
-
-    private float lastDashTime = -Mathf.Infinity;
-    public float DashCooldown => dashCooldown;
 
     void Awake()
     {
@@ -47,23 +41,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         Jump();
     }
 
-    public void Dash(Vector3 dir, float speed)
-    {
-        isDashing = true;
-        dashDirection = dir;
-        dashSpeed = speed;
-    }
-
-    public void EndDash()
-    {
-        lastDashTime = Time.time;
-        isDashing = false;
-    }
-    public bool CanDash()
-    {
-        return Time.time >= lastDashTime + dashCooldown;
-    }
-
     private void LookWithMouse()
     {
         //Turn
@@ -77,12 +54,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     private void Move()
     {
-        if (isDashing)
-        {
-            rb.velocity = dashDirection * dashSpeed;
-            return;
-        }
-
         Vector2 move = playerContext.HandleInputs.GetMoveVector2();
         // Find target velocity
         Vector3 currentVelocity = rb.velocity;
@@ -130,12 +101,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         UIManager.Instance.OnPlayerTakeDamage();
         if (currentHealth <= 0)
             Die();
-    }
-
-    public void AddHealth(float health)
-    {
-        currentHealth += health;
-        maxHealth += health;
     }
 
     protected virtual void Die()

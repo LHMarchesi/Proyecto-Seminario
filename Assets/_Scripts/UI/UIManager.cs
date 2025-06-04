@@ -34,19 +34,14 @@ public class UIManager : MonoBehaviour
     private void ShowDamageFlash()
     {
         StopAllCoroutines(); 
-        StartCoroutine(PanelFlashCoroutine(Color.red));
-    } 
-    private void ShowHealthFlash()
-    {
-        StopAllCoroutines(); 
-        StartCoroutine(PanelFlashCoroutine(Color.green));
+        StartCoroutine(DamageFlashCoroutine());
     }
 
-    private IEnumerator PanelFlashCoroutine(Color color)
+    private IEnumerator DamageFlashCoroutine()
     {
         damagePanel.gameObject.SetActive(true); // Aparece con alfa fuerte
 
-        damagePanel.color = color;
+        Color color = damagePanel.color;
         color.a = 0.6f;
         damagePanel.color = color;
 
@@ -69,12 +64,5 @@ public class UIManager : MonoBehaviour
         HealthSlider.ChangeValue(playerContext.PlayerController.CurrentHealth);
         healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
         ShowDamageFlash();
-    }
-
-    public void OnPlayerAddHealth()
-    {
-        HealthSlider.ChangeValue(playerContext.PlayerController.CurrentHealth);
-        healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
-        ShowHealthFlash();
     }
 }

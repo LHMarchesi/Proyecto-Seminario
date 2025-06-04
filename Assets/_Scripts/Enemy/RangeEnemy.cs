@@ -1,24 +1,23 @@
-﻿using System;
-using System.Diagnostics;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class MeleeEnemy : BaseEnemy
+public class RangeEnemy : BaseEnemy
 {
-    private enum MeleeEnemyState
+    private enum RangeEnemyState
     {
         Idle,
         Chasing,
+        Patrolling,
         Attacking,
         Damaged
     }
 
-    private MeleeEnemyState currentState;
+    private RangeEnemyState currentState;
     private float attackCooldown;
 
     protected override void OnEnable()
     {
         base.OnEnable();
-        currentState = MeleeEnemyState.Idle;
+        currentState = RangeEnemyState.Idle;
         attackCooldown = 0f;
     }
 
@@ -33,61 +32,74 @@ public class MeleeEnemy : BaseEnemy
 
         switch (currentState)
         {
-            case MeleeEnemyState.Idle:
-                handleAnimations.ChangeAnimationState("Idle_MeleeEnemy");
+            case RangeEnemyState.Idle:
+                handleAnimations.ChangeAnimationState("Idle_RangeEnemy");
                 if (distance < stats.detectionRange)
-                    currentState = MeleeEnemyState.Chasing;
+                    currentState = RangeEnemyState.Chasing;
                 break;
 
-            case MeleeEnemyState.Chasing:
+            case RangeEnemyState.Chasing:
                 if (distance > stats.detectionRange)
                 {
-                    currentState = MeleeEnemyState.Idle;
+                    currentState = RangeEnemyState.Idle;
                 }
                 else if (distance <= stats.attackRange)
                 {
-                    currentState = MeleeEnemyState.Attacking;
+                    currentState = RangeEnemyState.Attacking;
                 }
                 else
-                    ChaseTarget();
+                    HoverAbovePlayer();
                 break;
 
-            case MeleeEnemyState.Attacking:
+            case RangeEnemyState.Attacking:
                 if (distance > stats.attackRange)
-                    currentState = MeleeEnemyState.Chasing;
+                    currentState = RangeEnemyState.Chasing;
                 else
                     Attack();
                 break;
-            case MeleeEnemyState.Damaged:
+            case RangeEnemyState.Damaged:
                 break;
         }
     }
 
+
     protected override void OnDamage(float damage)
     {
-        handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
         base.OnDamage(damage);
-        currentState = MeleeEnemyState.Damaged;
+        handleAnimations.ChangeAnimationState("TakeDamage_RangeEnemy");
+        currentState = RangeEnemyState.Damaged;
         Invoke(nameof(EndDamageState), 0.3f);
     }
 
     private void EndDamageState()
     {
-        currentState = MeleeEnemyState.Chasing;
+        currentState = RangeEnemyState.Chasing;
     }
 
-    private void ChaseTarget()
+    private void HoverAbovePlayer()
     {
-        handleAnimations.ChangeAnimationState("Chasing_MeleeEnemy");
-        MoveTowardsTarget();
+        if (target == null) return;
+
+        Vector3 desiredPosition = target.position + Vector3.up * 4f; // Altura sobre el jugador
+        desiredPosition.y = Mathf.Lerp(transform.position.y, desiredPosition.y, Time.deltaTime * 2f); // Suaviza la transición
+
+        Vector3 horizontalPosition = new Vector3(
+            Vector3.MoveTowards(transform.position, target.position, stats.moveSpeed * Time.deltaTime).x,
+            desiredPosition.y,
+            Vector3.MoveTowards(transform.position, target.position, stats.moveSpeed * Time.deltaTime).z
+        );
+
+        transform.position = horizontalPosition;
         FaceTarget();
     }
 
-    private void Attack()
+    private void Attack() //Shoot
     {
+        Debug.Log("Shot");
+        /*
         if (attackCooldown > 0f) return;
 
-        handleAnimations.ChangeAnimationState("Attack_MeleeEnemy");
+        handleAnimations.ChangeAnimationState("Attack_RangeEnemy");
         //audioSource.PlayOneShot(swordSwing);
         attackCooldown = 1f / stats.attackSpeed;
 
@@ -99,5 +111,6 @@ public class MeleeEnemy : BaseEnemy
             IDamageable damageable = hit.collider.GetComponent<IDamageable>();
             damageable?.TakeDamage(stats.attackDamage);
         }
+        */
     }
 }

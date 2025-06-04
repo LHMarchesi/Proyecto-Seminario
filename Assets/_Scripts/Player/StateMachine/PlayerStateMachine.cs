@@ -14,7 +14,6 @@ public class PlayerStateMachine : MonoBehaviour
     public StartThrowingState startThrowingState;
     public CatchingState catchingState;
     public RunningState runningState;
-    public DashState dashState;
 
 
     void Awake()
@@ -26,7 +25,6 @@ public class PlayerStateMachine : MonoBehaviour
         walkState = new WalkState(this, playerContext);
         runningState = new RunningState(this, playerContext);
         throwState = new ThrowState(this, playerContext);
-        dashState = new DashState(this, playerContext);
         attackState = new AttackState(this, playerContext);
         secondAttackState = new SecondAttackState(this, playerContext);
         startThrowingState = new StartThrowingState(this, playerContext);

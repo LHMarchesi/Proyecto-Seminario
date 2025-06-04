@@ -10,15 +10,12 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     protected Transform target;
     protected Vector3 spawnPosition;
     protected HandleAnimations handleAnimations;
-    protected Rigidbody rb;
 
     protected virtual void OnEnable()
     {
         currentHealth = stats.maxHealth;
         spawnPosition = transform.position;
-
         handleAnimations = GetComponent<HandleAnimations>();
-        rb = GetComponent<Rigidbody>();
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
@@ -27,6 +24,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     protected virtual void Update()
     {
+        
     }
 
     public void TakeDamage(float damage)
@@ -40,20 +38,18 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         if (currentHealth <= 0)
             Die();
     }
-    protected virtual void Attack()
-    {
-    }
 
     protected virtual void Die()
     {
-        gameObject.SetActive(false); // Para pooling
+        transform.position = spawnPosition;
+        currentHealth = stats.maxHealth;
+        //gameObject.SetActive(false); // Para pooling
     }
 
     protected virtual void Spawn()
     {
-        currentHealth = stats.maxHealth;
-        transform.position = spawnPosition;
         gameObject.SetActive(true); // Para pooling
+        transform.position = spawnPosition;
     }
 
     protected void FaceTarget()
@@ -69,13 +65,6 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     {
         if (target == null) return;
 
-        Vector3 direction = (target.position - transform.position).normalized;
-        transform.Translate(direction * stats.moveSpeed * Time.deltaTime, Space.World);
-    }
-
-    protected void GetKnockback(float knockbackAmount)
-    {
-       rb.AddForce((transform.position - target.position).normalized * knockbackAmount, ForceMode.Impulse); 
-       rb.AddForce(Vector3.up * knockbackAmount, ForceMode.Impulse); 
+        transform.position = Vector3.MoveTowards(transform.position, target.position, stats.moveSpeed * Time.deltaTime);
     }
 }
