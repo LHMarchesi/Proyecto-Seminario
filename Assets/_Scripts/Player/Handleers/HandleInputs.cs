@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class HandleInputs : MonoBehaviour
 {
     private Vector2 move, look;
-    private float isThrowing, isCatching, isAttacking, isRunning, isJumping;
+    private float isThrowing, isCatching, isAttacking, isRunning, isJumping, isDashing;
     public void OnMove(InputAction.CallbackContext context) // Catch player input
     {
         move = context.ReadValue<Vector2>();
@@ -38,6 +38,10 @@ public class HandleInputs : MonoBehaviour
     {
         isJumping = context.ReadValue<float>();
     }
+    public void OnDash(InputAction.CallbackContext context) // Catch run input
+    {
+        isDashing = context.ReadValue<float>();
+    }
 
     public Vector2 GetMoveVector2() { return move; }  // Return public values
     public Vector2 GetLookVector2() { return look; }
@@ -51,5 +55,7 @@ public class HandleInputs : MonoBehaviour
     public bool IsRunning() { return isRunning == 1f; }
     
     public bool IsJumping() { return isJumping == 1f; }
+
+    public bool IsDashing() { return isDashing == 1f; }
 
 }

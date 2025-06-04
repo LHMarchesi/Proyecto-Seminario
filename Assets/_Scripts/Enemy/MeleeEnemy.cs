@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MeleeEnemy : BaseEnemy
 {
@@ -68,7 +66,7 @@ public class MeleeEnemy : BaseEnemy
         handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
         base.OnDamage(damage);
         currentState = MeleeEnemyState.Damaged;
-        Invoke(nameof(EndDamageState), 0.3f);
+        Invoke(nameof(EndDamageState), 0.1f);
     }
 
     private void EndDamageState()
@@ -83,7 +81,7 @@ public class MeleeEnemy : BaseEnemy
         FaceTarget();
     }
 
-    private void Attack()
+    protected override void Attack()
     {
         if (attackCooldown > 0f) return;
 
