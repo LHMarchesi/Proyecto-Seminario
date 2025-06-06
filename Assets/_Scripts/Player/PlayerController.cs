@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     [SerializeField] private float dashCooldown = 1f;
     public float WalkingSpeed { get => walkingSpeed; private set { } }
     public float RunningSpeed { get => runningSpeed; private set { } }
+    public float CurrentSpeed { get => currentSpeed; private set { } }
     public float CurrentHealth { get => currentHealth; private set { } }
     public float MaxHealth { get => maxHealth; private set { } }
 
@@ -108,7 +109,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         rb.AddForce(jumpForces, ForceMode.Impulse);
     }
-    private bool IsGrounded()
+    public bool IsGrounded()
     {
         Vector3 boxCenter = transform.position + Vector3.down * 1f;
         Vector3 boxHalfExtents = new Vector3(0.3f, 0.1f, 0.3f); // ajustalo según el tamaño de tu personaje
