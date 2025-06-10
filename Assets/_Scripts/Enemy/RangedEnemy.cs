@@ -96,7 +96,7 @@ public class RangedEnemy : BaseEnemy
     {
         base.Die();
         handleAnimations.ChangeAnimationState("Die_RangedEnemy");
-        Invoke(nameof(Spawn), 2f); // Respawn after 2 seconds
+      //  Invoke(nameof(Spawn), 2f); // Respawn after 2 seconds
     }
 
 

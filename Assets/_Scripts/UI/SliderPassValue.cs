@@ -4,16 +4,20 @@ using UnityEngine.UI;
 public class SliderPassValue : MonoBehaviour
 {
     private Slider slider;
-    void Awake()
+    [SerializeField] private bool disableOnEnable;
+    void OnEnable()
     {
         slider = GetComponent<Slider>();
-        Disable();
     }
 
     public void ChangeValue(float value)
     {
         slider.gameObject.SetActive(true);
+        if (value > slider.maxValue)
+            slider.maxValue = value;
+
         slider.value = value;
+
     }
 
     public void Disable()

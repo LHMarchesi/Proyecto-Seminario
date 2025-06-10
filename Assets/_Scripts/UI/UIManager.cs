@@ -8,12 +8,10 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
     public SliderPassValue PowerSlider { get => powerSlider; set => powerSlider = value; }
     public SliderPassValue HealthSlider { get => healthSlider; set => healthSlider = value; }
-    public TextMeshProUGUI StateText { get => stateText; set => stateText = value; }
 
     [SerializeField] private PlayerContext playerContext;
     [SerializeField] private SliderPassValue powerSlider;
     [SerializeField] private SliderPassValue healthSlider;
-    [SerializeField] private TextMeshProUGUI stateText;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private Image damagePanel;
 
@@ -26,11 +24,15 @@ public class UIManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        HealthSlider.ChangeValue(playerContext.PlayerController.MaxHealth);
+     
     }
 
+    private void Start()
+    {
+        PowerSlider.Disable();
+        HealthSlider.ChangeValue(playerContext.PlayerController.MaxHealth);
+        healthText.text = playerContext.PlayerController.MaxHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
+    }
     private void ShowDamageFlash()
     {
         StopAllCoroutines(); 
@@ -47,7 +49,7 @@ public class UIManager : MonoBehaviour
         damagePanel.gameObject.SetActive(true); // Aparece con alfa fuerte
 
         damagePanel.color = color;
-        color.a = 0.6f;
+        color.a = 0.3f;
         damagePanel.color = color;
 
         float duration = 0.5f;

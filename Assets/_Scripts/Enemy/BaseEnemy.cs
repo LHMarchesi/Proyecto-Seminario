@@ -6,6 +6,11 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     [Header("Stats")]
     [SerializeField] protected EnemyStats stats;  //Scriptable Stats
 
+    [Header("Debug")]
+    [SerializeField] private bool showRanges = true;
+    [SerializeField] private Color detectionRangeColor = Color.yellow;
+    [SerializeField] private Color attackRangeColor = Color.red;
+
     protected float currentHealth;
     protected Transform target;
     protected Vector3 spawnPosition;
@@ -50,7 +55,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     }
 
     protected virtual void Spawn()
-    {
+    { 
         currentHealth = stats.maxHealth;
         transform.position = spawnPosition;
         gameObject.SetActive(true); // Para pooling
@@ -77,5 +82,16 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     {
        rb.AddForce((transform.position - target.position).normalized * knockbackAmount, ForceMode.Impulse); 
        rb.AddForce(Vector3.up * knockbackAmount, ForceMode.Impulse); 
+    }
+
+    protected virtual void OnDrawGizmosSelected()
+    {
+        if (!showRanges)
+            return;
+
+        Gizmos.color = detectionRangeColor;
+        Gizmos.DrawWireSphere(transform.position, stats.detectionRange); 
+        Gizmos.color = attackRangeColor;
+        Gizmos.DrawWireSphere(transform.position, stats.attackRange); 
     }
 }

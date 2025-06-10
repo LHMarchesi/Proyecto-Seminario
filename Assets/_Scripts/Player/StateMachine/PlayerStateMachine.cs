@@ -49,7 +49,6 @@ public class PlayerStateMachine : MonoBehaviour
             currentState.Exit();
 
         currentState = newState;
-        UIManager.Instance.StateText.text = "PlayerState : " + newState.ToString();
         currentState.Enter();
     }
 

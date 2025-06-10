@@ -63,10 +63,10 @@ public class MeleeEnemy : BaseEnemy
 
     protected override void OnDamage(float damage)
     {
-        handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
-        base.OnDamage(damage);
-        currentState = MeleeEnemyState.Damaged;
         Invoke(nameof(EndDamageState), 0.1f);
+        base.OnDamage(damage);
+        handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
+        GetKnockback(stats.knockbackAmmount);
     }
 
     private void EndDamageState()
@@ -97,5 +97,12 @@ public class MeleeEnemy : BaseEnemy
             IDamageable damageable = hit.collider.GetComponent<IDamageable>();
             damageable?.TakeDamage(stats.attackDamage);
         }
+    }
+
+    protected override void Die()
+    {
+        base.Die();
+     //   handleAnimations.ChangeAnimationState("Die_RangedEnemy");
+      //  Invoke(nameof(Spawn), 2f); // Respawn after 2 seconds
     }
 }
