@@ -44,6 +44,7 @@ public class TestScriptHoming : MonoBehaviour
         distance = Vector3.Distance(transform.position, target.GetComponent<Transform>().position);
         if (distance < distanceToTarget)
         {
+            //target.GetComponent<Rigidbody>().AddForce((target.transform.position - transform.position).normalized * -2, ForceMode.Impulse);
             Vector3 direction = target.GetComponent<Transform>().position - rb.position;
             direction.Normalize();
             Vector3 rotationAmount = Vector3.Cross(transform.forward, direction);

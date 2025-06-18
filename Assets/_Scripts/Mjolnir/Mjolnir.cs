@@ -34,13 +34,20 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float distance;
     [SerializeField] private float rotationForce;
     [SerializeField] private bool homingOn;
-    [Header("TestSplit")]
+    [Header("TestExplosion")]
     [SerializeField]private bool explodeOn;
     [SerializeField] private int explosionDamage;
     [SerializeField] private float explosionRange;
     [SerializeField] private float explosionForce;
     public GameObject explosion;
     public LayerMask whatIsEnemies;
+    [Header("TestPull")]
+    [SerializeField] private bool pullOn;
+    [SerializeField] private float pullRange;
+    [SerializeField] private float distance2;
+    [SerializeField] private float maxPullRange;
+    [SerializeField] private float pullForce;
+
 
     void OnEnable()
     {
@@ -126,28 +133,24 @@ public class Mjolnir : MonoBehaviour
         transform.parent = null;
 
         // Apply force and torque
-        if(homingOn == false)
+        rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
+        rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
+        isHeld = false;
+
+        if (pullOn == false)
         {
             rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
             rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
             isHeld = false;
         }
-        if (homingOn == true)
+        if(pullOn == true)
         {
-            //rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
-            //rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
             target = FindClosestByTag("Enemy");
-            distance = Vector3.Distance(transform.position, target.GetComponent<Transform>().position);
-            if (distance < 10)
+            distance2 = Vector3.Distance(transform.position, target.GetComponent<Transform>().position);
+            if(distance < pullRange)
             {
-                Vector3 direction = target.GetComponent<Transform>().position - rb.position;
-                direction.Normalize();
-                Vector3 rotationAmount = Vector3.Cross(transform.forward, direction);
-                rb.angularVelocity = rotationAmount * rotationForce;
-                rb.velocity = transform.forward * finalThrowPower;
+                target.GetComponent<Rigidbody>().AddForce((target.transform.position - transform.position).normalized * -pullForce, ForceMode.Impulse);
             }
-
-            isHeld = false;
         }
 
     }
@@ -212,9 +215,9 @@ public class Mjolnir : MonoBehaviour
             }
             if (explodeOn == true)
             {
-                Debug.Log("HAGO PUN");
+                
                 boxCollider.isTrigger = true;
-                //if (explosion != null) Instantiate(explosion, transform.position, Quaternion.identity);
+                if (explosion != null) Instantiate(explosion, transform.position, Quaternion.identity);
                 Collider[] enemies = Physics.OverlapSphere(transform.position, explosionRange, whatIsEnemies);
                 for (int i = 0; i < enemies.Length; i++)
                 {
@@ -233,6 +236,8 @@ public class Mjolnir : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explosionRange);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, maxPullRange);
     }
 
     private void OnCollisionExit(Collision collision)
