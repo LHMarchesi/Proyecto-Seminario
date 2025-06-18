@@ -67,12 +67,12 @@ public class Mjolnir : MonoBehaviour
         {
             isRetracting = true;
         }
-        else if (!isHeld && !playerContext.HandleInputs.IsCatching())
+       /* else if (!isHeld && !playerContext.HandleInputs.IsCatching())
         {
             rb.isKinematic = false;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             isRetracting = false;
-        }
+        }*/
     }
 
     private void FixedUpdate()

@@ -25,7 +25,12 @@ public class Projectile : MonoBehaviour, IPoolable
     /// <summary>
     /// Called by PoolManager when despawning.
     /// </summary>
-    public void OnDespawn() { }
+    public void OnDespawn() { 
+        rb.velocity = Vector3.zero; // Reset velocity when despawning
+        poolManager = null; // Clear reference to PoolManager
+        timer = 0f; // Reset timer
+        // Deactivate the game object
+    }
 
     private void Update()
     {
@@ -43,6 +48,7 @@ public class Projectile : MonoBehaviour, IPoolable
             target.TakeDamage(damage);
             poolManager?.Release(this);
         }
+        gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -50,6 +56,7 @@ public class Projectile : MonoBehaviour, IPoolable
     /// </summary>
     public void Initialize(Vector3 velocity, float damageAmount, PoolManager<Projectile> pool)
     {
+        gameObject.SetActive(true); // Activate the game object
         rb.velocity = velocity;
         damage = damageAmount;
         poolManager = pool;

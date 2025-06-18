@@ -119,7 +119,10 @@ public class RangedEnemy : BaseEnemy
     {
         Projectile proj = projectilePool.Get();
         proj.transform.SetParent(null);
-        proj.Initialize(firePoint.forward * projectileSpeed, stats.attackDamage, projectilePool);
+
+        Vector3 directionToTarget = (target.position - firePoint.position).normalized;
+
+        proj.Initialize(directionToTarget * projectileSpeed, stats.attackDamage, projectilePool);
         proj.transform.position = firePoint.position;
         proj.transform.rotation = firePoint.rotation;
     }
