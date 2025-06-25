@@ -16,9 +16,7 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float torqueForce;
     [SerializeField] private float maxRetractPower;
     [SerializeField] private float damage;
-    [SerializeField] private float homingStrength;
-    [SerializeField] private float homingDuration = 1f;
-
+  
     public Action<Collider> OnHitEnemy;
     public Action OnMjolnirThrow;
 

@@ -67,6 +67,9 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private void LookWithMouse()
     {
+        if (GameManager.Instance.GetCurrentState() is PauseState)
+            return;
+
         //Turn
         Vector2 look = playerContext.HandleInputs.GetLookVector2();
         transform.Rotate(Vector3.up * look.x * mouseSens);

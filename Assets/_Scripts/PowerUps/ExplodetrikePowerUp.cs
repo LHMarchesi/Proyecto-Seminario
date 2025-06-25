@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ExplodetrikePowerUp : BasePowerUp
 {
+    [SerializeField] private Sprite IconSprite;
     [SerializeField] private GameObject EffectPrefab; // Prefab (Efecto)
     [SerializeField] private float explosionRange;
     [SerializeField] private float explosionForce;
@@ -13,6 +14,7 @@ public class ExplodetrikePowerUp : BasePowerUp
     protected override void ApplyEffect()
     {
         playerContext.Mjolnir.OnHitEnemy += Explode;
+        UIManager.Instance.RegisterHability("Explode", IconSprite);
     }
 
     private void Explode(Collider enemyCollider)
@@ -34,5 +36,7 @@ public class ExplodetrikePowerUp : BasePowerUp
             enemies[i].GetComponent<Rigidbody>().AddExplosionForce(explosionForce, effectPosition, explosionRange);
             enemies[i].GetComponent<IDamageable>().TakeDamage(explosionDamage);
         }
+
+        UIManager.Instance.TriggerHabilityCooldown("Explode", cooldown);
     }
 }

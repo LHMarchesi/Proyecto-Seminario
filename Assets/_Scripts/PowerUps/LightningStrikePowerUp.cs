@@ -3,20 +3,26 @@ using UnityEngine;
 
 public class LightningStrikePowerUp : BasePowerUp
 {
+    [SerializeField] private Sprite lightningIconSprite;
+
     [SerializeField] private GameObject lightningEffectPrefab; // Prefab (Efecto)
     [SerializeField] private float cooldown;
     [SerializeField] private float verticalOffset;
 
     private float lastStrikeTime = -Mathf.Infinity;
+
     protected override void ApplyEffect()
     {
         // Se subscribe al evento en el Mjolnir que detecta cuando colisiona con un enemigo
         playerContext.Mjolnir.OnHitEnemy += SpawnLightningEffect;
+
+        UIManager.Instance.RegisterHability("Lightning", lightningIconSprite);
     }
 
     void SpawnLightningEffect(Collider enemyCollider)
     {
-        if (Time.time - lastStrikeTime < cooldown) return;  // cooldown check
+        if (Time.time - lastStrikeTime < cooldown)
+            return;
 
         lastStrikeTime = Time.time;
 
@@ -26,6 +32,7 @@ public class LightningStrikePowerUp : BasePowerUp
         Quaternion effectRotation = Quaternion.identity;
 
         Instantiate(lightningEffectPrefab, effectPosition, effectRotation); // Lo instancia
-        Debug.Log(enemyCollider.name);
+
+        UIManager.Instance.TriggerHabilityCooldown("Lightning", cooldown);
     }
 }
