@@ -19,6 +19,8 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float homingStrength;
     [SerializeField] private float homingDuration = 1f;
     public float sizeForce;
+    public float parryCooldown;
+    public float nextParryCD;
 
     public Action<Collider> OnHitEnemy;
     public Action OnMjolnirThrow;
@@ -27,6 +29,7 @@ public class Mjolnir : MonoBehaviour
     private bool isRetracting;
     public bool sizeChange;
     public bool teleport;
+    public bool parry;
 
     private float throwChargeTime = 0f;
     private float maxChargeTime = 1.5f;
@@ -42,6 +45,15 @@ public class Mjolnir : MonoBehaviour
         startRotation = transform.localRotation;
         Catch();
         originalSize = this.transform.localScale;
+    }
+
+    public void TeleportEnable()
+    {
+        teleport = true;
+    }
+    public void SizeEnable()
+    {
+        sizeChange = true;
     }
 
     void Update()
@@ -121,11 +133,11 @@ public class Mjolnir : MonoBehaviour
 
     private void Retract()
     {
+        AudioSource audio = gameObject.AddComponent<AudioSource>();
+        audio.volume = 0.25f;
         if (isHeld) return; // Avoid running if already held
         if(teleport == true)
         {
-            AudioSource audio = gameObject.AddComponent<AudioSource>();
-            audio.volume = 0.25f;
             audio.PlayOneShot((AudioClip)Resources.Load("teleportVFX"));
             playerContext.PlayerController.transform.position = this.transform.position;
             Catch();
@@ -140,9 +152,20 @@ public class Mjolnir : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, hand.position, maxRetractPower * Time.deltaTime);
         }
 
-        if (Vector3.Distance(hand.position, transform.position) < .5f)
+        if (Vector3.Distance(hand.position, transform.position) < .5f && parry == false)
         {
             Catch();
+        }
+        else if (Vector3.Distance(hand.position, transform.position) < .15f && parry == true)
+        {
+            rb.isKinematic = false;
+            Vector3 cameraForward = Camera.main.transform.forward;
+            float finalThrowPower = Mathf.Lerp(minThrowPower, maxThrowPower, throwChargeTime);
+            isRetracting = false;
+            bool isCurrentlyThrowing = playerContext.HandleInputs.IsThrowing();
+            rb.AddForce(cameraForward.normalized * finalThrowPower * 5f, ForceMode.VelocityChange);
+            audio.PlayOneShot((AudioClip)Resources.Load("parryVFX"));
+
         }
         this.transform.localScale = originalSize;
     }

@@ -16,6 +16,8 @@ public class ExperienceManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI levelText;
     [SerializeField] TextMeshProUGUI experienceText;
     [SerializeField] Image experienceFill;
+    [SerializeField] GameObject panel;
+
 
     void Start()
     {
@@ -43,7 +45,14 @@ public class ExperienceManager : MonoBehaviour
         {
             currentLevel++;
             UpdateLevel();
+            LevelUp();
         }
+    }
+
+    void LevelUp()
+    {
+        panel.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
     }
 
     void UpdateLevel()
