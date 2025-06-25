@@ -16,18 +16,15 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float torqueForce;
     [SerializeField] private float maxRetractPower;
     [SerializeField] private float damage;
-    [SerializeField] private float homingStrength;
-    [SerializeField] private float homingDuration = 1f;
-    public float sizeForce;
-    public float parryCooldown;
-    public float nextParryCD;
+    //public float parryCooldown;
+   // public float nextParryCD;
 
     public Action<Collider> OnHitEnemy;
     public Action OnMjolnirThrow;
+    public Action OnChrgingThrow;
 
     private bool isHeld;
     private bool isRetracting;
-    public bool sizeChange;
     public bool teleport;
     public bool parry;
 
@@ -35,7 +32,7 @@ public class Mjolnir : MonoBehaviour
     private float maxChargeTime = 1.5f;
     private bool isChargingThrow = false;
     private bool wasThrowing = false;
-    [SerializeField] public Vector3 originalSize;
+    private Vector3 originalSize;
 
     void OnEnable()
     {
@@ -44,17 +41,14 @@ public class Mjolnir : MonoBehaviour
 
         startRotation = transform.localRotation;
         Catch();
-        originalSize = this.transform.localScale;
+        originalSize = transform.localScale;
     }
 
     public void TeleportEnable()
     {
         teleport = true;
     }
-    public void SizeEnable()
-    {
-        sizeChange = true;
-    }
+
 
     void Update()
     {
@@ -66,16 +60,11 @@ public class Mjolnir : MonoBehaviour
             if (!isChargingThrow)
                 isChargingThrow = true;  // Start charging the throw
 
+            OnChrgingThrow?.Invoke(); // Notify that we are charging the throw
             throwChargeTime += Time.deltaTime;  // Increment time charge
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
-            Debug.Log(throwChargeTime);
-            if(sizeChange == true)
-            {
-                this.transform.localScale = new Vector3(1.5f + (throwChargeTime * sizeForce), 1.5f + (throwChargeTime * sizeForce), 1.5f + (throwChargeTime * sizeForce));
-                //this.transform.Rotate(1.5f, 1.5f, 1.5f);
-                this.transform.eulerAngles = new Vector3(240, -40, 70);
-            }
-                
+
+
         }
         else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing) // Throw at button release
         {
@@ -92,12 +81,6 @@ public class Mjolnir : MonoBehaviour
         {
             isRetracting = true;
         }
-       /* else if (!isHeld && !playerContext.HandleInputs.IsCatching())
-        {
-            rb.isKinematic = false;
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
-            isRetracting = false;
-        }*/
     }
 
     private void FixedUpdate()
@@ -107,7 +90,7 @@ public class Mjolnir : MonoBehaviour
             Retract();
         }
     }
-    
+
     void Throw()
     {
         OnMjolnirThrow?.Invoke();
@@ -136,13 +119,13 @@ public class Mjolnir : MonoBehaviour
         AudioSource audio = gameObject.AddComponent<AudioSource>();
         audio.volume = 0.25f;
         if (isHeld) return; // Avoid running if already held
-        if(teleport == true)
+        if (teleport == true)
         {
             audio.PlayOneShot((AudioClip)Resources.Load("teleportVFX"));
             playerContext.PlayerController.transform.position = this.transform.position;
             Catch();
         }
-        else if(teleport == false)
+        else if (teleport == false)
         {
             Vector3 directionToHand = hand.position - transform.position;
             Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
@@ -168,6 +151,8 @@ public class Mjolnir : MonoBehaviour
 
         }
         this.transform.localScale = originalSize;
+
+        transform.localScale = Vector3.Lerp(transform.localScale, originalSize, Time.deltaTime * 10f);
     }
 
     void Catch()
@@ -198,6 +183,7 @@ public class Mjolnir : MonoBehaviour
         }
     }
 
-
+    public Vector3 GetOriginalSize() => originalSize;
+    public float GetChargeTime() => throwChargeTime;
     public bool IsHeld() { return isHeld; }
 }
