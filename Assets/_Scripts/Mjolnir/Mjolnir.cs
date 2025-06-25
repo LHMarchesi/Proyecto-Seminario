@@ -18,17 +18,21 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float damage;
     [SerializeField] private float homingStrength;
     [SerializeField] private float homingDuration = 1f;
+    public float sizeForce;
 
     public Action<Collider> OnHitEnemy;
     public Action OnMjolnirThrow;
 
     private bool isHeld;
     private bool isRetracting;
+    public bool sizeChange;
+    public bool teleport;
 
     private float throwChargeTime = 0f;
     private float maxChargeTime = 1.5f;
     private bool isChargingThrow = false;
     private bool wasThrowing = false;
+    [SerializeField] public Vector3 originalSize;
 
     void OnEnable()
     {
@@ -37,6 +41,7 @@ public class Mjolnir : MonoBehaviour
 
         startRotation = transform.localRotation;
         Catch();
+        originalSize = this.transform.localScale;
     }
 
     void Update()
@@ -51,6 +56,14 @@ public class Mjolnir : MonoBehaviour
 
             throwChargeTime += Time.deltaTime;  // Increment time charge
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
+            Debug.Log(throwChargeTime);
+            if(sizeChange == true)
+            {
+                this.transform.localScale = new Vector3(1.5f + (throwChargeTime * sizeForce), 1.5f + (throwChargeTime * sizeForce), 1.5f + (throwChargeTime * sizeForce));
+                //this.transform.Rotate(1.5f, 1.5f, 1.5f);
+                this.transform.eulerAngles = new Vector3(240, -40, 70);
+            }
+                
         }
         else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing) // Throw at button release
         {
@@ -109,18 +122,29 @@ public class Mjolnir : MonoBehaviour
     private void Retract()
     {
         if (isHeld) return; // Avoid running if already held
+        if(teleport == true)
+        {
+            AudioSource audio = gameObject.AddComponent<AudioSource>();
+            audio.volume = 0.25f;
+            audio.PlayOneShot((AudioClip)Resources.Load("teleportVFX"));
+            playerContext.PlayerController.transform.position = this.transform.position;
+            Catch();
+        }
+        else if(teleport == false)
+        {
+            Vector3 directionToHand = hand.position - transform.position;
+            Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
-        Vector3 directionToHand = hand.position - transform.position;
-        Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-
-        rb.isKinematic = true; // Detenemos la física
-        transform.position = Vector3.MoveTowards(transform.position, hand.position, maxRetractPower * Time.deltaTime);
+            rb.isKinematic = true; // Detenemos la física
+            transform.position = Vector3.MoveTowards(transform.position, hand.position, maxRetractPower * Time.deltaTime);
+        }
 
         if (Vector3.Distance(hand.position, transform.position) < .5f)
         {
             Catch();
         }
+        this.transform.localScale = originalSize;
     }
 
     void Catch()
