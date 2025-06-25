@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
-    [SerializeField] private float maxHealth, walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce;
+    [SerializeField] private float maxHealth, walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce, extraGravityForce;
     [SerializeField] private float dashCooldown = 1f;
     public float WalkingSpeed { get => walkingSpeed; private set { } }
     public float RunningSpeed { get => runningSpeed; private set { } }
@@ -41,12 +41,12 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
+        rb.AddForce(Vector3.down * extraGravityForce, ForceMode.VelocityChange);
+
         Move();
-    }
-    private void Update()
-    {
         Jump();
     }
+
 
     public void Dash(Vector3 dir, float speed)
     {
