@@ -24,14 +24,6 @@ public class ExperienceManager : MonoBehaviour
         UpdateLevel();
     }
 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            //AddExperience(5);
-        }
-    }
-
     public void AddExperience(int amount)
     {
         totalExperience += amount;
@@ -52,7 +44,17 @@ public class ExperienceManager : MonoBehaviour
     void LevelUp()
     {
         panel.SetActive(true);
+        Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    public void ClosePanel()
+    {
+        panel.SetActive(false);
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void UpdateLevel()

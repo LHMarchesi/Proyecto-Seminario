@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public enum GameStates
 {
-    MainMenu, Pause, Transition, Game
+    MainMenu, Pause, SkillChoose, Game
 }
 
 public class GameManager : MonoBehaviour
@@ -31,10 +31,10 @@ public class GameManager : MonoBehaviour
         switch (SceneManager.GetActiveScene().buildIndex)
         {
             case 0: // Main Menu Scene
-                currentState = states[GameStates.MainMenu];
+                currentState = states[GameStates.Game];
                 break;
             case 1: // Gameplay Scene
-                currentState = states[GameStates.Game];
+                //currentState = states[GameStates.Game];
                 break;
         }
     }

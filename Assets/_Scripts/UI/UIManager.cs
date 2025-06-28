@@ -94,10 +94,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void ShowHabilityOnCooldown(Sprite sprite,float cooldownTime)
-    {
-        
-    }
 
     private IEnumerator PanelFlashCoroutine(Color color)
     {
