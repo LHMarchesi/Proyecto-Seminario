@@ -6,7 +6,7 @@
     public override void Enter()
     {
         playerContext.HandleAnimations.ChangeAnimationState("Running");
-        playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.RunningSpeed);
+        playerContext.PlayerController.AddSpeed(playerContext.PlayerController.RunningSpeed);
     }
 
     public override void Update()

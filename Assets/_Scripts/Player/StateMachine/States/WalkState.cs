@@ -8,7 +8,7 @@ public class WalkState : PlayerState
     public override void Enter()
     {
         playerContext.HandleAnimations.ChangeAnimationState("Walking");
-        playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.WalkingSpeed);
+        playerContext.PlayerController.AddSpeed(playerContext.PlayerController.WalkingSpeed);
     }
 
     public override void Update()
