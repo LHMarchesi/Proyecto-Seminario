@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class LightningStrikePowerUp : BasePowerUp
 {
-  // Prefab (Efecto)
+    // Prefab (Efecto)
     [SerializeField] private LightingStrikeStats stats;
     [SerializeField] private float verticalOffset;
 

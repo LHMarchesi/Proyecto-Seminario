@@ -13,6 +13,10 @@
     {
         if (playerContext.HandleInputs.IsCatching())
             stateMachine.ChangeState(stateMachine.catchingState);
-       
+
+        if (playerContext.HandleInputs.IsAttacking())
+        {
+            stateMachine.ChangeState(stateMachine.attackState);
+        }
     }
 }

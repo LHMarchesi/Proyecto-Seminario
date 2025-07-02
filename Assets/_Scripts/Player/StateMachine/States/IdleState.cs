@@ -7,7 +7,14 @@ public class IdleState : PlayerState
 
     public override void Enter()
     {
-        playerContext.HandleAnimations.ChangeAnimationState("Idle");
+        if (playerContext.Mjolnir.IsHeld())
+        {
+            playerContext.HandleAnimations.ChangeAnimationState("Idle");
+        }
+        else
+        {
+            playerContext.HandleAnimations.ChangeAnimationState("IdleWithOutHammer");
+        }
     }
 
     public override void Update()

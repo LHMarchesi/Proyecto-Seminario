@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerContext : MonoBehaviour // Save valuable data from the player
@@ -18,5 +19,12 @@ public class PlayerContext : MonoBehaviour // Save valuable data from the player
         HandleAnimations = GetComponentInChildren<HandleAnimations>();
         playerController = GetComponent<PlayerController>();
         Mjolnir = GetComponentInChildren<Mjolnir>();
+    }
+
+    public Action OnUpdate;
+
+    void Update()
+    {
+        OnUpdate?.Invoke();
     }
 }
