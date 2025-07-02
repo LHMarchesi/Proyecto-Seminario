@@ -43,7 +43,6 @@ public class HandleHeadBob : MonoBehaviour
 
         if (isMoving)
         {
-            Debug.Log(true);
             bobTimer += Time.deltaTime * bobSpeed;
             float bobX = Mathf.Cos(bobTimer * 0.5f) * bobAmount * 0.5f;
             float bobY = Mathf.Sin(bobTimer) * bobAmount;

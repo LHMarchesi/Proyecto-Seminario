@@ -12,5 +12,3 @@ public class EnemyStats : ScriptableObject
     public float detectionRange;
     public float knockbackAmmount;
 }
-
-
