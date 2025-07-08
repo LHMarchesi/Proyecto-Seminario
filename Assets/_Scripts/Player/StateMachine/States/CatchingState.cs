@@ -24,5 +24,8 @@ public class CatchingState : PlayerState
             if (timer > delay)
                 stateMachine.ChangeState(stateMachine.idleState);
         }
+
+        if (playerContext.HandleInputs.IsAttacking())
+            stateMachine.ChangeState(stateMachine.attackState);
     }
 }
