@@ -6,6 +6,9 @@ using TMPro;
 
 public class ExperienceManager : MonoBehaviour
 {
+    [Header("Habilidades")]
+    public List<ScriptableObject> abilityList = new List<ScriptableObject>();
+
     [Header("Experience")]
     [SerializeField] AnimationCurve experienceCurve;
 
@@ -17,6 +20,11 @@ public class ExperienceManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI experienceText;
     [SerializeField] Image experienceFill;
     [SerializeField] GameObject panel;
+    [SerializeField] TextMeshProUGUI panelText;
+    [SerializeField] TextMeshProUGUI panelDamageText;
+    [SerializeField] TextMeshProUGUI panelHpText;
+    [SerializeField] TextMeshProUGUI panelSpeedText;
+    [SerializeField] Image panelImage;
 
 
     void Start()
@@ -28,7 +36,7 @@ public class ExperienceManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            //AddExperience(5);
+            AddExperience(3);
         }
     }
 
@@ -49,10 +57,40 @@ public class ExperienceManager : MonoBehaviour
         }
     }
 
+    ScriptableObjectsAbilities GetRandomAbility()
+    {
+        int randomNumber = Random.Range(1, 101);
+        List<ScriptableObjectsAbilities> possibleAbilities = new List<ScriptableObjectsAbilities>();
+        foreach (ScriptableObjectsAbilities item in abilityList)
+        {
+            if (randomNumber <= item.dropChance)
+            {
+                possibleAbilities.Add(item);
+            }
+        }
+        if (possibleAbilities.Count > 0)
+        {
+            ScriptableObjectsAbilities droppedAbility = possibleAbilities[Random.Range(0, possibleAbilities.Count)];
+            return droppedAbility;
+        }
+        Debug.Log("No Ability");
+        return null;
+    }
+
     void LevelUp()
     {
         panel.SetActive(true);
         Cursor.lockState = CursorLockMode.None;
+        GetRandomAbility();
+        ScriptableObjectsAbilities droppedAbility = GetRandomAbility();
+        if(droppedAbility != null)
+        {
+            panelText.text = droppedAbility.abilityName;
+            panelImage.sprite = droppedAbility.lootSprite;
+            
+
+        }
+
     }
 
     void UpdateLevel()
