@@ -22,9 +22,10 @@ public class ExperienceManager : MonoBehaviour
     [SerializeField] GameObject panel;
     [SerializeField] TextMeshProUGUI panelText;
     [SerializeField] TextMeshProUGUI panelDamageText;
-    [SerializeField] TextMeshProUGUI panelHpText;
     [SerializeField] TextMeshProUGUI panelSpeedText;
     [SerializeField] Image panelImage;
+    [SerializeField] PlayerController playerController;
+    [SerializeField] HandleAttack playerDamage;
 
 
     void Start()
@@ -34,10 +35,8 @@ public class ExperienceManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            AddExperience(3);
-        }
+        panelDamageText.text = playerDamage.attackDamage.ToString();
+        panelSpeedText.text = playerController.WalkingSpeed.ToString();
     }
 
     public void AddExperience(int amount)
@@ -87,7 +86,10 @@ public class ExperienceManager : MonoBehaviour
         {
             panelText.text = droppedAbility.abilityName;
             panelImage.sprite = droppedAbility.lootSprite;
-            
+
+            playerDamage.attackDamage += droppedAbility.damage;
+            playerController.playerStats.walkingSpeed += droppedAbility.speed;
+            playerController.AddSpeed(droppedAbility.speed);
 
         }
 

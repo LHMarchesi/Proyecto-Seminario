@@ -30,7 +30,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody>();
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-        playerEXP = GameObject.Find("ExperienceBar").GetComponent<ExperienceManager>();
+        playerEXP = GameObject.Find("Player").GetComponent<ExperienceManager>();
         if (player != null)
             target = player.transform;
     }
