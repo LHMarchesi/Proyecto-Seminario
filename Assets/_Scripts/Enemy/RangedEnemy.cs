@@ -127,4 +127,3 @@ public class RangedEnemy : BaseEnemy
         proj.transform.rotation = firePoint.rotation;
     }
 }
-

@@ -11,9 +11,19 @@ public class AttackState : PlayerState
 
     public override void Enter()
     {
-        playerContext.HandleAnimations.ChangeAnimationState("Attack1");
-        queuedNextAttack = false;
-        timer = 0f;
+        if (playerContext.Mjolnir.IsHeld())
+        {
+            playerContext.HandleAnimations.ChangeAnimationState("AttackWithHammer");
+            queuedNextAttack = false;
+            timer = 0f;
+        }
+        else
+        {
+            playerContext.HandleAnimations.ChangeAnimationState("AttackWithOutHammer");
+            queuedNextAttack = false;
+            timer = 0f;
+        }
+       
     }
     
     public override void Update()
@@ -21,7 +31,7 @@ public class AttackState : PlayerState
         timer += Time.deltaTime;
 
         // Allow combo if you press attack again
-        if (playerContext.HandleInputs.IsAttacking() && timer > 0.3f && !queuedNextAttack)
+        if (playerContext.HandleInputs.IsAttacking() && timer > 0.5f && !queuedNextAttack)
         {
             queuedNextAttack = true;
         }

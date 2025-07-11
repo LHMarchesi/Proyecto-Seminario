@@ -14,7 +14,7 @@ public class ExperienceManager : MonoBehaviour
 
     [Header("Interface")]
     [SerializeField] TextMeshProUGUI levelText;
-    [SerializeField] TextMeshProUGUI experienceText;
+   // [SerializeField] TextMeshProUGUI experienceText;
     [SerializeField] Image experienceFill;
     [SerializeField] GameObject panel;
 
@@ -69,8 +69,6 @@ public class ExperienceManager : MonoBehaviour
         int start = totalExperience - previousLevelsExperience;
         int end = nextLevelsExperience - previousLevelsExperience;
 
-        levelText.text = currentLevel.ToString();
-        experienceText.text = start + " exp / " + end + " exp";
         experienceFill.fillAmount = (float)start / (float)end;
     }
 }

@@ -12,8 +12,17 @@ public class SecondAttackState : PlayerState
 
     public override void Enter()
     {
-        playerContext.HandleAnimations.ChangeAnimationState("Attack2");
-        timer = 0f;
+        if (playerContext.Mjolnir.IsHeld())
+        {
+            playerContext.HandleAnimations.ChangeAnimationState("2ndAttackWithHammer");
+            timer = 0f;
+        }
+        else
+        {
+            playerContext.HandleAnimations.ChangeAnimationState("2ndAttackWithOutHammer");
+            timer = 0f;
+        }
+        
     }
 
     public override void Update()
