@@ -13,7 +13,6 @@ public class WispEnemy : BaseEnemy
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Transform firePoint;
     [SerializeField] private float projectileSpeed;
-    [SerializeField] private float hoverHeight = 3f;
     [SerializeField] private float hoverSmoothness = 2f;
 
     private WispState currentState;

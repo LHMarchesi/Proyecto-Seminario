@@ -36,4 +36,8 @@ public class ParryPowerUp : BasePowerUp, IMjolnirRetractBehavior
         // AudioSource.PlayClipAtPoint(parrySFX, mjolnir.transform.position);
         // Instantiate(parryVFX, mjolnir.transform.position, Quaternion.identity);
     }
+
+    protected override void Upgrade()
+    {
+    }
 }

@@ -4,19 +4,27 @@ using UnityEngine;
 public abstract class BasePowerUp : MonoBehaviour, IPickuppeable //Clase Abstracta de la que heredan demas Power Ups
 {
     protected PlayerContext playerContext;
-    [SerializeField]private bool isTrigger;
+    [SerializeField] private bool isTrigger;
 
-    public void PickUp() 
+    public void PickUp()
     {
         ApplyEffect();
-        gameObject.SetActive(false); // Opcional para evitar destruirlo al instante
-        Destroy(gameObject, 0.2f);
+        Debug.Log("Power Up Picked Up: " + this.name);
+        gameObject.SetActive(false); 
+        Destroy(gameObject, 0.3f);
+    }
+
+    public void UpgradePowerUp()
+    {
+        Upgrade();
+        Debug.Log("Power Up Upgraded: " + this.name);
     }
     protected abstract void ApplyEffect(); // Metodo que utilizan los hijos de esta clase
+    protected abstract void Upgrade(); // Metodo que utilizan los hijos de esta clase
 
-    private void OnTriggerEnter(Collider other) 
+    private void OnTriggerEnter(Collider other)
     {
-        if(!isTrigger)
+        if (!isTrigger)
             return; // Si no es un trigger, no hacer nada
 
         // Chequear collision con jugador y asignar PlayerContext para acceder a PlayerController y Mjolnir
@@ -28,13 +36,18 @@ public abstract class BasePowerUp : MonoBehaviour, IPickuppeable //Clase Abstrac
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(isTrigger) return;
+        if (isTrigger) return;
 
         // Chequear collision con jugador y asignar PlayerContext para acceder a PlayerController y Mjolnir
         playerContext = collision.collider.GetComponent<PlayerContext>();
 
         if (playerContext != null)
             PickUp();
+    }
+
+    public void SetPlayerContext(PlayerContext context)
+    {
+        this.playerContext = context;
     }
 }
 

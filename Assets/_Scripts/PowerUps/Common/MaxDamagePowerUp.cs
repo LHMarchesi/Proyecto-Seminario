@@ -10,6 +10,10 @@ public class MaxDamagePowerUp : BasePowerUp
         UIManager.Instance.OnPlayerAddHealth();
     }
 
+    protected override void Upgrade()
+    {
+    }
+
     private void AddDaamge()
     {
         playerContext.PlayerController.AddMaxDamage(stats.newMaxDamage);

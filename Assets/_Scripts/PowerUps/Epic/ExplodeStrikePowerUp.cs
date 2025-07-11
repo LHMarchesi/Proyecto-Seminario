@@ -10,6 +10,10 @@ public class ExplodeStrikePowerUp : BasePowerUp
         UIManager.Instance.RegisterHability("Explode", stats.IconSprite);
     }
 
+    protected override void Upgrade()
+    {
+    }
+
     private void Explode(Collider enemyCollider)
     {
         if (Time.time - lastStrikeTime < stats.cooldown) return;  // cooldown check

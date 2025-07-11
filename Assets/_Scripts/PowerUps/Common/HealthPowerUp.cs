@@ -11,6 +11,9 @@ public class HealthPowerUp : BasePowerUp { // Hereda de BasePowerUP
     protected override void ApplyEffect() 
     {
         AddHealth();
-        UIManager.Instance.OnPlayerAddHealth(); //Flash verde en UI
+    }
+
+    protected override void Upgrade()
+    {
     }
 }

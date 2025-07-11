@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class GameplayState : IGameState
 {
-    public void Enter() { Debug.Log("Enter gameplay"); }
+    public void Enter() { Debug.Log("Enter gameplay");
+     
+    }
     public void Update()
     {
         

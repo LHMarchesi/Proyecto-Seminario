@@ -10,6 +10,10 @@ public class MaxSpeedPowerUp : BasePowerUp
         UIManager.Instance.OnPlayerAddHealth();
     }
 
+    protected override void Upgrade()
+    {
+    }
+
     private void AddSpeed()
     {
         playerContext.PlayerController.AddSpeed(stats.newMaxSpeed);

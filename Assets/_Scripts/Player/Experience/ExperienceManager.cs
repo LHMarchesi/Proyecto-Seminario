@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,7 +6,7 @@ using TMPro;
 public class ExperienceManager : MonoBehaviour
 {
     [Header("Habilidades")]
-    public List<ScriptableObject> abilityList = new List<ScriptableObject>();
+    public List<AbilityEntry> availableAbilities = new List<AbilityEntry>();
 
     [Header("Experience")]
     [SerializeField] AnimationCurve experienceCurve;
@@ -17,26 +16,18 @@ public class ExperienceManager : MonoBehaviour
 
     [Header("Interface")]
     [SerializeField] TextMeshProUGUI levelText;
-    [SerializeField] TextMeshProUGUI experienceText;
     [SerializeField] Image experienceFill;
-    [SerializeField] GameObject panel;
-    [SerializeField] TextMeshProUGUI panelText;
-    [SerializeField] TextMeshProUGUI panelDamageText;
-    [SerializeField] TextMeshProUGUI panelSpeedText;
-    [SerializeField] Image panelImage;
-    [SerializeField] PlayerController playerController;
-    [SerializeField] HandleAttack playerDamage;
 
+    [Header("Panel de Elección de Habilidades")]
+    [SerializeField] GameObject panel;
+    [SerializeField] Transform abilityButtonContainer;
+    [SerializeField] GameObject abilityButtonPrefab;
+
+    private List<GameObject> spawnedButtons = new List<GameObject>();
 
     void Start()
     {
         UpdateLevel();
-    }
-
-    void Update()
-    {
-        panelDamageText.text = playerDamage.attackDamage.ToString();
-        panelSpeedText.text = playerController.WalkingSpeed.ToString();
     }
 
     public void AddExperience(int amount)
@@ -56,43 +47,67 @@ public class ExperienceManager : MonoBehaviour
         }
     }
 
-    ScriptableObjectsAbilities GetRandomAbility()
+    AbilityEntry GetRandomAbility()
     {
         int randomNumber = Random.Range(1, 101);
-        List<ScriptableObjectsAbilities> possibleAbilities = new List<ScriptableObjectsAbilities>();
-        foreach (ScriptableObjectsAbilities item in abilityList)
+        List<AbilityEntry> possibleAbilities = new List<AbilityEntry>();
+
+        foreach (var ability in availableAbilities)
         {
-            if (randomNumber <= item.dropChance)
+            if (randomNumber <= ability.dropChance)
             {
-                possibleAbilities.Add(item);
+                possibleAbilities.Add(ability);
             }
         }
+
         if (possibleAbilities.Count > 0)
         {
-            ScriptableObjectsAbilities droppedAbility = possibleAbilities[Random.Range(0, possibleAbilities.Count)];
-            return droppedAbility;
+            return possibleAbilities[Random.Range(0, possibleAbilities.Count)];
         }
-        Debug.Log("No Ability");
+
+        Debug.LogWarning("No ability selected");
         return null;
     }
 
     void LevelUp()
     {
         panel.SetActive(true);
+        Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        GetRandomAbility();
-        ScriptableObjectsAbilities droppedAbility = GetRandomAbility();
-        if(droppedAbility != null)
+        Time.timeScale = 0f;
+
+        List<AbilityEntry> options = GetRandomAbilityOptions(2); // Elegimos 2 opciones al azar
+
+        foreach (var ability in options)
         {
-            panelText.text = droppedAbility.abilityName;
-            panelImage.sprite = droppedAbility.lootSprite;
+            GameObject buttonGO = Instantiate(abilityButtonPrefab, abilityButtonContainer);
+            spawnedButtons.Add(buttonGO);
 
-            playerDamage.attackDamage += droppedAbility.damage;
-            playerController.playerStats.walkingSpeed += droppedAbility.speed;
-            playerController.AddSpeed(droppedAbility.speed);
+            AbilityButtonUI buttonUI = buttonGO.GetComponent<AbilityButtonUI>();
+            buttonUI.Setup(ability, this);
+        }
+    }
 
+    public void ApplySelectedAbility(AbilityEntry selectedAbility)
+    {
+        GameObject instance = Instantiate(selectedAbility.abilityPrefab);
+        BasePowerUp powerUp = instance.GetComponent<BasePowerUp>();
+
+        if (powerUp != null)
+        {
+            powerUp.SetPlayerContext(this.GetComponent<PlayerContext>());
+            powerUp.PickUp();
         }
 
+        // Limpiar botones UI
+        foreach (var go in spawnedButtons)
+            Destroy(go);
+        spawnedButtons.Clear();
+
+        panel.SetActive(false);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1f;
     }
 
     void UpdateLevel()
@@ -108,7 +123,38 @@ public class ExperienceManager : MonoBehaviour
         int end = nextLevelsExperience - previousLevelsExperience;
 
         levelText.text = currentLevel.ToString();
-        experienceText.text = start + " exp / " + end + " exp";
         experienceFill.fillAmount = (float)start / (float)end;
+    }
+
+    List<AbilityEntry> GetRandomAbilityOptions(int count)
+    {
+        List<AbilityEntry> shuffled = new List<AbilityEntry>(availableAbilities);
+        shuffled.Shuffle();
+        return shuffled.GetRange(0, Mathf.Min(count, shuffled.Count));
+    }
+}
+
+[System.Serializable]
+public class AbilityEntry
+{
+    public string abilityName;
+    public GameObject abilityPrefab; // Prefab que contiene el PowerUp (LightningStrike, Explode, etc.)
+    public Sprite icon;
+    [Range(1, 100)]
+    public int dropChance;
+
+}
+
+public static class ListExtensions
+{
+    public static void Shuffle<T>(this IList<T> list)
+    {
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = Random.Range(0, n + 1);
+            (list[n], list[k]) = (list[k], list[n]);
+        }
     }
 }
