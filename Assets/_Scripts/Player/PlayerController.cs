@@ -3,12 +3,12 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
-    [SerializeField] private PlayerStats playerStats;
+    [SerializeField] public PlayerStats playerStats;
 
     private PlayerContext playerContext;
     private Rigidbody rb;
     private float currentHealth;
-    private float currentSpeed;
+    public float currentSpeed;
     private float lookRotation;
     private bool isDashing;
     private Vector3 dashDirection;
@@ -137,6 +137,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         currentHealth += health;
         playerStats.maxHealth += health;
+        UIManager.Instance.OnPlayerAddHealth(); // Flash verde en UI
     }
 
     public void AddMaxDamage(float damage)

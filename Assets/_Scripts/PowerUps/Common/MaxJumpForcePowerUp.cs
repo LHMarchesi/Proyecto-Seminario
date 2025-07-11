@@ -10,6 +10,10 @@ public class MaxJumpForcePowerUp : BasePowerUp
         UIManager.Instance.OnPlayerAddHealth();
     }
 
+    protected override void Upgrade()
+    {
+    }
+
     private void AddJumpForce()
     {
         playerContext.PlayerController.AddMaxJumpForce(stats.newMaxJumpForce);

@@ -45,4 +45,10 @@ public class LightningStrikePowerUp : BasePowerUp
         IDamageable damageable = enemyCollider.GetComponent<IDamageable>();
         damageable?.TakeDamage(stats.additionalDamage);
     }
+
+    protected override void Upgrade()
+    {
+        stats.additionalDamage += 5f;
+        stats.cooldown = Mathf.Max(0.1f, stats.cooldown - 0.2f);
+    }
 }

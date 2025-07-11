@@ -40,6 +40,22 @@ public class UIManager : MonoBehaviour
 
     public void RegisterHability(string id, Sprite sprite)
     {
+        if (habilityIcons.ContainsKey(id))
+        {
+            // Ya está registrada, hacé la mejora
+            var existingPowerUp = GameObject.FindObjectsOfType<BasePowerUp>();
+            foreach (var pu in existingPowerUp)
+            {
+                if (pu.name.Contains(id)) // Alternativamente podés hacer que cada PowerUp tenga un string `abilityId`
+                {
+                    pu.UpgradePowerUp();
+                }
+            }
+
+            // Opcional: animación en el icono existente (ej: flash, escalarlo)
+            return;
+        }
+
         GameObject iconGO = Instantiate(habilityIconPrefab, habilidadesPanel);
         HabilityIcon icon = iconGO.GetComponent<HabilityIcon>();
         icon.Initialize(sprite);

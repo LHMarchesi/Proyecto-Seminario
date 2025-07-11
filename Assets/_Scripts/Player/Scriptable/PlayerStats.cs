@@ -13,4 +13,5 @@ public class PlayerStats : ScriptableObject
     public float mouseSens;
     public float extraGravityForce; 
     public float dashCooldown;
+
 }
