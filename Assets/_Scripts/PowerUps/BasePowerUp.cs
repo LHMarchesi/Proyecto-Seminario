@@ -9,9 +9,9 @@ public abstract class BasePowerUp : MonoBehaviour, IPickuppeable //Clase Abstrac
     public void PickUp() 
     {
         ApplyEffect();
-        Destroy(gameObject);
+        gameObject.SetActive(false); // Opcional para evitar destruirlo al instante
+        Destroy(gameObject, 0.2f);
     }
-
     protected abstract void ApplyEffect(); // Metodo que utilizan los hijos de esta clase
 
     private void OnTriggerEnter(Collider other) 

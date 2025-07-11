@@ -1,5 +1,11 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+public interface IMjolnirRetractBehavior
+{
+    void OnRetract(Mjolnir mjolnir);
+}
 
 public class Mjolnir : MonoBehaviour
 {
@@ -17,7 +23,7 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float maxRetractPower;
     [SerializeField] private float damage;
     //public float parryCooldown;
-   // public float nextParryCD;
+    // public float nextParryCD;
 
     public Action<Collider> OnHitEnemy;
     public Action OnMjolnirThrow;
@@ -34,19 +40,27 @@ public class Mjolnir : MonoBehaviour
     private bool wasThrowing = false;
     private Vector3 originalSize;
 
+    private readonly List<IMjolnirRetractBehavior> retractBehaviors = new();
+    public void RegisterRetractBehavior(IMjolnirRetractBehavior behavior)
+    {
+        if (!retractBehaviors.Contains(behavior))
+            retractBehaviors.Add(behavior);
+    }
+    public void UnregisterRetractBehavior(IMjolnirRetractBehavior behavior)
+    {
+        if (retractBehaviors.Contains(behavior))
+            retractBehaviors.Remove(behavior);
+    }
+
+
     void OnEnable()
     {
         rb = GetComponent<Rigidbody>();
         playerContext = GetComponentInParent<PlayerContext>();
 
         startRotation = transform.localRotation;
-        Catch();
         originalSize = transform.localScale;
-    }
-
-    public void TeleportEnable()
-    {
-        teleport = true;
+        Catch();
     }
 
 
@@ -60,11 +74,8 @@ public class Mjolnir : MonoBehaviour
             if (!isChargingThrow)
                 isChargingThrow = true;  // Start charging the throw
 
-            OnChrgingThrow?.Invoke(); // Notify that we are charging the throw
             throwChargeTime += Time.deltaTime;  // Increment time charge
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
-
-
         }
         else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing) // Throw at button release
         {
@@ -91,7 +102,7 @@ public class Mjolnir : MonoBehaviour
         }
     }
 
-    void Throw()
+    public void Throw()
     {
         OnMjolnirThrow?.Invoke();
         rb.isKinematic = false;
@@ -108,38 +119,55 @@ public class Mjolnir : MonoBehaviour
         rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
     }
 
-    public void ForceRetract(float force)
+    public void ThrowWithPower(float powerMultiplier = 1f)
     {
-        maxRetractPower = force;
-        isRetracting = true;
+        OnMjolnirThrow?.Invoke();
+   
+        isRetracting = false;
+        rb.isKinematic = false;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+       
+
+        Vector3 cameraForward = Camera.main.transform.forward;
+        float finalThrowPower = maxThrowPower * powerMultiplier;
+        Debug.Log(finalThrowPower);
+
+        rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
+        rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
     }
+
+    public void ShowMessage(string message) { Debug.Log(message); }
 
     private void Retract()
     {
-        AudioSource audio = gameObject.AddComponent<AudioSource>();
-        audio.volume = 0.25f;
-        if (isHeld) return; // Avoid running if already held
-        if (teleport == true)
-        {
-            audio.PlayOneShot((AudioClip)Resources.Load("teleportVFX"));
-            playerContext.PlayerController.transform.position = this.transform.position;
-            Catch();
-        }
-        else if (teleport == false)
-        {
-            Vector3 directionToHand = hand.position - transform.position;
-            Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        if (isHeld) return;     // Avoid running if already held
 
-            rb.isKinematic = true; // Detenemos la física
-            transform.position = Vector3.MoveTowards(transform.position, hand.position, maxRetractPower * Time.deltaTime);
+        foreach (var behavior in retractBehaviors)
+        {
+            behavior.OnRetract(this);
         }
 
-        if (Vector3.Distance(hand.position, transform.position) < .5f && parry == false)
+
+        // if (teleport == true)
+        // {
+        //      audio.PlayOneShot((AudioClip)Resources.Load("teleportVFX"));
+        //      playerContext.PlayerController.transform.position = this.transform.position;
+        //      Catch();
+        //  }
+
+        Vector3 directionToHand = hand.position - transform.position;
+        Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+
+        rb.isKinematic = true; // Detenemos la física
+        transform.position = Vector3.MoveTowards(transform.position, hand.position, maxRetractPower * Time.deltaTime);
+
+
+        if (Vector3.Distance(hand.position, transform.position) < .5f)
         {
             Catch();
         }
-        else if (Vector3.Distance(hand.position, transform.position) < .15f && parry == true)
+        else if (Vector3.Distance(hand.position, transform.position) < .15f)
         {
             rb.isKinematic = false;
             Vector3 cameraForward = Camera.main.transform.forward;
@@ -147,7 +175,7 @@ public class Mjolnir : MonoBehaviour
             isRetracting = false;
             bool isCurrentlyThrowing = playerContext.HandleInputs.IsThrowing();
             rb.AddForce(cameraForward.normalized * finalThrowPower * 5f, ForceMode.VelocityChange);
-            audio.PlayOneShot((AudioClip)Resources.Load("parryVFX"));
+            //  audio.PlayOneShot((AudioClip)Resources.Load("parryVFX"));
 
         }
         this.transform.localScale = originalSize;
@@ -157,9 +185,9 @@ public class Mjolnir : MonoBehaviour
 
     void Catch()
     {
+        isHeld = true;
         rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
-        isHeld = true;
         isRetracting = false;
 
         transform.parent = hand; // Assing to the hand
@@ -183,7 +211,12 @@ public class Mjolnir : MonoBehaviour
         }
     }
 
-    public Vector3 GetOriginalSize() => originalSize;
-    public float GetChargeTime() => throwChargeTime;
+    public void StopRetracting()
+    {
+        isRetracting = false;
+    }
+
     public bool IsHeld() { return isHeld; }
+
+    public float DistanceFromHand() { return Vector3.Distance(hand.position, transform.position); }
 }

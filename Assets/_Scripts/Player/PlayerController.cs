@@ -3,13 +3,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
-    [SerializeField] private float maxHealth, walkingSpeed, runningSpeed, maxForce, mouseSens, jumpForce;
-    [SerializeField] private float dashCooldown = 1f;
-    public float WalkingSpeed { get => walkingSpeed; private set { } }
-    public float RunningSpeed { get => runningSpeed; private set { } }
-    public float CurrentSpeed { get => currentSpeed; private set { } }
-    public float CurrentHealth { get => currentHealth; private set { } }
-    public float MaxHealth { get => maxHealth; private set { } }
+    [SerializeField] private PlayerStats playerStats;
 
     private PlayerContext playerContext;
     private Rigidbody rb;
@@ -19,15 +13,18 @@ public class PlayerController : MonoBehaviour, IDamageable
     private bool isDashing;
     private Vector3 dashDirection;
     private float dashSpeed;
-
     private float lastDashTime = -Mathf.Infinity;
-    public float DashCooldown => dashCooldown;
+
+    public float CurrentHealth { get => currentHealth; private set { } }
+    public float MaxHealth { get => playerStats.maxHealth; private set { } }
+    public float RunningSpeed { get => playerStats.runningSpeed; private set { } }
+    public float WalkingSpeed { get => playerStats.walkingSpeed; private set { } }
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         playerContext = GetComponent<PlayerContext>();
-        currentHealth = maxHealth;
+        currentHealth = playerStats.maxHealth;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -41,12 +38,12 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
+        rb.AddForce(Vector3.down * playerStats.extraGravityForce, ForceMode.VelocityChange);
+
         Move();
-    }
-    private void Update()
-    {
         Jump();
     }
+
 
     public void Dash(Vector3 dir, float speed)
     {
@@ -62,17 +59,20 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public bool CanDash()
     {
-        return Time.time >= lastDashTime + dashCooldown;
+        return Time.time >= lastDashTime + playerStats.dashCooldown;
     }
 
     private void LookWithMouse()
     {
+        if (GameManager.Instance.GetCurrentState() is PauseState)
+            return;
+
         //Turn
         Vector2 look = playerContext.HandleInputs.GetLookVector2();
-        transform.Rotate(Vector3.up * look.x * mouseSens);
+        transform.Rotate(Vector3.up * look.x * playerStats.mouseSens);
 
         // Look
-        lookRotation += (-look.y * mouseSens);
+        lookRotation += (-look.y * playerStats.mouseSens);
         lookRotation = Mathf.Clamp(lookRotation, -90, 90);
         camHolder.transform.eulerAngles = new Vector3(lookRotation, camHolder.transform.eulerAngles.y, camHolder.transform.eulerAngles.z);
     }
@@ -95,7 +95,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         Vector3 velocityChange = (targetVelocity - currentVelocity); // Calculate force & fix falling
         velocityChange = new Vector3(velocityChange.x, 0, velocityChange.z);
 
-        Vector3.ClampMagnitude(velocityChange, maxForce); // Limit Speed
+        Vector3.ClampMagnitude(velocityChange, playerStats.maxSpeed); // Limit Speed
 
         rb.AddForce(velocityChange, ForceMode.VelocityChange);
     }
@@ -104,7 +104,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         Vector3 jumpForces = Vector3.zero;
         if (IsGrounded() && playerContext.HandleInputs.IsJumping())
         {
-            jumpForces = Vector3.up * jumpForce;
+            jumpForces = Vector3.up * playerStats.jumpForce;
         }
 
         rb.AddForce(jumpForces, ForceMode.Impulse);
@@ -120,11 +120,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         return hit;
     }
-    public void ChangeSpeed(float newSpeed)
-    {
-        currentSpeed = newSpeed;
-    }
-
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
@@ -132,11 +127,26 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (currentHealth <= 0)
             Die();
     }
+    public void AddSpeed(float newSpeed)
+    {
+        currentSpeed = newSpeed;
+    }
+
 
     public void AddHealth(float health)
     {
         currentHealth += health;
-        maxHealth += health;
+        playerStats.maxHealth += health;
+    }
+
+    public void AddMaxDamage(float damage)
+    {
+        playerStats.maxDamage += damage;
+    }
+
+    public void AddMaxJumpForce(float force)
+    {
+        playerStats.jumpForce += force;
     }
 
     protected virtual void Die()

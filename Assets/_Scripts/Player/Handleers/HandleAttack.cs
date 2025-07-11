@@ -35,7 +35,7 @@ public class HandleAttack : MonoBehaviour
 
     public void Attack() // Attack using forward RayCast
     {
-        if (!readyToAttack || attacking) return;
+        if (!readyToAttack || attacking ) return;
 
         readyToAttack = false;
         attacking = true;
@@ -71,7 +71,7 @@ public class HandleAttack : MonoBehaviour
         audioSource.pitch = 1;
         audioSource.PlayOneShot(hitSound);
 
-        GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
-        Destroy(GO, 10);
+      //  GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
+     //   Destroy(GO, 10);
     }
 }
