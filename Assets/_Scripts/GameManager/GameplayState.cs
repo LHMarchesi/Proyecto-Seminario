@@ -7,10 +7,9 @@ public class GameplayState : IGameState
     }
     public void Update()
     {
-        
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            GameManager.Instance.SetGameState(GameStates.Pause);
+            GameManager.Instance.ChangeState(new PauseState());
         }
     }
     public void Exit() { }

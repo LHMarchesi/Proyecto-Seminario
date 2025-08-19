@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,7 +20,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Transform habilidadesPanel;
     [SerializeField] private GameObject habilityIconPrefab;
 
-    private Image PauseScreen;
+    [SerializeField] private Image PauseScreen;
 
 
     private Dictionary<string, HabilityIcon> habilityIcons = new();
@@ -34,9 +35,9 @@ public class UIManager : MonoBehaviour
 
         Instance = this;
 
-        PauseScreen = GameObject.FindGameObjectWithTag("PauseScreen")?.GetComponent<Image>();
-        TogglePauseScreen(false);
+        
     }
+
 
     public void RegisterHability(string id, Sprite sprite)
     {
@@ -76,6 +77,8 @@ public class UIManager : MonoBehaviour
         PowerSlider.Disable();
         HealthSlider.ChangeValue(playerContext.PlayerController.MaxHealth);
         healthText.text = playerContext.PlayerController.MaxHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
+        PauseScreen = GameObject.FindGameObjectWithTag("PauseScreen")?.GetComponent<Image>();
+        TogglePauseScreen(false);
     }
     private void ShowDamageFlash()
     {

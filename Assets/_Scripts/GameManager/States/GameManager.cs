@@ -1,5 +1,4 @@
 
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,48 +10,45 @@ public enum GameStates
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-
-    [SerializeField] private IGameState currentState;
-    private Dictionary<GameStates, IGameState> states;
+    private GameStateMachine stateMachine;
 
     private void Awake()
     {
-        if (Instance == null) { Instance = this; DontDestroyOnLoad(this); }
-        else { Destroy(gameObject); return; }
-
-        // Inicializa la fábrica de estados
-        states = new Dictionary<GameStates, IGameState>()
+        // Ensure there's only one instance of GameManager (Singleton pattern)
+        if (Instance != null && Instance != this)
         {
-            { GameStates.MainMenu,     new MainMenuState() },
-            { GameStates.Game,         new GameplayState() },
-            { GameStates.Pause,        new PauseState() }
-        };
+            Destroy(gameObject);
+            return;
+        }
 
-        switch (SceneManager.GetActiveScene().buildIndex)
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // Initialize the state machine and set the initial state
+        stateMachine = new GameStateMachine();
+        int currentBuildIndex = SceneManager.GetActiveScene().buildIndex; // Store the current build index
+
+        switch (currentBuildIndex)  //
         {
-            case 0: // Main Menu Scene
-                currentState = states[GameStates.Game];
+            case 0: // Main Menu
+                stateMachine.ChangeState(new MainMenuState());
                 break;
-            case 1: // Gameplay Scene
-                //currentState = states[GameStates.Game];
+            case 1: // Game
+                stateMachine.ChangeState(new GameplayState());
                 break;
         }
     }
     private void Update()
     {
-        currentState?.Update();
+        stateMachine?.Update();
     }
 
-    public void SetGameState(GameStates newState)
+    public void ChangeState(IGameState newState)    // Public method to change the current game state.
     {
-        // Salida del estado actual
-        if (currentState != null)
-            currentState.Exit();
-
-        currentState = states[newState];
-        currentState.Enter();
+        stateMachine.ChangeState(newState);
+        Debug.Log(stateMachine.CurrentState);
     }
-    public IGameState GetCurrentState() => currentState;
+    public IGameState GetCurrentState() => stateMachine.CurrentState;
 }
 
 public interface IGameState
@@ -61,5 +57,3 @@ public interface IGameState
     void Update(); 
     void Exit();
 }
-
-

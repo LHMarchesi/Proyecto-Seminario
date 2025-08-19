@@ -11,7 +11,7 @@ public class PauseState : IGameState
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            GameManager.Instance.SetGameState(GameStates.Game);
+            GameManager.Instance.ChangeState(new GameplayState());
         }
     }
     public void Exit()
