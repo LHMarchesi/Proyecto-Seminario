@@ -130,9 +130,9 @@ public class WispEnemy : BaseEnemy
         currentState = WispState.Chasing;
     }
 
-    protected override void Die()
+    protected override void Die(int xpDrop)
     {
-        base.Die();
+        base.Die(stats.expDrop);
         handleAnimations.ChangeAnimationState("Die_Wisp");
     }
 }

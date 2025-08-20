@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
     public void ChangeState(IGameState newState)    // Public method to change the current game state.
     {
         stateMachine.ChangeState(newState);
-        Debug.Log(stateMachine.CurrentState);
+      //  Debug.Log(stateMachine.CurrentState);
     }
     public IGameState GetCurrentState() => stateMachine.CurrentState;
 }

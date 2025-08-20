@@ -5,6 +5,9 @@ using TMPro;
 
 public class ExperienceManager : MonoBehaviour
 {
+    [Header("PlayerContext")]
+    [SerializeField] PlayerContext playerContext;
+
     [Header("Habilidades")]
     public List<AbilityEntry> availableAbilities = new List<AbilityEntry>();
 
@@ -22,6 +25,8 @@ public class ExperienceManager : MonoBehaviour
     [SerializeField] GameObject panel;
     [SerializeField] Transform abilityButtonContainer;
     [SerializeField] GameObject abilityButtonPrefab;
+
+   
 
     private List<GameObject> spawnedButtons = new List<GameObject>();
 
@@ -93,9 +98,11 @@ public class ExperienceManager : MonoBehaviour
         GameObject instance = Instantiate(selectedAbility.abilityPrefab);
         BasePowerUp powerUp = instance.GetComponent<BasePowerUp>();
 
+        
+
         if (powerUp != null)
         {
-            powerUp.SetPlayerContext(this.GetComponent<PlayerContext>());
+            powerUp.SetPlayerContext(playerContext);
             powerUp.PickUp();
         }
 

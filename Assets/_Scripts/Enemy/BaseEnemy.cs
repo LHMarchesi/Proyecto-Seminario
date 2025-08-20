@@ -19,7 +19,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     protected Vector3 spawnPosition;
     protected HandleAnimations handleAnimations;
     protected Rigidbody rb;
-    public ExperienceManager playerEXP;
+    protected ExperienceManager playerEXP;
 
     protected virtual void OnEnable()
     {
@@ -30,7 +30,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody>();
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-        playerEXP = GameObject.Find("Player").GetComponent<ExperienceManager>();
+        playerEXP = GameObject.Find("ExperienceManager").GetComponent<ExperienceManager>();
         if (player != null)
             target = player.transform;
     }
@@ -58,10 +58,10 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     {
     }
 
-    protected virtual void Die()
+    protected virtual void Die(int experienceDroped = 0)
     {
         gameObject.SetActive(false); // Para pooling
-        playerEXP.AddExperience(3);
+        playerEXP.AddExperience(experienceDroped);
     }
 
     protected virtual void Spawn()

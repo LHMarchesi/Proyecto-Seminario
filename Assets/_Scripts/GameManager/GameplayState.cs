@@ -2,9 +2,7 @@ using UnityEngine;
 
 public class GameplayState : IGameState
 {
-    public void Enter() { Debug.Log("Enter gameplay");
-     
-    }
+    public void Enter() { }
     public void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -13,7 +11,6 @@ public class GameplayState : IGameState
         }
     }
     public void Exit() { }
-
 }
 
 

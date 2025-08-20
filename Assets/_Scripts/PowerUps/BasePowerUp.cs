@@ -9,7 +9,6 @@ public abstract class BasePowerUp : MonoBehaviour, IPickuppeable //Clase Abstrac
     public void PickUp()
     {
         ApplyEffect();
-        Debug.Log("Power Up Picked Up: " + this.name);
         gameObject.SetActive(false); 
         Destroy(gameObject, 0.3f);
     }
@@ -17,7 +16,6 @@ public abstract class BasePowerUp : MonoBehaviour, IPickuppeable //Clase Abstrac
     public void UpgradePowerUp()
     {
         Upgrade();
-        Debug.Log("Power Up Upgraded: " + this.name);
     }
     protected abstract void ApplyEffect(); // Metodo que utilizan los hijos de esta clase
     protected abstract void Upgrade(); // Metodo que utilizan los hijos de esta clase
