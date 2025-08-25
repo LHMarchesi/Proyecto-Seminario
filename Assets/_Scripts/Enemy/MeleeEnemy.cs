@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class MeleeEnemy : BaseEnemy
 {
@@ -83,23 +84,27 @@ public class MeleeEnemy : BaseEnemy
 
     protected override void Attack()
     {
-        if (attackCooldown > 0f) return;
-
+        FaceTarget();
         handleAnimations.ChangeAnimationState("Attack_MeleeEnemy");
-        //audioSource.PlayOneShot(swordSwing);
+        if (attackCooldown > 0f) return;
         attackCooldown = 1f / stats.attackSpeed;
-
-        Vector3 origin = transform.position + Vector3.up;
-        Vector3 direction = (target.position - transform.position).normalized;
-
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, stats.attackRange))
-        {
-            IDamageable damageable = hit.collider.GetComponent<IDamageable>();
-            damageable?.TakeDamage(stats.attackDamage);
-        }
+        //audioSource.PlayOneShot(attackSound);
     }
 
-    protected override void Die(int xpDrop)
+    public void TryDealDamageToPlayer()
+    {
+        Debug.Log("Attack_MeleeEnemy");
+        float distance;
+        distance = Vector2.Distance(transform.position, target.position);
+        if (distance < stats.attackRange)
+        {
+            PlayerController player = target.GetComponent<PlayerController>();
+            player.TakeDamage(stats.attackDamage);
+        }
+        
+    }
+
+    protected override void Die(float xpDrop)
     {
         base.Die(stats.expDrop);
      //   handleAnimations.ChangeAnimationState("Die_RangedEnemy");

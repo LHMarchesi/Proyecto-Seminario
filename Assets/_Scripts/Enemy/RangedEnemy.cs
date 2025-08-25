@@ -72,7 +72,6 @@ public class RangedEnemy : BaseEnemy
                 }
                 else
                 {
-                    FaceTarget();
                     Attack();
                 }
                 break;
@@ -92,7 +91,7 @@ public class RangedEnemy : BaseEnemy
         currentState = RangedEnemyState.Chasing;
     }
 
-    protected override void Die(int xpDrop)
+    protected override void Die(float xpDrop)
     {
         base.Die(stats.expDrop);
         handleAnimations.ChangeAnimationState("Die_RangedEnemy");
@@ -108,8 +107,8 @@ public class RangedEnemy : BaseEnemy
 
     protected override void Attack()
     {
-         if (attackCooldown > 0f) return;
-
+        if (attackCooldown > 0f) return;
+        FaceTarget();
         handleAnimations.ChangeAnimationState("Shoot_RangedEnemy");
         ShootProjectile();
         attackCooldown = 1f / stats.attackSpeed; 

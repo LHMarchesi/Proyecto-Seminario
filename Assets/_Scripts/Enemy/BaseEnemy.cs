@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public abstract class BaseEnemy : MonoBehaviour, IDamageable
@@ -58,7 +57,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     {
     }
 
-    protected virtual void Die(int experienceDroped = 0)
+    protected virtual void Die(float experienceDroped = 0)
     {
         gameObject.SetActive(false); // Para pooling
         playerEXP.AddExperience(experienceDroped);

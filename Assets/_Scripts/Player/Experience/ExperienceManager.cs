@@ -14,8 +14,8 @@ public class ExperienceManager : MonoBehaviour
     [Header("Experience")]
     [SerializeField] AnimationCurve experienceCurve;
 
-    int currentLevel, totalExperience;
-    int previousLevelsExperience, nextLevelsExperience;
+    float currentLevel, totalExperience;
+    float previousLevelsExperience, nextLevelsExperience;
 
     [Header("Interface")]
     [SerializeField] TextMeshProUGUI levelText;
@@ -35,7 +35,7 @@ public class ExperienceManager : MonoBehaviour
         UpdateLevel();
     }
 
-    public void AddExperience(int amount)
+    public void AddExperience(float amount)
     {
         totalExperience += amount;
         CheckForLevelUp();
@@ -98,8 +98,6 @@ public class ExperienceManager : MonoBehaviour
         GameObject instance = Instantiate(selectedAbility.abilityPrefab);
         BasePowerUp powerUp = instance.GetComponent<BasePowerUp>();
 
-        
-
         if (powerUp != null)
         {
             powerUp.SetPlayerContext(playerContext);
@@ -126,8 +124,8 @@ public class ExperienceManager : MonoBehaviour
 
     void UpdateInterface()
     {
-        int start = totalExperience - previousLevelsExperience;
-        int end = nextLevelsExperience - previousLevelsExperience;
+        float start = totalExperience - previousLevelsExperience;
+        float end = nextLevelsExperience - previousLevelsExperience;
 
         levelText.text = currentLevel.ToString();
         experienceFill.fillAmount = (float)start / (float)end;
@@ -148,7 +146,7 @@ public class AbilityEntry
     public GameObject abilityPrefab; // Prefab que contiene el PowerUp (LightningStrike, Explode, etc.)
     public Sprite icon;
     [Range(1, 100)]
-    public int dropChance;
+    public float dropChance;
 
 }
 

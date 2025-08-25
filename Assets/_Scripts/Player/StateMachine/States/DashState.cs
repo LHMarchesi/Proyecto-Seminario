@@ -3,7 +3,7 @@ using UnityEngine;
 public class DashState : PlayerState
 {
     private float dashDuration = 0.2f;
-    private float dashSpeed = 20f;
+    private float dashSpeed = 80f;
     private float timer;
 
     public DashState(PlayerStateMachine stateMachine, PlayerContext playerContext) : base(stateMachine, playerContext) { }

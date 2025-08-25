@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 
 public class WispEnemy : BaseEnemy
 {
@@ -130,7 +131,7 @@ public class WispEnemy : BaseEnemy
         currentState = WispState.Chasing;
     }
 
-    protected override void Die(int xpDrop)
+    protected override void Die(float xpDrop)
     {
         base.Die(stats.expDrop);
         handleAnimations.ChangeAnimationState("Die_Wisp");
