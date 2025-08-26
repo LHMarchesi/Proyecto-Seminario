@@ -8,27 +8,25 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Ring
-  m_Shader: {fileID: 211, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: b7839dad95683814aa64166edc107ae2, type: 3}
   m_Parent: {fileID: 2100000, guid: accc261ed45fdb34d8a57d2563a427dd, type: 2}
   m_ModifiedSerializedProperties: 2
   m_ValidKeywords:
   - _ALPHATEST_ON
-  - _COLOROVERLAY_ON
   - _EMISSION
-  m_InvalidKeywords:
-  - _FLIPBOOKBLENDING_OFF
   - _RECEIVE_SHADOWS_OFF
   - _SURFACE_TYPE_TRANSPARENT
-  m_LightmapFlags: 0
+  m_InvalidKeywords:
+  - _FLIPBOOKBLENDING_OFF
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap:
-    RenderType: TransparentCutout
+    RenderType: Transparent
   disabledShaderPasses:
   - DepthOnly
   - SHADOWCASTER
-  - GRABPASS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -37,17 +35,12 @@ Material:
         m_Texture: {fileID: 2800000, guid: 7f8daa2fc71465a48a5dbe4bbee0a330, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 7f8daa2fc71465a48a5dbe4bbee0a330, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _ColorMode: 3
     - _Smoothness: 0.5
     m_Colors:
     - _BaseColor: {r: 0.21960784, g: 0.75686276, b: 1, a: 1}
-    - _Color: {r: 0.21960783, g: 1, b: 0.73060745, a: 1}
+    - _Color: {r: 0.2196078, g: 0.75686276, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0.85568786, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &4715608803639720343
