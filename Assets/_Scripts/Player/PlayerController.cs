@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     private float lookRotation;
     private bool isDashing;
     private Vector3 dashDirection;
-    private float dashSpeed;
+    public float dashSpeed;
     private float lastDashTime = -Mathf.Infinity;
 
     public float CurrentHealth { get => currentHealth; private set { } }
@@ -47,9 +47,15 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void Dash(Vector3 dir, float speed)
     {
+
         isDashing = true;
-        dashDirection = dir;
-        dashSpeed = speed;
+        Vector3 dashDir = rb.velocity.normalized;
+        if (dashDir.magnitude < 0.1f)
+            dashDir = transform.forward;
+
+        rb.AddForce(dashDir * dashSpeed, ForceMode.VelocityChange);
+        //dashDirection = dir;
+        //dashSpeed = speed;
     }
 
     public void EndDash()
