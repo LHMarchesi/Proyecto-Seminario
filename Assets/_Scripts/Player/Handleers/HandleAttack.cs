@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class HandleAttack : MonoBehaviour
 {
@@ -58,15 +59,20 @@ public class HandleAttack : MonoBehaviour
         readyToAttack = true;
     }
 
-    void AttackRaycast() //  RayCast
+    void AttackRaycast()
     {
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, attackDistance, attackLayer))
+        Vector3 origin = Camera.main.transform.position + Camera.main.transform.forward * (attackDistance * 0.5f);
+
+        Collider[] hits = Physics.OverlapSphere(origin, 1f, attackLayer); // radio de 1 metro
+        foreach (var hit in hits)
         {
-            HitTarget(hit.point);
-            IDamageable damagable = hit.collider.gameObject.GetComponent<IDamageable>();  //Interfaz IDamageable
+            HitTarget(hit.ClosestPoint(origin));
+            IDamageable damagable = hit.GetComponent<IDamageable>();
             if (damagable != null)
             {
-                damagable.TakeDamage(attackDamage); // Llamamos al método
+                damagable.TakeDamage(attackDamage);
+                StartCoroutine(HitStop(0.08f, hit.gameObject));
+                StartCoroutine(ScreenShake(0.1f, 0.10f));
             }
         }
     }
@@ -78,5 +84,48 @@ public class HandleAttack : MonoBehaviour
 
         //  GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
         //   Destroy(GO, 10);
+    }
+
+    private IEnumerator HitStop(float duration, GameObject enemy)
+    {
+        float originalPlayerSpeed = playerContext.PlayerController.currentSpeed;
+        Rigidbody enemyRb = enemy.GetComponent<Rigidbody>();
+
+        playerContext.PlayerController.ChangeSpeed(0);
+
+        Vector3 enemyVel = Vector3.zero;
+        if (enemyRb != null)
+        {
+            enemyVel = enemyRb.velocity;
+            enemyRb.isKinematic = true;
+        }
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        playerContext.PlayerController.ChangeSpeed(originalPlayerSpeed);
+        if (enemyRb != null)
+        {
+            enemyRb.isKinematic = false;
+            enemyRb.velocity = enemyVel;
+        }
+    }
+
+    private IEnumerator ScreenShake(float duration, float magnitude)
+    {
+        Vector3 originalPos = Camera.main.transform.localPosition;
+
+        float elapsed = 0.0f;
+        while (elapsed < duration)
+        {
+            float x = Random.Range(-1f, 1f) * magnitude;
+            float y = Random.Range(-1f, 1f) * magnitude;
+
+            Camera.main.transform.localPosition = originalPos + new Vector3(x, y, 0);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        Camera.main.transform.localPosition = originalPos;
     }
 }
