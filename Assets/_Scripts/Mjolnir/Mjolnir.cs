@@ -40,6 +40,7 @@ public class Mjolnir : MonoBehaviour
     private bool wasThrowing = false;
     private Vector3 originalSize;
 
+
     private readonly List<IMjolnirRetractBehavior> retractBehaviors = new();
     public void RegisterRetractBehavior(IMjolnirRetractBehavior behavior)
     {
@@ -76,6 +77,8 @@ public class Mjolnir : MonoBehaviour
 
             throwChargeTime += Time.deltaTime;  // Increment time charge
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
+
+
         }
         else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing) // Throw at button release
         {
@@ -85,13 +88,10 @@ public class Mjolnir : MonoBehaviour
         }
         wasThrowing = isCurrentlyThrowing; // Save state 
 
-
         // HADNLE CATCH //
         //
         if (!isHeld && playerContext.HandleInputs.IsCatching())
-        {
             isRetracting = true;
-        }
     }
 
     private void FixedUpdate()
@@ -122,11 +122,11 @@ public class Mjolnir : MonoBehaviour
     public void ThrowWithPower(float powerMultiplier = 1f)
     {
         OnMjolnirThrow?.Invoke();
-   
+
         isRetracting = false;
         rb.isKinematic = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
-       
+
 
         Vector3 cameraForward = Camera.main.transform.forward;
         float finalThrowPower = maxThrowPower * powerMultiplier;

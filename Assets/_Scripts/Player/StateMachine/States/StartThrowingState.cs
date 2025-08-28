@@ -4,7 +4,8 @@ public class StartThrowingState : PlayerState
 {
     private float chargeTime = 0f;
     private float maxChargeTime = 1.5f;
-
+    private bool playerSpeedReduced;
+    private float originalPlayerSpeed;
 
     public StartThrowingState(PlayerStateMachine stateMachine, PlayerContext playerContext) : base(stateMachine, playerContext)
     {
@@ -14,6 +15,7 @@ public class StartThrowingState : PlayerState
     {
         chargeTime = 0f;
         playerContext.HandleAnimations.ChangeAnimationState("ChargeThrow");
+        ReducePlayerSpeed();
     }
 
     public override void Update()
@@ -28,10 +30,24 @@ public class StartThrowingState : PlayerState
         // Al soltar el botón, lanzar el martillo
         else
         {
-           
+            if (playerSpeedReduced)
+            {
+                playerContext.PlayerController.ChangeSpeed(originalPlayerSpeed); // Restaurar la original
+                playerSpeedReduced = false;
+            }
+
             stateMachine.ChangeState(stateMachine.throwState);
             UIManager.Instance.PowerSlider.Disable(); // Disable UI 
         }
     }
-  
+
+    private void ReducePlayerSpeed()
+    {
+        if (!playerSpeedReduced)
+        {
+            originalPlayerSpeed = playerContext.PlayerController.currentSpeed; // Guardamos la velocidad real
+            playerContext.PlayerController.ChangeSpeed(originalPlayerSpeed / 2); // Reducimos
+            playerSpeedReduced = true;
+        }
+    }
 }

@@ -127,7 +127,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (currentHealth <= 0)
             Die();
     }
-    public void AddSpeed(float newSpeed)
+    public void ChangeSpeed(float newSpeed)
     {
         currentSpeed = newSpeed;
     }

@@ -93,7 +93,6 @@ public class MeleeEnemy : BaseEnemy
 
     public void TryDealDamageToPlayer()
     {
-        Debug.Log("Attack_MeleeEnemy");
         float distance;
         distance = Vector2.Distance(transform.position, target.position);
         if (distance < stats.attackRange)

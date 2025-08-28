@@ -16,6 +16,6 @@ public class MaxSpeedPowerUp : BasePowerUp
 
     private void AddSpeed()
     {
-        playerContext.PlayerController.AddSpeed(stats.newMaxSpeed);
+        playerContext.PlayerController.ChangeSpeed(stats.newMaxSpeed);
     }
 }

@@ -20,6 +20,7 @@ public class HandleAttack : MonoBehaviour
     private bool attacking = false;
     private bool readyToAttack = true;
     private int attackCount;
+    private float playerSpeed;
 
     private void Awake()
     {
@@ -35,7 +36,7 @@ public class HandleAttack : MonoBehaviour
 
     public void Attack() // Attack using forward RayCast
     {
-        if (!readyToAttack || attacking ) return;
+        if (!readyToAttack || attacking) return;
 
         readyToAttack = false;
         attacking = true;
@@ -45,10 +46,14 @@ public class HandleAttack : MonoBehaviour
 
         audioSource.pitch = Random.Range(0.9f, 1.1f);  // Play swing
         audioSource.PlayOneShot(swordSwing);
+
+        playerSpeed = playerContext.PlayerController.currentSpeed;
+        playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.currentSpeed / 2); // Reduce speed while attacking
     }
 
     void ResetAttack()
     {
+        playerContext.PlayerController.ChangeSpeed(playerSpeed); // Restore speed
         attacking = false;
         readyToAttack = true;
     }
@@ -71,7 +76,7 @@ public class HandleAttack : MonoBehaviour
         audioSource.pitch = 1;
         audioSource.PlayOneShot(hitSound);
 
-      //  GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
-     //   Destroy(GO, 10);
+        //  GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
+        //   Destroy(GO, 10);
     }
 }
