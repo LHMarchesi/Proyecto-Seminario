@@ -61,18 +61,21 @@ public class HandleAttack : MonoBehaviour
 
     void AttackRaycast()
     {
-        Vector3 origin = Camera.main.transform.position + Camera.main.transform.forward * (attackDistance * 0.5f);
+        Vector3 origin = Camera.main.transform.position + Camera.main.transform.forward;
+        Vector3 direction = Camera.main.transform.forward;
 
-        Collider[] hits = Physics.OverlapSphere(origin, 1f, attackLayer); // radio de 1 metro
-        foreach (var hit in hits)
+        RaycastHit[] hits = Physics.RaycastAll(origin, direction, attackDistance, attackLayer);
+
+        foreach (RaycastHit hit in hits)
         {
-            HitTarget(hit.ClosestPoint(origin));
-            IDamageable damagable = hit.GetComponent<IDamageable>();
+            HitTarget(hit.point);
+
+            IDamageable damagable = hit.collider.GetComponent<IDamageable>();
             if (damagable != null)
             {
                 damagable.TakeDamage(attackDamage);
-                StartCoroutine(HitStop(0.08f, hit.gameObject));
-                StartCoroutine(ScreenShake(0.1f, 0.10f));
+                StartCoroutine(HitStop(0.08f, hit.collider.gameObject));
+                StartCoroutine(ScreenShake(0.1f, 0.3f));
             }
         }
     }
@@ -82,8 +85,8 @@ public class HandleAttack : MonoBehaviour
         audioSource.pitch = 1;
         audioSource.PlayOneShot(hitSound);
 
-        //  GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
-        //   Destroy(GO, 10);
+         GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
+          Destroy(GO, 3);
     }
 
     private IEnumerator HitStop(float duration, GameObject enemy)
@@ -109,7 +112,20 @@ public class HandleAttack : MonoBehaviour
             enemyRb.velocity = enemyVel;
         }
     }
+    void OnDrawGizmos()
+    {
+        if (Camera.main == null) return;
 
+        Vector3 origin = Camera.main.transform.position + Camera.main.transform.forward;
+        Vector3 direction = Camera.main.transform.forward;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(origin, direction * attackDistance);
+
+        // Opcional: punto final del rayo
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(origin + direction * attackDistance, 0.1f);
+    }
     private IEnumerator ScreenShake(float duration, float magnitude)
     {
         Vector3 originalPos = Camera.main.transform.localPosition;
