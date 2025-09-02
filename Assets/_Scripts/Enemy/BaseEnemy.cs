@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Pool;
 
 public abstract class BaseEnemy : MonoBehaviour, IDamageable
 {
@@ -19,6 +20,13 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     protected HandleAnimations handleAnimations;
     protected Rigidbody rb;
     protected ExperienceManager playerEXP;
+
+    private IObjectPool<BaseEnemy> enemyPool;
+
+    public void SetPool(IObjectPool<BaseEnemy> pool)
+    {
+        enemyPool = pool;
+    }
 
     protected virtual void OnEnable()
     {
@@ -59,7 +67,8 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     protected virtual void Die(float experienceDroped = 0)
     {
-        gameObject.SetActive(false); // Para pooling
+        if (enemyPool != null) { enemyPool.Release(this); } else { Destroy(gameObject); }
+
         playerEXP.AddExperience(experienceDroped);
     }
 
