@@ -10,7 +10,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     [SerializeField] private Color detectionRangeColor = Color.yellow;
     [SerializeField] private Color attackRangeColor = Color.red;
 
-    [SerializeField] private float damageCooldown = 0.5f; 
+    [SerializeField] private float damageCooldown = 0.5f; // medio segundo de invulnerabilidad
     private float lastDamageTime = -Mathf.Infinity;
 
     protected float currentHealth;
