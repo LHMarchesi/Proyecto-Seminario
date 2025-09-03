@@ -101,15 +101,4 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         rb.AddForce((transform.position - target.position).normalized * knockbackAmount, ForceMode.Impulse);
         rb.AddForce(Vector3.up * knockbackAmount, ForceMode.Impulse);
     }
-
-    protected virtual void OnDrawGizmosSelected()
-    {
-        if (!showRanges)
-            return;
-
-        Gizmos.color = detectionRangeColor;
-        Gizmos.DrawWireSphere(transform.position, stats.detectionRange);
-        Gizmos.color = attackRangeColor;
-        Gizmos.DrawWireSphere(transform.position, stats.attackRange);
-    }
 }

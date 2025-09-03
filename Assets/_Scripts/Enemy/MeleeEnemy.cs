@@ -64,10 +64,10 @@ public class MeleeEnemy : BaseEnemy
 
     protected override void OnDamage(float damage)
     {
+        GetKnockback(stats.knockbackAmmount);
         Invoke(nameof(EndDamageState), 0.1f);
         base.OnDamage(damage);
         handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
-        GetKnockback(stats.knockbackAmmount);
     }
 
     private void EndDamageState()
