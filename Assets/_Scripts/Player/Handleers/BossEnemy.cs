@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using UnityEngine;
 
-public class BossEnemy : BaseEnemy
+public class BossEnemy : BaseEnemy, IDamageable
 {
     private enum BossState
     {
@@ -18,6 +18,7 @@ public class BossEnemy : BaseEnemy
     public BossAttackStats[] phase3Attacks;
 
     public BossHitbox meleeHitBox;
+    public BossHitbox areaHitBox;
 
     private BossState currentState;
     private int currentPhase = 1;
@@ -46,7 +47,7 @@ public class BossEnemy : BaseEnemy
         switch (currentState)
         {
             case BossState.Idle:
-           //     handleAnimations.ChangeAnimationState("Idle_Boss");
+                //     handleAnimations.ChangeAnimationState("Idle_Boss");
                 if (distance < stats.detectionRange)
                     currentState = BossState.Chasing;
                 break;
@@ -72,7 +73,9 @@ public class BossEnemy : BaseEnemy
                 break;
 
             case BossState.Damaged:
-                // stun o knockback
+                GetKnockback(stats.knockbackAmmount);
+                Debug.Log(currentHealth);
+
                 break;
         }
     }
@@ -89,7 +92,7 @@ public class BossEnemy : BaseEnemy
 
     private void ChaseTarget()
     {
- //       handleAnimations.ChangeAnimationState("Chasing_Boss");
+        //       handleAnimations.ChangeAnimationState("Chasing_Boss");
         MoveTowardsTarget();
         FaceTarget();
     }
@@ -110,7 +113,8 @@ public class BossEnemy : BaseEnemy
             // si solo hay un ataque, lo usamos directo
             chosenAttack = attacks[0];
         }
-        else { 
+        else
+        {
             // Intentamos varios ataques hasta encontrar uno v�lido
             for (int i = 0; i < 5; i++)
             {
@@ -132,8 +136,6 @@ public class BossEnemy : BaseEnemy
         // Ejecutar el ataque
         chosenAttack.Execute(this, target, handleAnimations);
         attackCooldown = chosenAttack.cooldown; // usar el cooldown del ataque
-        Debug.Log("Cooldown: " + attackCooldown);
-
     }
 
     private float GetCurrentAttackRange()
@@ -160,12 +162,10 @@ public class BossEnemy : BaseEnemy
 
     protected override void OnDamage(float damage)
     {
-        GetKnockback(stats.knockbackAmmount);
-        Invoke(nameof(EndDamageState), 0.5f);
         base.OnDamage(damage);
-      //  handleAnimations.ChangeAnimationState("TakeDamage_Boss");
-
+        //  handleAnimations.ChangeAnimationState("TakeDamage_Boss");
         currentState = BossState.Damaged;
+        Invoke(nameof(EndDamageState), 0.5f);
     }
 
     private void EndDamageState()
@@ -173,29 +173,55 @@ public class BossEnemy : BaseEnemy
         currentState = BossState.Chasing;
     }
 
-    public void PrepareAttack(float damage, float knockbackHorizontal = 0f, float knockbackVertical = 0f)
+
+    public void DoAttack(string hitboxName, float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
     {
-        if (meleeHitBox != null)
-            meleeHitBox.SetDamage(damage, knockbackHorizontal, knockbackVertical);
+        StartCoroutine(hitboxRoutine(hitboxName, dmg, delay, duration, knockbackHorizontal, knockbackVertical));
     }
 
-    public void DoMeleeAttack(float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
+    private IEnumerator hitboxRoutine(string hitboxName, float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
     {
-        StartCoroutine(MeleeRoutine(dmg, delay, duration, knockbackHorizontal, knockbackVertical));
-    }
-
-    private IEnumerator MeleeRoutine(float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
-    {
-        meleeHitBox.SetDamage(dmg, knockbackHorizontal, knockbackVertical);
+        switch (hitboxName)
+        {
+            case "Melee":
+                meleeHitBox.SetDamage(dmg, knockbackHorizontal, knockbackVertical);
+                break;
+            case "Area":
+                areaHitBox.SetDamage(dmg, knockbackHorizontal, knockbackVertical);
+                break;
+            default:
+                break;
+        }
 
         if (delay > 0f)
             yield return new WaitForSeconds(delay);
 
-        meleeHitBox.EnableHitbox();
+        switch (hitboxName)
+        {
+            case "Melee":
+                meleeHitBox.EnableHitbox();
+                break;
+            case "Area":
+                areaHitBox.EnableHitbox();
+                break;
+            default:
+                break;
+        }
+        
 
         if (duration > 0f)
             yield return new WaitForSeconds(duration);
 
-        meleeHitBox.DisableHitbox();
+        switch (hitboxName)
+        {
+            case "Melee":
+                meleeHitBox.DisableHitbox();
+                break;
+            case "Area":
+                areaHitBox.DisableHitbox();
+                break;
+            default:
+                break;
+        }
     }
 }

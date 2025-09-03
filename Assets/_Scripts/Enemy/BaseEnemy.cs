@@ -1,20 +1,16 @@
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.Rendering.Universal;
 
 public abstract class BaseEnemy : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     [SerializeField] protected EnemyStats stats;  //Scriptable Stats
 
-    [Header("Debug")]
-    [SerializeField] private bool showRanges = true;
-    [SerializeField] private Color detectionRangeColor = Color.yellow;
-    [SerializeField] private Color attackRangeColor = Color.red;
-
-    [SerializeField] private float damageCooldown = 0.5f; // medio segundo de invulnerabilidad
+    private float damageCooldown = 0.2f; // medio segundo de invulnerabilidad
     private float lastDamageTime = -Mathf.Infinity;
 
-    protected float currentHealth;
+    [SerializeField] protected float currentHealth;
     protected Transform target;
     protected Vector3 spawnPosition;
     protected HandleAnimations handleAnimations;
@@ -50,14 +46,13 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     {
         if (Time.time - lastDamageTime < damageCooldown)
             return;
-        lastDamageTime = Time.time;
-
         OnDamage(damage);
     }
 
     protected virtual void OnDamage(float damage)
     {
         currentHealth -= damage;
+        Debug.Log(currentHealth);
         if (currentHealth <= 0)
             Die();
     }
