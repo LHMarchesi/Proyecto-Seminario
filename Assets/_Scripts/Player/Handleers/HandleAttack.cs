@@ -74,7 +74,7 @@ public class HandleAttack : MonoBehaviour
             {
                 damagable.TakeDamage(attackDamage);
 
-                StartCoroutine(HitStop(0.08f, hit.gameObject));
+           //     StartCoroutine(HitStop(0.000f, hit.gameObject));
                 StartCoroutine(ScreenShake(0.1f, 0.10f));
             }
         }

@@ -74,8 +74,6 @@ public class BossEnemy : BaseEnemy, IDamageable
 
             case BossState.Damaged:
                 GetKnockback(stats.knockbackAmmount);
-                Debug.Log(currentHealth);
-
                 break;
         }
     }

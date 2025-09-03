@@ -9,7 +9,8 @@ public class EnemySpawner : MonoBehaviour
     private float timeSinceSpawn;
 
     [SerializeField] private BaseEnemy[] enemyPrefabs;
-    private IObjectPool<BaseEnemy> enemyPool;
+    [SerializeField] private IObjectPool<BaseEnemy> enemyPool;
+    private bool canSpawn = true;
 
     private void Awake()
     {
@@ -39,7 +40,7 @@ public class EnemySpawner : MonoBehaviour
 
     private void Update()
     {
-        if (Time.time >= timeSinceSpawn)
+        if (Time.time >= timeSinceSpawn && canSpawn)
         {
             enemyPool.Get();
             timeSinceSpawn = Time.time + timeBtwSpawns; // Actualiza el "siguiente spawn"

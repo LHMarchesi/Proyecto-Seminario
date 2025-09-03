@@ -114,11 +114,11 @@ public class ExperienceManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1f;
     }
-
     void UpdateLevel()
     {
-        previousLevelsExperience = (int)experienceCurve.Evaluate(currentLevel);
-        nextLevelsExperience = (int)experienceCurve.Evaluate(currentLevel + 1);
+        float curveValue = experienceCurve.Evaluate(currentLevel);
+        previousLevelsExperience = 100 * Mathf.Pow(currentLevel, 1.5f) * curveValue;
+        nextLevelsExperience = 100 * Mathf.Pow(currentLevel + 1, 1.5f) * experienceCurve.Evaluate(currentLevel + 1);
         UpdateInterface();
     }
 

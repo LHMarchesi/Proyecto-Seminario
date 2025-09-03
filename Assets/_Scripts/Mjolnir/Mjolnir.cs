@@ -35,7 +35,7 @@ public class Mjolnir : MonoBehaviour
     public bool parry;
 
     private float throwChargeTime = 0f;
-    private float maxChargeTime = 1.5f;
+    private float maxChargeTime = 3;
     private bool isChargingThrow = false;
     private bool wasThrowing = false;
     private Vector3 originalSize;
@@ -75,7 +75,7 @@ public class Mjolnir : MonoBehaviour
             if (!isChargingThrow)
                 isChargingThrow = true;  // Start charging the throw
 
-            throwChargeTime += Time.deltaTime;  // Increment time charge
+            throwChargeTime += Time.deltaTime *2;  // Increment time charge
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
 
 
