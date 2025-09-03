@@ -153,7 +153,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     protected virtual void Die()
     {
         Debug.Log("Lose");
-        //GameManager.Instance.Lose();
+        GameManager.Instance.ChangeState(new LoseState());
     }
 }
 

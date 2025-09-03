@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public enum GameStates
 {
-    MainMenu, Pause, SkillChoose, Game
+    MainMenu, Pause, SkillChoose, Game, Lose
 }
 
 public class GameManager : MonoBehaviour
@@ -23,7 +23,6 @@ public class GameManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
         // Initialize the state machine and set the initial state
         stateMachine = new GameStateMachine();
         int currentBuildIndex = SceneManager.GetActiveScene().buildIndex; // Store the current build index
@@ -31,10 +30,11 @@ public class GameManager : MonoBehaviour
         switch (currentBuildIndex)  //
         {
             case 0: // Main Menu
-                stateMachine.ChangeState(new MainMenuState());
+                //stateMachine.ChangeState(new MainMenuState());
+                stateMachine.ChangeState(new GameplayState());
                 break;
             case 1: // Game
-                stateMachine.ChangeState(new GameplayState());
+              //  stateMachine.ChangeState(new GameplayState());
                 break;
         }
     }
@@ -46,7 +46,6 @@ public class GameManager : MonoBehaviour
     public void ChangeState(IGameState newState)    // Public method to change the current game state.
     {
         stateMachine.ChangeState(newState);
-      //  Debug.Log(stateMachine.CurrentState);
     }
     public IGameState GetCurrentState() => stateMachine.CurrentState;
 }

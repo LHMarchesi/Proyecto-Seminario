@@ -1,5 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Pool;
 
 public class HandleAttack : MonoBehaviour
 {
@@ -59,11 +60,12 @@ public class HandleAttack : MonoBehaviour
         readyToAttack = true;
     }
 
+
     void AttackRaycast()
     {
         Vector3 origin = Camera.main.transform.position + Camera.main.transform.forward * (attackDistance * 0.5f);
 
-        Collider[] hits = Physics.OverlapSphere(origin, 1f, attackLayer); // radio de 1 metro
+        Collider[] hits = Physics.OverlapSphere(origin, 2.5f, attackLayer); // radio de 1 metro
         foreach (var hit in hits)
         {
             HitTarget(hit.ClosestPoint(origin));
@@ -71,7 +73,8 @@ public class HandleAttack : MonoBehaviour
             if (damagable != null)
             {
                 damagable.TakeDamage(attackDamage);
-                StartCoroutine(HitStop(0.08f, hit.gameObject));
+
+           //     StartCoroutine(HitStop(0.000f, hit.gameObject));
                 StartCoroutine(ScreenShake(0.1f, 0.10f));
             }
         }
@@ -82,8 +85,8 @@ public class HandleAttack : MonoBehaviour
         audioSource.pitch = 1;
         audioSource.PlayOneShot(hitSound);
 
-        //  GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
-        //   Destroy(GO, 10);
+        GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
+        Destroy(GO, 3);
     }
 
     private IEnumerator HitStop(float duration, GameObject enemy)
