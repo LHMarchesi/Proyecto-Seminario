@@ -170,10 +170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: cc992a80e07360e408ffd088423bf301, type: 2}
-  showRanges: 1
-  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
-  damageCooldown: 0.5
+  currentHealth: 0
 --- !u!54 &4035131701050188508
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -182,7 +179,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 488732150065989839}
   serializedVersion: 4
-  m_Mass: 5
+  m_Mass: 10
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}

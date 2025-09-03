@@ -9,14 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd32cfb0bcd52cb4ca38a0062bf5ad9e, type: 3}
-  m_Name: RangedEnemy
+  m_Script: {fileID: 11500000, guid: afe3c6b9573337342be250d72b600adb, type: 3}
+  m_Name: MeleeAttack
   m_EditorClassIdentifier: 
-  maxHealth: 60
-  moveSpeed: 3
-  attackDamage: 30
-  attackSpeed: 0.7
-  attackRange: 40
-  detectionRange: 40
-  knockbackAmmount: 1
-  expDrop: 10
+  attackName: Patada
+  animationName: 
+  attackDelay: 0.7
+  attackDuration: 0.4
+  knockbackHorizontal: 20
+  knockbackVertical: 25
+  cooldown: 2
+  damage: 35
+  range: 6

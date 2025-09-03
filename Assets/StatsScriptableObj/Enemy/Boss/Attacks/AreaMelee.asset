@@ -9,14 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd32cfb0bcd52cb4ca38a0062bf5ad9e, type: 3}
-  m_Name: RangedEnemy
+  m_Script: {fileID: 11500000, guid: ff46bd7d2f3d190498b81be1965ae06a, type: 3}
+  m_Name: AreaMelee
   m_EditorClassIdentifier: 
-  maxHealth: 60
-  moveSpeed: 3
-  attackDamage: 30
-  attackSpeed: 0.7
-  attackRange: 40
-  detectionRange: 40
-  knockbackAmmount: 1
-  expDrop: 10
+  attackName: Golpe en el piso
+  animationName: 
+  attackDelay: 1
+  attackDuration: 0.6
+  knockbackHorizontal: 25
+  knockbackVertical: 30
+  cooldown: 8
+  damage: 60
+  range: 6
