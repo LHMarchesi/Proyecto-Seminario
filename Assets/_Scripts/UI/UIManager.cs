@@ -20,7 +20,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Transform habilidadesPanel;
     [SerializeField] private GameObject habilityIconPrefab;
 
-    [SerializeField] private Image PauseScreen;
+    private Image PauseScreen;
+    [SerializeField] private GameObject LoseScreen;
 
 
     private Dictionary<string, HabilityIcon> habilityIcons = new();
@@ -34,8 +35,7 @@ public class UIManager : MonoBehaviour
         }
 
         Instance = this;
-
-        
+        ShowLoseScreenn(false);
     }
 
 
@@ -85,6 +85,7 @@ public class UIManager : MonoBehaviour
         StopAllCoroutines();
         StartCoroutine(PanelFlashCoroutine(Color.red));
     }
+
     private void ShowHealthFlash()
     {
         StopAllCoroutines();
@@ -95,8 +96,6 @@ public class UIManager : MonoBehaviour
     {
         if (PauseScreen != null)
         {
-            Time.timeScale = value ? 0f : 1f; // Pausa o despausa el tiempo del juego
-            
             PauseScreen.gameObject.SetActive(value);
             if (value)
             {
@@ -110,9 +109,14 @@ public class UIManager : MonoBehaviour
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
+            Time.timeScale = value ? 0f : 1f; // Pausa o despausa el tiempo del juego
         }
     }
 
+    public void  ShowLoseScreenn(bool value)
+    {
+        LoseScreen.SetActive(value);
+    }
 
     private IEnumerator PanelFlashCoroutine(Color color)
     {

@@ -52,7 +52,6 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     protected virtual void OnDamage(float damage)
     {
         currentHealth -= damage;
-        Debug.Log(currentHealth);
         if (currentHealth <= 0)
             Die();
     }
