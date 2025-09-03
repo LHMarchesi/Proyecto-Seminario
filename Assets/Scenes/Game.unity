@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
+  m_IndirectSpecularColor: {r: 0.24784479, g: 0.28751147, b: 0.3464844, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2195,6 +2196,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 442563747}
   m_CullTransparentMesh: 1
+--- !u!1001 &455682092
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -82.26825
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.39014626
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 46.266613
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: d1c46079805c69740a9d701f76939146, type: 3}
+      propertyPath: m_Name
+      value: IceGolemAreaAttack
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d1c46079805c69740a9d701f76939146, type: 3}
 --- !u!1 &460787222 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1702533299754128, guid: c993c73f4d46bd44f8da39688b7e9250, type: 3}
@@ -12585,12 +12643,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    m_Quality: 3
-    m_FrameInfluence: 0.1
-    m_JitterScale: 1
-    m_MipBias: 0
-    m_VarianceClampScale: 0.9
-    m_ContrastAdaptiveSharpening: 0
+    quality: 3
+    frameInfluence: 0.1
+    jitterScale: 1
+    mipBias: 0
+    varianceClampScale: 0.9
+    contrastAdaptiveSharpening: 0
 --- !u!4 &1887308073 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4706682870689078, guid: 1f94a2951b723d24db1222bcd75446dd, type: 3}
@@ -14459,3 +14517,4 @@ SceneRoots:
   - {fileID: 1507721986}
   - {fileID: 1915929566}
   - {fileID: 2000498644}
+  - {fileID: 455682092}
