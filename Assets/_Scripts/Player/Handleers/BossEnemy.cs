@@ -47,7 +47,7 @@ public class BossEnemy : BaseEnemy, IDamageable
         switch (currentState)
         {
             case BossState.Idle:
-                //     handleAnimations.ChangeAnimationState("Idle_Boss");
+                handleAnimations.ChangeAnimationState("Idle_Boss");
                 if (distance < stats.detectionRange)
                     currentState = BossState.Chasing;
                 break;
@@ -90,7 +90,7 @@ public class BossEnemy : BaseEnemy, IDamageable
 
     private void ChaseTarget()
     {
-        //       handleAnimations.ChangeAnimationState("Chasing_Boss");
+        handleAnimations.ChangeAnimationState("Chasing_Boss");
         MoveTowardsTarget();
         FaceTarget();
     }
@@ -205,7 +205,7 @@ public class BossEnemy : BaseEnemy, IDamageable
             default:
                 break;
         }
-        
+
 
         if (duration > 0f)
             yield return new WaitForSeconds(duration);
