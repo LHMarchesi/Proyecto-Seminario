@@ -149,11 +149,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 102177821576557372, guid: 1893a64a84a61d747af1f7ccf0277ebf, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -1.9913788
+      value: -1.991394
       objectReference: {fileID: 0}
     - target: {fileID: 102177821576557372, guid: 1893a64a84a61d747af1f7ccf0277ebf, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -4.0053806
+      value: -4.0053787
       objectReference: {fileID: 0}
     - target: {fileID: 102177821576557372, guid: 1893a64a84a61d747af1f7ccf0277ebf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -1585,6 +1585,14 @@ PrefabInstance:
       propertyPath: meleeHitBox
       value: 
       objectReference: {fileID: 880836259}
+    - target: {fileID: 5241826558308911329, guid: cda5c1dcec11db34bbc1ada96c1c02a8, type: 3}
+      propertyPath: phase1Attacks.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5241826558308911329, guid: cda5c1dcec11db34bbc1ada96c1c02a8, type: 3}
+      propertyPath: phase1Attacks.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 91efcf8e746b87144bc3c0edf1b18ed9, type: 2}
     - target: {fileID: 6058526482034902278, guid: cda5c1dcec11db34bbc1ada96c1c02a8, type: 3}
       propertyPath: m_Name
       value: IceGolem
@@ -3901,7 +3909,6 @@ MonoBehaviour:
   damagePanel: {fileID: 427941777}
   habilidadesPanel: {fileID: 823965356}
   habilityIconPrefab: {fileID: 4524143533689275375, guid: 38db22624185e984a9b1f43ee6d8d5b6, type: 3}
-  PauseScreen: {fileID: 1932085842}
   LoseScreen: {fileID: 1807778233}
 --- !u!114 &851005572
 MonoBehaviour:
@@ -4591,6 +4598,30 @@ PrefabInstance:
     - target: {fileID: 1062747013407456577, guid: a7630a00b79f3294393851b790b546c0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1536921359047625878, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: jumpForce
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1536921359047625878, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: chargeSpeed
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1536921359047625878, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: maxJumpForce
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1536921359047625878, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: minJumpForce
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1536921359047625878, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: fallMultiplier
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1536921359047625878, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: lowJumpMultiplier
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3406703035888542816, guid: a7630a00b79f3294393851b790b546c0, type: 3}
       propertyPath: m_BackGroundColor.b

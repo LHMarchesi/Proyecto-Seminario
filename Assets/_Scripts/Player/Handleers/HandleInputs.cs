@@ -7,6 +7,9 @@ public class HandleInputs : MonoBehaviour
 {
     private Vector2 move, look;
     private float isThrowing, isCatching, isAttacking, isRunning, isJumping, isDashing;
+    private bool isChargingJump, jumpReleased;
+
+
     public void OnMove(InputAction.CallbackContext context) // Catch player input
     {
         move = context.ReadValue<Vector2>();
@@ -34,9 +37,27 @@ public class HandleInputs : MonoBehaviour
     {
         isRunning = context.ReadValue<float>();
     }
-    public void OnJump(InputAction.CallbackContext context) // Catch run input
+
+    public void OnJump(InputAction.CallbackContext context)
     {
-        isJumping = context.ReadValue<float>();
+        if (context.started)
+        {
+            isChargingJump = true;
+            jumpReleased = false;
+        }
+        else if (context.canceled)
+        {
+            isChargingJump = false;
+            jumpReleased = true;
+        }
+    }
+
+    public bool IsChargingJump() => isChargingJump;
+    public bool JumpReleased()
+    {
+        bool temp = jumpReleased;
+        jumpReleased = false; // para que dure un solo frame
+        return temp;
     }
     public void OnDash(InputAction.CallbackContext context) // Catch run input
     {
@@ -53,7 +74,7 @@ public class HandleInputs : MonoBehaviour
     public bool IsAttacking() { return isAttacking == 1f; }
 
     public bool IsRunning() { return isRunning == 1f; }
-    
+
     public bool IsJumping() { return isJumping == 1f; }
 
     public bool IsDashing() { return isDashing == 1f; }
