@@ -5,8 +5,7 @@ public class ChargingJumpState : PlayerState
 
     public override void Enter()
     {
-        //    playerContext.HandleAnimations.ChangeAnimationState("");
-        //  playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.WalkingSpeed);
+        playerContext.HandleAnimations.ChangeAnimationState("ChargueJump");
     }
 
     public override void Update()

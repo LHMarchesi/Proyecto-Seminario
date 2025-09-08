@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class FallingWithHammer : PlayerState
@@ -9,6 +10,7 @@ public class FallingWithHammer : PlayerState
 
     public override void Enter()
     {
+        //playerContext.HandleAnimations.ChangeAnimationState("");
         // Dirección tunable
         initialDir =
              playerContext.PlayerController.transform.forward * playerContext.PlayerController.playerStats.forwardMultiplier +
@@ -19,7 +21,7 @@ public class FallingWithHammer : PlayerState
     {
         if (playerContext.PlayerController.IsGrounded())
         {
-            //DoGroundImpact();
+            DoGroundImpact();
             stateMachine.ResetAnimations();
         }
         else
@@ -33,7 +35,7 @@ public class FallingWithHammer : PlayerState
     private void DoGroundImpact()
     {
         // radio del golpe
-        float radius = 5f;
+        float radius = 10f;
         float damage = 20f;
 
         Vector3 impactPoint = playerContext.PlayerController.transform.position;
@@ -42,14 +44,18 @@ public class FallingWithHammer : PlayerState
         Collider[] hitColliders = Physics.OverlapSphere(impactPoint, radius);
         foreach (var hit in hitColliders)
         {
+            if (hit.gameObject == playerContext.PlayerController.gameObject)
+                continue;
+
             IDamageable dmg = hit.GetComponent<IDamageable>();
             if (dmg != null)
             {
+               
                 dmg.TakeDamage(damage);
             }
         }
 
         // GameObject.Instantiate(playerContext.impactVFX, impactPoint, Quaternion.identity);
-        // CameraManager.Instance.ShakeCamera(0.3f, 0.5f);
+        CameraManager.Instance.DoScreenShake(0.1f, 0.3f);
     }
 }
