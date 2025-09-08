@@ -41,23 +41,24 @@ public class HandleInputs : MonoBehaviour
     public void OnJump(InputAction.CallbackContext context)
     {
         if (context.started)
-        {
             isChargingJump = true;
-            jumpReleased = false;
-        }
         else if (context.canceled)
         {
+            jumpReleased = true; // marcamos release
             isChargingJump = false;
-            jumpReleased = true;
         }
     }
 
     public bool IsChargingJump() => isChargingJump;
     public bool JumpReleased()
     {
-        bool temp = jumpReleased;
-        jumpReleased = false; // para que dure un solo frame
-        return temp;
+        return jumpReleased;
+    }
+
+    // Consumir el release, llamado por la máquina de estados
+    public void ConsumeJumpReleased()
+    {
+        jumpReleased = false;
     }
     public void OnDash(InputAction.CallbackContext context) // Catch run input
     {

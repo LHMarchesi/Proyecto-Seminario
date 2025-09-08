@@ -29,6 +29,8 @@ public class IdleState : PlayerState
 
         if (playerContext.HandleInputs.IsDashing() && playerContext.PlayerController.CanDash())
             stateMachine.ChangeState(stateMachine.dashState);
+
+        if (playerContext.HandleInputs.IsChargingJump())
+            stateMachine.ChangeState(stateMachine.chargingJumpState);
     }
 }
-

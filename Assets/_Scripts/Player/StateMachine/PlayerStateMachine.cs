@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class PlayerStateMachine : MonoBehaviour
@@ -11,10 +12,16 @@ public class PlayerStateMachine : MonoBehaviour
     public ThrowState throwState;
     public AttackState attackState;
     public SecondAttackState secondAttackState;
+    public FallingState fallingState;
+    public JumpState jumpState;
+    public ChargingJumpState chargingJumpState;
+    public FallingWithHammer fallingWithHammer;
     public StartThrowingState startThrowingState;
     public CatchingState catchingState;
     public RunningState runningState;
     public DashState dashState;
+
+    [SerializeField] private TextMeshProUGUI debugStatesText;
 
 
     void Awake()
@@ -25,6 +32,10 @@ public class PlayerStateMachine : MonoBehaviour
         idleState = new IdleState(this, playerContext);
         walkState = new WalkState(this, playerContext);
         runningState = new RunningState(this, playerContext);
+        jumpState = new JumpState(this, playerContext);
+        fallingState = new FallingState(this, playerContext);
+        chargingJumpState = new ChargingJumpState(this, playerContext);
+        fallingWithHammer = new FallingWithHammer(this, playerContext);
         throwState = new ThrowState(this, playerContext);
         dashState = new DashState(this, playerContext);
         attackState = new AttackState(this, playerContext);
@@ -49,6 +60,7 @@ public class PlayerStateMachine : MonoBehaviour
             currentState.Exit();
 
         currentState = newState;
+        debugStatesText.text = "State: " + currentState.GetType().Name;
         currentState.Enter();
     }
 
@@ -61,7 +73,10 @@ public class PlayerStateMachine : MonoBehaviour
         else if (playerContext.HandleInputs.GetMoveVector2() != Vector2.zero) // Check for player movement
         {
             ChangeState(walkState);
-        }else
+        }
+        else
             ChangeState(idleState);
+
+
     }
 }

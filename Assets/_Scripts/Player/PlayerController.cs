@@ -20,14 +20,9 @@ public class PlayerController : MonoBehaviour, IDamageable
     public float RunningSpeed { get => playerStats.runningSpeed; private set { } }
     public float WalkingSpeed { get => playerStats.walkingSpeed; private set { } }
 
-
-    private bool isChargingJump = false;
     private float currentJumpCharge = 0f;
 
-    [SerializeField] private float minJumpForce = 5f;
-    [SerializeField] private float maxJumpForce = 15f;
-    [SerializeField] private float chargeSpeed = 10f;
-    [SerializeField] private float chargeSlowMultiplier = 3f; // qué tan rápido se frena
+    private bool isChargingJump;
 
     void Awake()
     {
@@ -39,7 +34,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         Cursor.visible = false;
     }
 
-
     private void LateUpdate()
     {
         LookWithMouse();
@@ -50,17 +44,13 @@ public class PlayerController : MonoBehaviour, IDamageable
         rb.AddForce(Vector3.down * playerStats.extraGravityForce, ForceMode.VelocityChange);
 
         Move();
-        Jump();
     }
-
-
     public void Dash(Vector3 dir, float speed)
     {
         isDashing = true;
         dashDirection = dir;
         dashSpeed = speed;
     }
-
     public void EndDash()
     {
         lastDashTime = Time.time;
@@ -70,7 +60,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         return Time.time >= lastDashTime + playerStats.dashCooldown;
     }
-
     private void LookWithMouse()
     {
         if (GameManager.Instance.GetCurrentState() is PauseState)
@@ -97,22 +86,19 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (isChargingJump)
         {
             // calcular el porcentaje de carga (0 = inicio, 1 = carga máxima)
-            float chargePercent = currentJumpCharge / maxJumpForce;
+            float chargePercent = currentJumpCharge / playerStats.maxJumpForce;
 
-            // cuánto frenar según la carga
-            float slowFactor = Mathf.Lerp(1f, 0f, chargePercent);
-            // 1 = movimiento normal, 0 = completamente quieto
+            // frenar según la carga
+            float slowFactor = Mathf.Lerp(1f, 0.3f, chargePercent);
 
             Vector2 moveX = playerContext.HandleInputs.GetMoveVector2();
 
-            // velocidad base que tendrías normalmente
             Vector3 tarVelocity = new Vector3(moveX.x, 0, moveX.y) * currentSpeed;
             tarVelocity = transform.TransformDirection(tarVelocity);
 
-            // aplicamos el factor de frenado
+            // factor de frenado
             tarVelocity *= slowFactor;
 
-            // mantenemos componente Y del rigidbody
             rb.velocity = new Vector3(tarVelocity.x, rb.velocity.y, tarVelocity.z);
             return;
         }
@@ -133,30 +119,44 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         rb.AddForce(velocityChange, ForceMode.VelocityChange);
     }
-    private void Jump()
+    public void ChargingJump()
     {
-        // Comienza a cargar
-        if (IsGrounded() && playerContext.HandleInputs.IsChargingJump())
-        {
-            isChargingJump = true;
+        if (!IsGrounded()) return;
 
-            currentJumpCharge += chargeSpeed * Time.fixedDeltaTime;
-            currentJumpCharge = Mathf.Clamp(currentJumpCharge, minJumpForce, maxJumpForce);
-        }
-
-        // Cuando suelta  salto con la fuerza acumulada
-        if (IsGrounded() && playerContext.HandleInputs.JumpReleased())
-        {
-            float finalForce = Mathf.Max(currentJumpCharge, minJumpForce);
-
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // reset Y
-            rb.AddForce(Vector3.up * finalForce, ForceMode.Impulse);
-
-            currentJumpCharge = 0f;
-            isChargingJump = false;
-        }
+        isChargingJump = true;
+        currentJumpCharge += playerStats.chargeSpeed * Time.fixedDeltaTime;
+        currentJumpCharge = Mathf.Clamp(currentJumpCharge, playerStats.minJumpForce, playerStats.maxJumpForce);
     }
+    public void DoJump()
+    {
+        if (!isChargingJump) return;
 
+        float finalForce = Mathf.Max(currentJumpCharge, playerStats.minJumpForce);
+
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // reset Y
+        rb.AddForce(Vector3.up * finalForce, ForceMode.Impulse);
+
+        currentJumpCharge = 0f;
+        isChargingJump = false;
+    }
+    public bool IsFalling()
+    {
+        return rb.velocity.y < -0.1f && !IsGrounded();
+    }
+    public bool HasMinimumAirHeight(float minHeight)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
+        {
+            float distanceToGround = hit.distance;
+            return distanceToGround >= minHeight;
+        }
+        return false;
+    }
+    public Rigidbody GetRigidbody()
+    {
+        return rb;
+    }
     public bool IsGrounded()
     {
         Vector3 boxCenter = transform.position + Vector3.down * 1f;
@@ -179,25 +179,20 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         currentSpeed = newSpeed;
     }
-
-
     public void AddHealth(float health)
     {
         currentHealth += health;
         playerStats.maxHealth += health;
         UIManager.Instance.OnPlayerAddHealth(); // Flash verde en UI
     }
-
     public void AddMaxDamage(float damage)
     {
         playerStats.maxDamage += damage;
     }
-
     public void AddMaxJumpForce(float force)
     {
-        playerStats.jumpForce += force;
+        playerStats.minJumpForce += force;
     }
-
     protected virtual void Die()
     {
         Debug.Log("Lose");
