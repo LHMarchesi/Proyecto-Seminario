@@ -5,6 +5,7 @@ public class JumpState : PlayerState
 
     public override void Enter()
     {
+        playerContext.HandleAnimations.ChangeAnimationState("Jump");
         playerContext.PlayerController.DoJump();
     }
 
