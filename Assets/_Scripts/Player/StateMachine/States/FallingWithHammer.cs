@@ -10,7 +10,7 @@ public class FallingWithHammer : PlayerState
 
     public override void Enter()
     {
-        playerContext.HandleAnimations.ChangeAnimationState("FallingAttack");
+        playerContext.HandleAnimations.ChangeAnimationState("AirAttack");
         // Dirección tunable
         initialDir =
              playerContext.PlayerController.transform.forward * playerContext.PlayerController.playerStats.forwardMultiplier +
