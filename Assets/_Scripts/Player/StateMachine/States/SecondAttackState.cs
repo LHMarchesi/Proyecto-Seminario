@@ -38,3 +38,27 @@ public class SecondAttackState : PlayerState
         }
     }
 }
+public class ChargedAttack : PlayerState
+{
+    public ChargedAttack(PlayerStateMachine stateMachine, PlayerContext playerContext)
+        : base(stateMachine, playerContext) { }
+
+
+    public override void Enter()
+    {
+            playerContext.HandleAnimations.ChangeAnimationState("2ndAttackWithHammer");
+    }
+
+    public override void Update()
+    {
+        timer += Time.deltaTime;
+
+        if (timer >= attackDuration)
+        {
+            if (playerContext.HandleInputs.GetMoveVector2() != Vector2.zero)
+                stateMachine.ChangeState(stateMachine.walkState);
+            else
+                stateMachine.ChangeState(stateMachine.idleState);
+        }
+    }
+}
