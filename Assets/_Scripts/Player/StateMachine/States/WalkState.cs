@@ -29,5 +29,8 @@ public class WalkState : PlayerState
 
         if (playerContext.HandleInputs.IsChargingJump())
             stateMachine.ChangeState(stateMachine.chargingJumpState);
+
+        if (playerContext.HandleInputs.IsChragingAttack())
+            stateMachine.ChangeState(stateMachine.chargingAttackState);
     }
 }
