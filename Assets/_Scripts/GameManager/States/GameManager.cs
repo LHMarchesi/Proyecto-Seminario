@@ -30,11 +30,11 @@ public class GameManager : MonoBehaviour
         switch (currentBuildIndex)  //
         {
             case 0: // Main Menu
-                //stateMachine.ChangeState(new MainMenuState());
-                stateMachine.ChangeState(new GameplayState());
+                stateMachine.ChangeState(new MainMenuState());
+             
                 break;
             case 1: // Game
-              //  stateMachine.ChangeState(new GameplayState());
+                stateMachine.ChangeState(new GameplayState());
                 break;
         }
     }

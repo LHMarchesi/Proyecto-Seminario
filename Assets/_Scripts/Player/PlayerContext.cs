@@ -7,6 +7,7 @@ public class PlayerContext : MonoBehaviour // Save valuable data from the player
     private HandleAnimations handleAnimations;
     private PlayerController playerController;
     private Mjolnir mjolnir;
+    public GameObject smashVFX;
 
     public Mjolnir Mjolnir { get => mjolnir; set => mjolnir = value; }
     public HandleAnimations HandleAnimations { get => handleAnimations; set => handleAnimations = value; }
