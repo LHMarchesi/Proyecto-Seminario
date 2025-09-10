@@ -38,6 +38,12 @@ public class UIManager : MonoBehaviour
         ShowLoseScreenn(false);
     }
 
+    private void Update()
+    {
+        if(playerContext = null)
+        playerContext = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerContext>();
+    }
+
 
     public void RegisterHability(string id, Sprite sprite)
     {
