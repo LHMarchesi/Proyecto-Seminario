@@ -187,7 +187,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public void AddMaxDamage(float damage)
     {
-        playerStats.maxDamage += damage;
+        playerStats.basicMaxDamage += damage;
     }
     public void AddMaxJumpForce(float force)
     {

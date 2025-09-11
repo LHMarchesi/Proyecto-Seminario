@@ -16,15 +16,22 @@ MonoBehaviour:
   walkingSpeed: 11
   runningSpeed: 15
   maxSpeed: 10
-  dashCooldown: 1.7
+  dashCooldown: 2
   minJumpForce: 15
   maxJumpForce: 50
   chargeSpeed: 15
   chargeSlowMultiplier: 3
   forwardMultiplier: 15
   downwardMultiplier: 40
-  slamForce: 15
+  slamForce: 10
   minDistWGround: 7
-  maxDamage: 25
+  basicMaxDamage: 50
+  basicAttackRadius: 2.5
+  basicAttackShakeDuration: 0.1
+  basicAttackShakeMagnitude: 0.1
+  chargedMaxDamage: 100
+  chargedAttackRadius: 5
+  chargedAttackShakeDuration: 0.3
+  chargedAttackShakeMagnitude: 0.3
   extraGravityForce: 0.7
   mouseSens: 0.1

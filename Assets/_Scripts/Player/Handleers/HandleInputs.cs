@@ -67,7 +67,7 @@ public class HandleInputs : MonoBehaviour
     {
         return jumpReleased;
     }
-    public bool AttackRealed()
+    public bool AttackRealesed()
     {
         return attackRealed;
     }
@@ -76,6 +76,10 @@ public class HandleInputs : MonoBehaviour
     public void ConsumeJumpReleased()
     {
         jumpReleased = false;
+    }
+    public void ConsumeAttackRealesed()
+    {
+        attackRealed = false;
     }
     public void OnDash(InputAction.CallbackContext context) // Catch run input
     {
