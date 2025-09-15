@@ -5,8 +5,6 @@ public class FallingState : PlayerState
 
     public override void Enter()
     {
-
-        playerContext.PlayerController.DoJump();
     }
 
     public override void Update()

@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     public float RunningSpeed { get => playerStats.runningSpeed; private set { } }
     public float WalkingSpeed { get => playerStats.walkingSpeed; private set { } }
 
-    private float currentJumpCharge = 0f;
+    public float currentJumpCharge = 0f;
 
     private bool isChargingJump;
 
