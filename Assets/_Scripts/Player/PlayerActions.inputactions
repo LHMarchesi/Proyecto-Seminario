@@ -24,12 +24,21 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Attack",
+                    "name": "AttackTap",
                     "type": "Button",
                     "id": "067c2672-29bd-48e7-92ee-ad54f0128791",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "AttackHold",
+                    "type": "Button",
+                    "id": "131ed0f2-b2bc-45d1-9847-4bd0193d3180",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold",
                     "initialStateCheck": false
                 },
                 {
@@ -257,21 +266,21 @@
                     "name": "",
                     "id": "f19c4fdb-9108-471d-9c9b-6128ab8d75b5",
                     "path": "<Mouse>/leftButton",
-                    "interactions": "",
+                    "interactions": "Press",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Attack",
+                    "action": "AttackTap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "a702a0e3-f596-4962-bcc0-f1ca9ee4983a",
-                    "path": "<Keyboard>/q",
-                    "interactions": "",
+                    "id": "2a2d3aa8-7988-4da9-9e2c-88da6e37ea18",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Hold",
                     "processors": "",
-                    "groups": "",
-                    "action": "Attack",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "AttackHold",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

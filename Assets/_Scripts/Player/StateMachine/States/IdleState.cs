@@ -32,8 +32,5 @@ public class IdleState : PlayerState
 
         if (playerContext.HandleInputs.IsChargingJump())
             stateMachine.ChangeState(stateMachine.chargingJumpState);
-
-        if (playerContext.HandleInputs.IsChragingAttack())
-            stateMachine.ChangeState(stateMachine.chargingAttackState);
     }
 }
