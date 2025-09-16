@@ -2,46 +2,43 @@ using UnityEngine;
 
 public class AttackState : PlayerState
 {
-    private float attackDuration = 0.8f;
-    private float comboWindow = 0.5f;
+    private float attackDuration = 0.6f;
     private float timer = 0f;
-    private bool queuedNextTapAttack;
-    private bool queuedHoldAttack;
+    private bool queuedNextAttack;
 
     public AttackState(PlayerStateMachine stateMachine, PlayerContext playerContext)
         : base(stateMachine, playerContext) { }
 
     public override void Enter()
     {
-        queuedNextTapAttack = false;
-        queuedHoldAttack = false;
-        timer = 0f;
-
         if (playerContext.Mjolnir.IsHeld())
+        {
             playerContext.HandleAnimations.ChangeAnimationState("AttackWithHammer");
+            queuedNextAttack = false;
+            timer = 0f;
+        }
         else
+        {
             playerContext.HandleAnimations.ChangeAnimationState("AttackWithOutHammer");
-
+            queuedNextAttack = false;
+            timer = 0f;
+        }
+       
     }
-
+    
     public override void Update()
     {
         timer += Time.deltaTime;
 
-        if (playerContext.HandleInputs.IsChragingAttack() && timer > comboWindow && !queuedHoldAttack)
-        { queuedHoldAttack = true; }
-
-        else if (playerContext.HandleInputs.IsAttacking() && timer > comboWindow && !queuedNextTapAttack)
+        // Allow combo if you press attack again
+        if (playerContext.HandleInputs.IsAttacking() && timer > 0.5f && !queuedNextAttack)
         {
-            queuedNextTapAttack = true;
+            queuedNextAttack = true;
         }
-
 
         if (timer >= attackDuration)
         {
-            if (queuedHoldAttack) // Jump to Charged Attack state
-                stateMachine.ChangeState(stateMachine.chargingAttackState);
-            else if (queuedNextTapAttack) // Jump to Second attack state
+            if (queuedNextAttack) // Jump to Second attack state
                 stateMachine.ChangeState(stateMachine.secondAttackState);
             else
                 stateMachine.ResetAnimations();

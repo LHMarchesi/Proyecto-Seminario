@@ -29,7 +29,7 @@ public class HandleInputs : MonoBehaviour
         isCatching = context.ReadValue<float>();
     }
 
-    public void IsTappingAttack(InputAction.CallbackContext context) // Catch attack input
+    public void OnAttack(InputAction.CallbackContext context) // Catch attack input
     {
         isAttacking = context.ReadValue<float>();
     }
