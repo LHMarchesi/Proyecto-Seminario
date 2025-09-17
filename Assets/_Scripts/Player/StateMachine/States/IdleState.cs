@@ -21,8 +21,8 @@ public class IdleState : PlayerState
     {
         stateMachine.ResetAnimations();
 
-        if (playerContext.HandleInputs.IsAttacking())
-            stateMachine.ChangeState(stateMachine.attackState);
+        if (playerContext.HandleInputs.IsAttackHeld())
+            stateMachine.ChangeState(stateMachine.chargingAttackState);
 
         if (playerContext.HandleInputs.IsThrowing())
             stateMachine.ChangeState(stateMachine.startThrowingState);
@@ -32,8 +32,5 @@ public class IdleState : PlayerState
 
         if (playerContext.HandleInputs.IsChargingJump())
             stateMachine.ChangeState(stateMachine.chargingJumpState);
-
-        if (playerContext.HandleInputs.IsChragingAttack())
-            stateMachine.ChangeState(stateMachine.chargingAttackState);
     }
 }

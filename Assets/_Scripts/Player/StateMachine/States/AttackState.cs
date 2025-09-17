@@ -11,37 +11,32 @@ public class AttackState : PlayerState
 
     public override void Enter()
     {
+        playerContext.HandleAttack.Attack(playerContext.PlayerController.playerStats.basicMaxDamage,
+               playerContext.PlayerController.playerStats.basicAttackRadius,
+               playerContext.PlayerController.playerStats.basicAttackShakeDuration,
+               playerContext.PlayerController.playerStats.basicAttackShakeMagnitude);
+
+        timer = 0f;
+
         if (playerContext.Mjolnir.IsHeld())
         {
             playerContext.HandleAnimations.ChangeAnimationState("AttackWithHammer");
-            queuedNextAttack = false;
-            timer = 0f;
         }
         else
         {
             playerContext.HandleAnimations.ChangeAnimationState("AttackWithOutHammer");
-            queuedNextAttack = false;
-            timer = 0f;
         }
-       
+
     }
-    
+
     public override void Update()
     {
         timer += Time.deltaTime;
 
-        // Allow combo if you press attack again
-        if (playerContext.HandleInputs.IsAttacking() && timer > 0.5f && !queuedNextAttack)
-        {
-            queuedNextAttack = true;
-        }
 
         if (timer >= attackDuration)
         {
-            if (queuedNextAttack) // Jump to Second attack state
-                stateMachine.ChangeState(stateMachine.secondAttackState);
-            else
-                stateMachine.ResetAnimations();
+            stateMachine.ChangeState(stateMachine.idleState);
         }
     }
 }

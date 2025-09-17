@@ -33,11 +33,6 @@ public class HandleAttack : MonoBehaviour
 
     private void Update()
     {
-        if (playerContext.HandleInputs.IsAttacking())
-            Attack(playerContext.PlayerController.playerStats.basicMaxDamage, 
-                playerContext.PlayerController.playerStats.basicAttackRadius,
-                playerContext.PlayerController.playerStats.basicAttackShakeDuration,
-                playerContext.PlayerController.playerStats.basicAttackShakeMagnitude);
     }
 
     public void Attack(float damage,float radius, float shakeDuration, float shakeMagnitude)

@@ -18,7 +18,7 @@ public class FallingState : PlayerState
         if (playerContext.HandleInputs.IsCatching() && !playerContext.Mjolnir.IsHeld()) // Check for tryng Catch
             stateMachine.ChangeState(stateMachine.catchingState);
 
-        if (playerContext.HandleInputs.IsAttacking() &&
+        if (playerContext.HandleInputs.TryConsumeTap() &&
            playerContext.PlayerController.HasMinimumAirHeight(playerContext.PlayerController.playerStats.minDistWGround)) // altura mínima de 1.5 unidades
         {
             stateMachine.ChangeState(stateMachine.fallingWithHammer);

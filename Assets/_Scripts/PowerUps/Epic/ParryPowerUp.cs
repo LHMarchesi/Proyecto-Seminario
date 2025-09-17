@@ -17,7 +17,7 @@ public class ParryPowerUp : BasePowerUp, IMjolnirRetractBehavior
     }
     public void OnRetract(Mjolnir mjolnir)
     {
-        if (!context.Mjolnir.IsHeld() && context.HandleInputs.IsAttacking())
+        if (!context.Mjolnir.IsHeld() && context.HandleInputs.TryConsumeTap())
         {
             float distanceFromHand = mjolnir.DistanceFromHand();
             if (distanceFromHand < parryWindow)

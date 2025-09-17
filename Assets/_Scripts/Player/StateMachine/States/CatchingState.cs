@@ -25,7 +25,7 @@ public class CatchingState : PlayerState
                 stateMachine.ChangeState(stateMachine.idleState);
         }
 
-        if (playerContext.HandleInputs.IsAttacking())
+        if (playerContext.HandleInputs.TryConsumeTap())
             stateMachine.ChangeState(stateMachine.attackState);
     }
 }

@@ -21,7 +21,7 @@ public class JumpState : PlayerState
             stateMachine.ChangeState(stateMachine.fallingState);
 
         // Detectar si se puede hacer ataque en el aire
-        if (playerContext.HandleInputs.IsAttacking()){
+        if (playerContext.HandleInputs.TryConsumeTap()){
 
             if (playerContext.PlayerController.HasMinimumAirHeight(playerContext.PlayerController.playerStats.minDistWGround))
             {
