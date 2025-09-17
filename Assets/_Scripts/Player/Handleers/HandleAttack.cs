@@ -23,7 +23,7 @@ public class HandleAttack : MonoBehaviour
     private bool attacking = false;
     private bool readyToAttack = true;
     private int attackCount;
-    private float playerSpeed;
+    private float playerSpeed; 
 
     private void Awake()
     {
@@ -51,9 +51,9 @@ public class HandleAttack : MonoBehaviour
         audioSource.PlayOneShot(swordSwing);
 
         playerSpeed = playerContext.PlayerController.currentSpeed;
-        playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.currentSpeed / 2);
+        playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.currentSpeed - playerContext.PlayerController.playerStats.speedReductor);
 
-        yield return new WaitForSeconds(attackDelay);
+        yield return new WaitForSecondsRealtime(attackDelay);
 
         Vector3 origin = Camera.main.transform.position + Camera.main.transform.forward * (attackDistance * 0.5f);
         Collider[] hits = Physics.OverlapSphere(origin, radius, attackLayer);
@@ -69,7 +69,6 @@ public class HandleAttack : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(attackSpeed);
         playerContext.PlayerController.ChangeSpeed(playerSpeed);
         attacking = false;
         readyToAttack = true;

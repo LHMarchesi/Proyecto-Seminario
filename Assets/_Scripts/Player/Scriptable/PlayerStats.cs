@@ -25,6 +25,7 @@ public class PlayerStats : ScriptableObject
 
     [Header("Basic Attack Settings")]
     public float basicMaxDamage;
+    public float speedReductor;
     public float basicAttackRadius;
     public float basicAttackShakeDuration;
     public float basicAttackShakeMagnitude;

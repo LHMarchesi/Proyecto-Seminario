@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class AttackState : PlayerState
 {
-    private float attackDuration = 0.6f;
+    private float attackDuration = 0.8f;
     private float timer = 0f;
     private bool queuedNextAttack;
 
@@ -11,12 +11,13 @@ public class AttackState : PlayerState
 
     public override void Enter()
     {
+        timer = 0f;
+        queuedNextAttack = false;
+
         playerContext.HandleAttack.Attack(playerContext.PlayerController.playerStats.basicMaxDamage,
                playerContext.PlayerController.playerStats.basicAttackRadius,
                playerContext.PlayerController.playerStats.basicAttackShakeDuration,
                playerContext.PlayerController.playerStats.basicAttackShakeMagnitude);
-
-        timer = 0f;
 
         if (playerContext.Mjolnir.IsHeld())
         {
@@ -38,5 +39,12 @@ public class AttackState : PlayerState
         {
             stateMachine.ChangeState(stateMachine.idleState);
         }
+        else if (!queuedNextAttack && playerContext.HandleInputs.TryConsumeTap() && timer > 0.4f)
+        {
+            queuedNextAttack = true;
+        }
+
+        if (queuedNextAttack)
+            stateMachine.ChangeState(stateMachine.secondAttackState);
     }
 }
