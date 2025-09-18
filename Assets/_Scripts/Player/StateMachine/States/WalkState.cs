@@ -15,8 +15,8 @@ public class WalkState : PlayerState
     {
         stateMachine.ResetAnimations();
 
-        if (playerContext.HandleInputs.IsAttacking())
-            stateMachine.ChangeState(stateMachine.attackState);
+        if (playerContext.HandleInputs.IsAttackHeld())
+            stateMachine.ChangeState(stateMachine.chargingAttackState);
 
         if (playerContext.HandleInputs.IsRunning())
             stateMachine.ChangeState(stateMachine.runningState);
@@ -29,5 +29,7 @@ public class WalkState : PlayerState
 
         if (playerContext.HandleInputs.IsChargingJump())
             stateMachine.ChangeState(stateMachine.chargingJumpState);
+
+       
     }
 }

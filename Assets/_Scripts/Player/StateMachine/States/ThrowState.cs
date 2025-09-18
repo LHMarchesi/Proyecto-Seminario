@@ -14,7 +14,7 @@
         if (playerContext.HandleInputs.IsCatching())
             stateMachine.ChangeState(stateMachine.catchingState);
 
-        if (playerContext.HandleInputs.IsAttacking())
+        if (playerContext.HandleInputs.TryConsumeTap())
         {
             stateMachine.ChangeState(stateMachine.attackState);
         }

@@ -23,7 +23,7 @@ public class HandleAttack : MonoBehaviour
     private bool attacking = false;
     private bool readyToAttack = true;
     private int attackCount;
-    private float playerSpeed;
+    private float playerSpeed; 
 
     private void Awake()
     {
@@ -33,52 +33,45 @@ public class HandleAttack : MonoBehaviour
 
     private void Update()
     {
-        if (playerContext.HandleInputs.IsAttacking())
-            Attack();
     }
 
-    public void Attack() // Attack using forward RayCast
+    public void Attack(float damage,float radius, float shakeDuration, float shakeMagnitude)
     {
         if (!readyToAttack || attacking) return;
 
+        StartCoroutine(DoAttack(damage, radius, shakeDuration, shakeMagnitude));
+    }
+
+    private IEnumerator DoAttack(float damage, float radius, float shakeDuration, float shakeMagnitude)
+    {
         readyToAttack = false;
         attacking = true;
 
-        Invoke(nameof(ResetAttack), attackSpeed);
-        Invoke(nameof(AttackRaycast), attackDelay);
-
-        audioSource.pitch = Random.Range(0.9f, 1.1f);  // Play swing
+        audioSource.pitch = Random.Range(0.9f, 1.1f);
         audioSource.PlayOneShot(swordSwing);
 
         playerSpeed = playerContext.PlayerController.currentSpeed;
-        playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.currentSpeed / 2); // Reduce speed while attacking
-    }
+        playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.currentSpeed - playerContext.PlayerController.playerStats.speedReductor);
 
-    void ResetAttack()
-    {
-        playerContext.PlayerController.ChangeSpeed(playerSpeed); // Restore speed
-        attacking = false;
-        readyToAttack = true;
-    }
+        yield return new WaitForSecondsRealtime(attackDelay);
 
-
-    void AttackRaycast()
-    {
         Vector3 origin = Camera.main.transform.position + Camera.main.transform.forward * (attackDistance * 0.5f);
+        Collider[] hits = Physics.OverlapSphere(origin, radius, attackLayer);
 
-        Collider[] hits = Physics.OverlapSphere(origin, 2.5f, attackLayer); // radio de 1 metro
         foreach (var hit in hits)
         {
             HitTarget(hit.ClosestPoint(origin));
             IDamageable damagable = hit.GetComponent<IDamageable>();
             if (damagable != null)
             {
-                damagable.TakeDamage(attackDamage);
-
-           //     StartCoroutine(HitStop(0.000f, hit.gameObject));
-                CameraManager.Instance.DoScreenShake(0.1f, 0.1f);
+                damagable.TakeDamage(damage);
+                CameraManager.Instance.DoScreenShake(shakeDuration, shakeMagnitude);
             }
         }
+
+        playerContext.PlayerController.ChangeSpeed(playerSpeed);
+        attacking = false;
+        readyToAttack = true;
     }
 
     void HitTarget(Vector3 pos)

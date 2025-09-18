@@ -12,7 +12,8 @@ public class PlayerStateMachine : MonoBehaviour
     public ThrowState throwState;
     public AttackState attackState;
     public SecondAttackState secondAttackState;
-    public ChargedAttack chagedAttackState;
+    public ChargingAttack chargingAttackState;
+    public ChargedAttack chargedAttackState;
     public FallingState fallingState;
     public JumpState jumpState;
     public ChargingJumpState chargingJumpState;
@@ -32,7 +33,8 @@ public class PlayerStateMachine : MonoBehaviour
         // Initialize states
         idleState = new IdleState(this, playerContext);
         walkState = new WalkState(this, playerContext);
-        chagedAttackState = new ChargedAttack(this, playerContext);
+        chargingAttackState = new ChargingAttack(this, playerContext);
+        chargedAttackState = new ChargedAttack(this, playerContext);
         runningState = new RunningState(this, playerContext);
         jumpState = new JumpState(this, playerContext);
         fallingState = new FallingState(this, playerContext);

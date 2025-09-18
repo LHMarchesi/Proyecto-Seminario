@@ -38,7 +38,7 @@ public class FallingWithHammer : PlayerState
         float radius = 10f;
         float damage = 20f;
 
-        Vector3 impactPoint = playerContext.PlayerController.transform.position;
+        Vector3 impactPoint = new Vector3(playerContext.PlayerController.transform.position.x, playerContext.PlayerController.transform.position.y, playerContext.PlayerController.transform.position.z+2f);
 
         // buscar enemigos en el ?rea
         Collider[] hitColliders = Physics.OverlapSphere(impactPoint, radius);
@@ -55,7 +55,7 @@ public class FallingWithHammer : PlayerState
             }
         }
 
-        // GameObject.Instantiate(playerContext.impactVFX, impactPoint, Quaternion.identity);
+        GameObject.Instantiate(playerContext.smashVFX, impactPoint, Quaternion.identity);
         CameraManager.Instance.DoScreenShake(0.1f, 0.3f);
     }
 }

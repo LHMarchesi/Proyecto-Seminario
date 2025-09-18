@@ -24,7 +24,17 @@ public class PlayerStats : ScriptableObject
     public float minDistWGround;
 
     [Header("Basic Attack Settings")]
-    public float maxDamage;
+    public float basicMaxDamage;
+    public float speedReductor;
+    public float basicAttackRadius;
+    public float basicAttackShakeDuration;
+    public float basicAttackShakeMagnitude;
+
+    [Header("Charged Attack Settings")]
+    public float chargedMaxDamage;
+    public float chargedAttackRadius;
+    public float chargedAttackShakeDuration;
+    public float chargedAttackShakeMagnitude;
 
     [Header("Gravity")]
     public float extraGravityForce;

@@ -5,8 +5,6 @@ public class FallingState : PlayerState
 
     public override void Enter()
     {
-
-        playerContext.PlayerController.DoJump();
     }
 
     public override void Update()
@@ -17,10 +15,13 @@ public class FallingState : PlayerState
         if (playerContext.HandleInputs.IsThrowing())
             stateMachine.ChangeState(stateMachine.startThrowingState);
 
+        if (playerContext.HandleInputs.IsDashing() && playerContext.PlayerController.CanDash())
+            stateMachine.ChangeState(stateMachine.dashState);
+
         if (playerContext.HandleInputs.IsCatching() && !playerContext.Mjolnir.IsHeld()) // Check for tryng Catch
             stateMachine.ChangeState(stateMachine.catchingState);
 
-        if (playerContext.HandleInputs.IsAttacking() &&
+        if (playerContext.HandleInputs.TryConsumeTap() &&
            playerContext.PlayerController.HasMinimumAirHeight(playerContext.PlayerController.playerStats.minDistWGround)) // altura mínima de 1.5 unidades
         {
             stateMachine.ChangeState(stateMachine.fallingWithHammer);

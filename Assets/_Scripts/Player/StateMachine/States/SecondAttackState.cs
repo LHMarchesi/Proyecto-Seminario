@@ -4,7 +4,6 @@ public class SecondAttackState : PlayerState
 {
     private float attackDuration = 0.6f;
     private float timer = 0f;
-    private bool queuedNextAttack;
 
     public SecondAttackState(PlayerStateMachine stateMachine, PlayerContext playerContext)
         : base(stateMachine, playerContext) { }
@@ -12,15 +11,22 @@ public class SecondAttackState : PlayerState
 
     public override void Enter()
     {
+            timer = 0f;
+
+        playerContext.HandleAttack.Attack(playerContext.PlayerController.playerStats.basicMaxDamage,
+              playerContext.PlayerController.playerStats.basicAttackRadius,
+              playerContext.PlayerController.playerStats.basicAttackShakeDuration,
+              playerContext.PlayerController.playerStats.basicAttackShakeMagnitude);
+
+
         if (playerContext.Mjolnir.IsHeld())
         {
             playerContext.HandleAnimations.ChangeAnimationState("2ndAttackWithHammer");
-            timer = 0f;
         }
         else
         {
             playerContext.HandleAnimations.ChangeAnimationState("2ndAttackWithOutHammer");
-            timer = 0f;
+  
         }
         
     }

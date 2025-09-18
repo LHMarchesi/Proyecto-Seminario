@@ -30,7 +30,7 @@ public class ExperienceManager : MonoBehaviour
 
     private List<GameObject> spawnedButtons = new List<GameObject>();
 
-    void Start()
+    void Awake()
     {
         UpdateLevel();
     }

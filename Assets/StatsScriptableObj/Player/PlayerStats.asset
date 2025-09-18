@@ -14,17 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   walkingSpeed: 11
-  runningSpeed: 15
+  runningSpeed: 24.1
   maxSpeed: 10
-  dashCooldown: 1.7
+  dashCooldown: 2
   minJumpForce: 15
   maxJumpForce: 50
   chargeSpeed: 15
   chargeSlowMultiplier: 3
-  forwardMultiplier: 15
-  downwardMultiplier: 20
-  slamForce: 4
+  forwardMultiplier: 35
+  downwardMultiplier: 40
+  slamForce: 20
   minDistWGround: 7
-  maxDamage: 25
+  basicMaxDamage: 100
+  speedReductor: 0
+  basicAttackRadius: 2.5
+  basicAttackShakeDuration: 0.1
+  basicAttackShakeMagnitude: 0.1
+  chargedMaxDamage: 100
+  chargedAttackRadius: 5
+  chargedAttackShakeDuration: 0.3
+  chargedAttackShakeMagnitude: 0.3
   extraGravityForce: 0.7
   mouseSens: 0.1
