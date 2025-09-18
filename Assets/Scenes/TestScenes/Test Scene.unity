@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1016,12 +1015,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &789317215
 GameObject:
   m_ObjectHideFlags: 0
@@ -1472,7 +1471,7 @@ MonoBehaviour:
   damagePanel: {fileID: 2091234090}
   habilidadesPanel: {fileID: 951534627}
   habilityIconPrefab: {fileID: 4524143533689275375, guid: 38db22624185e984a9b1f43ee6d8d5b6, type: 3}
-  LoseScreen: {fileID: 0}
+  LoseScreen: {fileID: 1998066768}
 --- !u!114 &1082066175
 MonoBehaviour:
   m_ObjectHideFlags: 0

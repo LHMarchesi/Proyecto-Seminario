@@ -62,7 +62,7 @@ public class PlayerStateMachine : MonoBehaviour
             currentState.Exit();
 
         currentState = newState;
-        debugStatesText.text = "State: " + currentState.GetType().Name;
+        //debugStatesText.text = "State: " + currentState.GetType().Name;
         currentState.Enter();
     }
 
