@@ -6084,6 +6084,7 @@ MonoBehaviour:
   camHolder: {fileID: 7102955668428886019}
   playerStats: {fileID: 11400000, guid: 8ad56ffaf84276f4a89017ccfbefaae9, type: 2}
   currentSpeed: 0
+  currentJumpCharge: 0
 --- !u!114 &6355501335724561448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6457,6 +6458,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35a460cf35a7d64f987521e6320cdab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  smashVFX: {fileID: 0}
 --- !u!1 &4317136615187178298
 GameObject:
   m_ObjectHideFlags: 0
@@ -6814,6 +6816,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2062243204285380184}
+  - component: {fileID: 1357697218712666258}
   m_Layer: 0
   m_Name: CamHolder
   m_TagString: Untagged
@@ -6838,6 +6841,29 @@ Transform:
   - {fileID: 3794678563257864271}
   m_Father: {fileID: 1062747013407456577}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &1357697218712666258
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7102955668428886019}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.84269965
+  m_Height: 3.3084183
+  m_Direction: 1
+  m_Center: {x: 0.22860658, y: -0.8506212, z: 0.40716735}
 --- !u!1 &7273298629547059218
 GameObject:
   m_ObjectHideFlags: 0

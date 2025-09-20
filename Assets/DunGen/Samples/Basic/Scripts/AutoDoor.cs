@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace DunGen.Demo
 {
@@ -58,25 +60,36 @@ namespace DunGen.Demo
 
 		private void OnTriggerEnter(Collider other)
 		{
-			PlayerController playerController = other.GetComponent<PlayerController>();
+            //PlayerController playerController = other.GetComponent<PlayerController>();
 
-			// Ignore overlaps with anything other than the player
-			if (playerController == null)
-				return;
+            //// Ignore overlaps with anything other than the player
+            //if (playerController == null)
+            //	return;
 
-			currentState = DoorState.Opening;
-			doorComponent.IsOpen = true;
+
+
+            //currentState = DoorState.Opening;
+            //doorComponent.IsOpen = true;
+
+            if (other.gameObject.CompareTag("Player"))
+            {
+				currentState = DoorState.Opening;
+				doorComponent.IsOpen = true;
+			}
 		}
 
-		private void OnTriggerExit(Collider other)
+        private void OnTriggerExit(Collider other)
 		{
-			PlayerController playerController = other.GetComponent<PlayerController>();
+			//PlayerController playerController = other.GetComponent<PlayerController>();
 
-			// Ignore overlaps with anything other than the player
-			if (playerController == null)
-				return;
+			//// Ignore overlaps with anything other than the player
+			//if (playerController == null)
+			//	return;
 
-			currentState = DoorState.Closing;
+			if (other.gameObject.CompareTag("Player"))
+			{
+				currentState = DoorState.Closing;
+			}
 		}
 	}
 }
