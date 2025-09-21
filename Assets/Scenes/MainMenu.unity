@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -964,8 +963,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   musicSource: {fileID: 1194220177}
   sfxSource: {fileID: 1697001108}
-  mainMenuMusic: {fileID: 0}
-  levelMusic: {fileID: 0}
+  mainMenuMusic: {fileID: 8300000, guid: 56a3bf23a5c23d64aa309f908f7e6a61, type: 3}
+  levelMusic: {fileID: 8300000, guid: fb0b787133c37c34382ae1905927c0c8, type: 3}
 --- !u!1 &831881242
 GameObject:
   m_ObjectHideFlags: 0
@@ -1612,7 +1611,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -1926,7 +1925,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0

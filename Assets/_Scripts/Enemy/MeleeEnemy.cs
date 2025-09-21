@@ -90,7 +90,6 @@ public class MeleeEnemy : BaseEnemy
         handleAnimations.ChangeAnimationState("Attack_MeleeEnemy");
         if (attackCooldown > 0f) return;
         attackCooldown = 1f / stats.attackSpeed;
-        //audioSource.PlayOneShot(attackSound);
     }
 
     public void TryDealDamageToPlayer()
@@ -99,9 +98,11 @@ public class MeleeEnemy : BaseEnemy
         distance = Vector2.Distance(transform.position, target.position);
         if (distance < stats.attackRange)
         {
-            PlayerController player = target.GetComponent<PlayerController>();
-            if (player != null)
-                player.TakeDamage(stats.attackDamage);
+            GameObject player = target.gameObject;
+            Debug.Log(player);
+            PlayerController controller = player.GetComponent<PlayerController>();
+            Debug.Log(controller);
+            controller.TakeDamage(stats.attackDamage);
         }
 
     }

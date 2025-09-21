@@ -38,9 +38,6 @@ public class UIManager : MonoBehaviour
         ShowLoseScreenn(false);
     }
 
-   
-
-
     public void RegisterHability(string id, Sprite sprite)
     {
         if (habilityIcons.ContainsKey(id))
@@ -72,8 +69,6 @@ public class UIManager : MonoBehaviour
             icon.TriggerCooldown(cooldown);
         }
     }
-
-
     private void Start()
     {
         PowerSlider.Disable();

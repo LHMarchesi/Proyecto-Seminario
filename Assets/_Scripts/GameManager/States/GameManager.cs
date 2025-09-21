@@ -25,13 +25,16 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         // Initialize the state machine and set the initial state
         stateMachine = new GameStateMachine();
+    }
+
+    private void Start()
+    {
         int currentBuildIndex = SceneManager.GetActiveScene().buildIndex; // Store the current build index
 
         switch (currentBuildIndex)  //
         {
             case 0: // Main Menu
                 stateMachine.ChangeState(new MainMenuState());
-             
                 break;
             case 1: // Game
                 stateMachine.ChangeState(new GameplayState());

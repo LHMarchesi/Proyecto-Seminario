@@ -10,6 +10,7 @@ public class SoundManager : MonoBehaviour
 
     public AudioClip mainMenuMusic;
     public AudioClip levelMusic;
+    private float pausedTime = 0f;
 
     private void Awake()
     {
@@ -35,16 +36,28 @@ public class SoundManager : MonoBehaviour
         musicSource.Play();
     }
 
-    public void StopMusic()
-    {
-        musicSource.Stop();
-    }
-
     public void SetMusicVolume(float volume)
     {
         musicSource.volume = volume;
     }
+    public void PauseMusic()
+    {
+        if (musicSource.isPlaying)
+        {
+            pausedTime = musicSource.time; // guarda dónde iba
+            musicSource.Stop();
+        }
+    }
 
+    public void ResumeMusic()
+    {
+        if (musicSource.clip != null && pausedTime > 0f)
+        {
+            musicSource.time = pausedTime; // vuelve al punto guardado
+            musicSource.Play();
+            pausedTime = 0f; // reset para evitar reanudar dos veces
+        }
+    }
     // ----- SFX -----
     public void PlaySFX(AudioClip clip)
     {

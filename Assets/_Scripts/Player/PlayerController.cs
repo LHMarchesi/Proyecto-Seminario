@@ -124,8 +124,8 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (!IsGrounded()) return;
 
         isChargingJump = true;
-        currentJumpCharge += playerStats.chargeSpeed * Time.fixedDeltaTime;
-        currentJumpCharge = Mathf.Clamp(currentJumpCharge, playerStats.minJumpForce, playerStats.maxJumpForce);
+        currentJumpCharge += playerStats.chargeSpeed * Time.deltaTime;
+        currentJumpCharge = Mathf.Clamp(currentJumpCharge, 0f, playerStats.maxJumpForce);
     }
     public void DoJump()
     {

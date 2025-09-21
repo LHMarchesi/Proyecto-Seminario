@@ -6053,7 +6053,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4279772628873052960}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 0bd45c7a1aeba5647a8e75c4d899fa3a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -6118,7 +6118,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackDistance: 3.5
-  attackDelay: 0.4
+  attackDelay: 0.3
   attackSpeed: 1
   attackDamage: 20
   attackLayer:
@@ -6332,6 +6332,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 7cfbce9e-7c3f-48e1-abe0-ae49c2d0b138
     m_ActionName: Player/Dash[/Keyboard/ctrl]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 221075756901104824}
+        m_TargetAssemblyTypeName: HandleInputs, Assembly-CSharp
+        m_MethodName: OnChargeAttack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 0cf0be04-cb6b-4489-9216-72868d4f437b
+    m_ActionName: Player/ChargedAttack[/Keyboard/v]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -6458,7 +6474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35a460cf35a7d64f987521e6320cdab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smashVFX: {fileID: 0}
+  smashVFX: {fileID: 4908672477419520429, guid: ca72e95be32718a4da57a0bbe665fd63, type: 3}
 --- !u!1 &4317136615187178298
 GameObject:
   m_ObjectHideFlags: 0
@@ -7162,8 +7178,8 @@ GameObject:
   - component: {fileID: 2683312396086064521}
   - component: {fileID: 1712049122246075715}
   - component: {fileID: 134108428823148862}
-  - component: {fileID: 5294418669802941675}
   - component: {fileID: 5469050547319276148}
+  - component: {fileID: 8114881596031194678}
   m_Layer: 9
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -7322,7 +7338,19 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
---- !u!114 &5294418669802941675
+--- !u!114 &5469050547319276148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7721060425846173667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b351f455d1ff93043a0bc89fd44430f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8114881596031194678
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -7366,18 +7394,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!114 &5469050547319276148
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7721060425846173667}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b351f455d1ff93043a0bc89fd44430f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7920400491315002235
 GameObject:
   m_ObjectHideFlags: 0
