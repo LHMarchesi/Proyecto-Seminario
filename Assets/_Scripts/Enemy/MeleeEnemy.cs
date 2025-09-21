@@ -100,15 +100,16 @@ public class MeleeEnemy : BaseEnemy
         if (distance < stats.attackRange)
         {
             PlayerController player = target.GetComponent<PlayerController>();
-            player.TakeDamage(stats.attackDamage);
+            if (player != null)
+                player.TakeDamage(stats.attackDamage);
         }
-        
+
     }
 
     protected override void Die(float xpDrop)
     {
         base.Die(stats.expDrop);
-     //   handleAnimations.ChangeAnimationState("Die_RangedEnemy");
-      //  Invoke(nameof(Spawn), 2f); // Respawn after 2 seconds
+        //   handleAnimations.ChangeAnimationState("Die_RangedEnemy");
+        //  Invoke(nameof(Spawn), 2f); // Respawn after 2 seconds
     }
 }
