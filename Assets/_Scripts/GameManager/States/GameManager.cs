@@ -1,10 +1,11 @@
 
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.SceneManagement;
 
 public enum GameStates
 {
-    MainMenu, Pause, SkillChoose, Game, Lose
+    MainMenu, Pause, SkillChoose, Game, Lose, Win
 }
 
 public class GameManager : MonoBehaviour
@@ -50,6 +51,12 @@ public class GameManager : MonoBehaviour
     {
         stateMachine.ChangeState(newState);
     }
+
+    public void Win()
+    {
+        ChangeState(new WinState());
+    }
+
     public IGameState GetCurrentState() => stateMachine.CurrentState;
 }
 

@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class LoseState : IGameState
+public class WinState : IGameState
 {
     public void Enter()
     {
-        UIManager.Instance.ShowLoseScreenn(true);
+        UIManager.Instance.ShowWinScreen(true);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         Time.timeScale = 0f;
@@ -18,7 +18,7 @@ public class LoseState : IGameState
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        UIManager.Instance.ShowLoseScreenn(false);
+        UIManager.Instance.ShowWinScreen(false);
     }
 }
 

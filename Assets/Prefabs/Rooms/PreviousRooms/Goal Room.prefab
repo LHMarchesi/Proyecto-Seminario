@@ -179,7 +179,7 @@ MonoBehaviour:
   socketGroup_obsolete: -1
   doorPrefabs_obsolete: []
   blockerPrefabs_obsolete: []
-  socket: {fileID: -4843084010418661974, guid: fdf11b93b1f44a7469dd5e530d42ef87, type: 2}
+  socket: {fileID: -1043043734198010440, guid: fdf11b93b1f44a7469dd5e530d42ef87, type: 2}
   doorPrefabInstance: {fileID: 0}
   doorComponent: {fileID: 0}
   tile: {fileID: 0}
@@ -198,6 +198,7 @@ GameObject:
   - component: {fileID: 7426071156639433223}
   - component: {fileID: -2263189427165223405}
   - component: {fileID: 5321508883177662550}
+  - component: {fileID: 8659771050173593851}
   m_Layer: 0
   m_Name: Goal Room
   m_TagString: Untagged
@@ -307,6 +308,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcc86a27ea81eba4ebf0fedc978a4eb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &8659771050173593851
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3459988723651426474}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 14.53, y: 3.22, z: 15.8}
+  m_Center: {x: 0, y: -0.37, z: 1.48}
 --- !u!1 &8087465626119499657
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,7 +389,7 @@ MonoBehaviour:
   socketGroup_obsolete: -1
   doorPrefabs_obsolete: []
   blockerPrefabs_obsolete: []
-  socket: {fileID: -4843084010418661974, guid: fdf11b93b1f44a7469dd5e530d42ef87, type: 2}
+  socket: {fileID: -1043043734198010440, guid: fdf11b93b1f44a7469dd5e530d42ef87, type: 2}
   doorPrefabInstance: {fileID: 0}
   doorComponent: {fileID: 0}
   tile: {fileID: 0}

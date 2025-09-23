@@ -40,6 +40,7 @@ public class SoundManager : MonoBehaviour
     {
         musicSource.volume = volume;
     }
+
     public void PauseMusic()
     {
         if (musicSource.isPlaying)

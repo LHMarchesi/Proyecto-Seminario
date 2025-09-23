@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
 
     private Image PauseScreen;
     [SerializeField] private GameObject LoseScreen;
+    [SerializeField] private GameObject WinScreen;
 
 
     private Dictionary<string, HabilityIcon> habilityIcons = new();
@@ -36,6 +37,9 @@ public class UIManager : MonoBehaviour
 
         Instance = this;
         ShowLoseScreenn(false);
+        ShowWinScreen(false);
+        PauseScreen = GameObject.FindGameObjectWithTag("PauseScreen")?.GetComponent<Image>();
+        TogglePauseScreen(false);
     }
 
     public void RegisterHability(string id, Sprite sprite)
@@ -74,8 +78,7 @@ public class UIManager : MonoBehaviour
         PowerSlider.Disable();
         HealthSlider.ChangeValue(playerContext.PlayerController.MaxHealth);
         healthText.text = playerContext.PlayerController.MaxHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
-        PauseScreen = GameObject.FindGameObjectWithTag("PauseScreen")?.GetComponent<Image>();
-        TogglePauseScreen(false);
+        
     }
     private void ShowDamageFlash()
     {
@@ -113,6 +116,10 @@ public class UIManager : MonoBehaviour
     public void  ShowLoseScreenn(bool value)
     {
         LoseScreen.SetActive(value);
+    } 
+    public void  ShowWinScreen(bool value)
+    {
+        WinScreen.SetActive(value);
     }
 
     private IEnumerator PanelFlashCoroutine(Color color)
