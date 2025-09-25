@@ -22,6 +22,8 @@ public class SoundManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        SetMusicVolume(0.3f); SetSFXVolume(0.2f);
     }
 
 
