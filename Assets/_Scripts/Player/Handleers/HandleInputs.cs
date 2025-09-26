@@ -1,9 +1,11 @@
+using System.Collections;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Interactions;
 
 public class HandleInputs : MonoBehaviour
 {
+    public PlayerInput playerInput;
     private Vector2 move, look;
     private float isThrowing, isCatching, isRunning, isJumping, isDashing;
 
@@ -12,8 +14,6 @@ public class HandleInputs : MonoBehaviour
     private float holdThreshold = 0.4f;
 
     private bool attackTapped;
-    private bool isChargingAttack;
-    private bool attackReleased;
 
     // --- Jump charge ---
     private bool isChargingJump;
@@ -119,4 +119,12 @@ public class HandleInputs : MonoBehaviour
     public bool IsRunning() => isRunning == 1f;
     public bool IsJumping() => isJumping == 1f;
     public bool IsDashing() => isDashing == 1f;
+
+    public void SetPaused(bool paused)
+    {
+        if (paused)
+            playerInput.DeactivateInput();  
+        else
+            playerInput.ActivateInput();   
+    }
 }

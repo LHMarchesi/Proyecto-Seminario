@@ -26,7 +26,7 @@ public class ExperienceManager : MonoBehaviour
     [SerializeField] Transform abilityButtonContainer;
     [SerializeField] GameObject abilityButtonPrefab;
 
-   
+
 
     private List<GameObject> spawnedButtons = new List<GameObject>();
 
@@ -79,7 +79,7 @@ public class ExperienceManager : MonoBehaviour
         panel.SetActive(true);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        Time.timeScale = 0f;
+        playerContext.HandleInputs.SetPaused(true);
 
         List<AbilityEntry> options = GetRandomAbilityOptions(2); // Elegimos 2 opciones al azar
 
@@ -97,6 +97,7 @@ public class ExperienceManager : MonoBehaviour
     {
         GameObject instance = Instantiate(selectedAbility.abilityPrefab);
         BasePowerUp powerUp = instance.GetComponent<BasePowerUp>();
+        playerContext.HandleInputs.SetPaused(false);
 
         if (powerUp != null)
         {
@@ -112,7 +113,6 @@ public class ExperienceManager : MonoBehaviour
         panel.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        Time.timeScale = 1f;
     }
     void UpdateLevel()
     {
