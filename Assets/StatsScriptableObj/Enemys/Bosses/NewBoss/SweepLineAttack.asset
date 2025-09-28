@@ -9,18 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b0e5ca74cf601e04cbdae6e41ce06719, type: 3}
-  m_Name: RainObjBossAttack
+  m_Script: {fileID: 11500000, guid: ba81eb78245044e43898bc3833c1ec81, type: 3}
+  m_Name: SweepLineAttack
   m_EditorClassIdentifier: 
   attackName: 
   animationName: 
   attackDelay: 0
-  attackDuration: 7
-  cooldown: 20
-  range: 25
-  projectilePrefabs:
-  - {fileID: 8784185015293766718, guid: d31d25537225ac5478e62cd3a8658439, type: 3}
-  projectilesPerWave: 1
-  spawnInterval: 0.8
-  spawnHeight: 35
-  spawnRadius: 15
+  attackDuration: 6
+  cooldown: 15
+  range: 10
+  sweepPrefab: {fileID: 3437422127493565362, guid: 4b1966d4dc27e3c458db321e7b6d73ea, type: 3}
+  sweepSpeed: 120
+  sweepHeight: 0
