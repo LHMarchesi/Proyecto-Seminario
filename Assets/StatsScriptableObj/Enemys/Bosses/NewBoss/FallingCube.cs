@@ -35,8 +35,6 @@ public class FallingCube : MonoBehaviour
             areaHitboxOnImpact.SetDamage(25f, 8f, 3f);
             areaHitboxOnImpact.EnableHitbox();
 
-            Debug.Log("Impacto en el suelo en " + collision.contacts[0].point);
-
             // Desactivamos el hitbox después de un tiempo
             Invoke(nameof(DisableHitbox), 0.3f);
         }

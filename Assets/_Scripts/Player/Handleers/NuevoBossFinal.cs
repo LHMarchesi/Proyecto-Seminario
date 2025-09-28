@@ -2,6 +2,7 @@
 
 public class NuevoBossFinal : BossEnemy
 {
+   
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -17,13 +18,6 @@ public class NuevoBossFinal : BossEnemy
             return;
         }
 
-        if (target == null) return;
-
-        // Debug de rango
-        float dist = Vector3.Distance(transform.position, target.position);
-        Debug.Log($"[Boss Debug] Distancia al jugador: {dist} | Attack Range: {GetCurrentAttackRange()}");
-
-        // Forzar ataque siempre
         PerformAttack();
     }
 }

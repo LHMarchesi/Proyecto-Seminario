@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b113ae5120c84c84fb1224e65dcc36b6, type: 3}
+  m_Name: SpawnEnemiesAttack
+  m_EditorClassIdentifier: 
+  attackName: SpawnEnemiesAttack
+  animationName: 
+  attackDelay: 0
+  attackDuration: 0
+  cooldown: 6
+  range: 101.2
+  enemyPrefabs:
+  - {fileID: 488732150065989839, guid: 154bac96ebd29024a900e6a1a6c5c0f3, type: 3}
+  - {fileID: 8087632599547195162, guid: 55a2f693e5d3dac4d94d3b338fea3124, type: 3}
+  enemiesToSpawn: 5
+  spawnRadius: 10
+  spawnDelay: 0

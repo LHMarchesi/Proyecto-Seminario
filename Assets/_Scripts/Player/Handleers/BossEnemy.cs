@@ -156,7 +156,7 @@ public class    BossEnemy : BaseEnemy, IDamageable
         return maxRange;
     }
 
-    private BossAttackStats[] GetAttacksForPhase()
+    protected BossAttackStats[] GetAttacksForPhase()
     {
         if (currentPhase == 1) return phase1Attacks;
         if (currentPhase == 2) return phase2Attacks;
