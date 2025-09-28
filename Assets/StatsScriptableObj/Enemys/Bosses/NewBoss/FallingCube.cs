@@ -1,28 +1,66 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class FallingCube : MonoBehaviour
 {
-    Rigidbody rb;
+    public float fallForce = 500f;
+    public float knockbackHorizontal;
+    public float knockbackVertical;
+    public float damage;
+    [SerializeField] private BossHitbox areaHitboxOnImpact;
+
+    private Rigidbody rb;
+    private bool hasImpacted = false;
+
     void Start()
     {
-        rb = GetComponent<Rigidbody>(); 
-        rb.AddForce(Vector3.down * 500f, ForceMode.Impulse);
+        rb = GetComponent<Rigidbody>();
+        rb.AddForce(Vector3.down * fallForce, ForceMode.Impulse);
+
+        // Por si no lo asignaste en el inspector
+        if (areaHitboxOnImpact == null)
+            areaHitboxOnImpact = GetComponentInChildren<BossHitbox>();
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        IDamageable damageable = collision.collider.GetComponent<IDamageable>();
-        if (damageable == null) return;
+        if (hasImpacted) return;
 
-        // Si el cubo golpea desde arriba, la normal del contacto apunta hacia arriba (aprox Vector3.up)
-        ContactPoint contact = collision.contacts[0];
-        Vector3 normal = contact.normal;
-
-        // Queremos que el cubo dañe solo si golpea al jugador desde arriba
-        // (es decir, la normal está bastante cerca de Vector3.up)
-        if (Vector3.Dot(normal, Vector3.up) > 0.5f)
+        // Detecta impacto con suelo
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
-            damageable.TakeDamage(20);
+            hasImpacted = true;
+
+            // Activamos hitbox con parámetros deseados
+            areaHitboxOnImpact.SetDamage(25f, 8f, 3f);
+            areaHitboxOnImpact.EnableHitbox();
+
+            Debug.Log("Impacto en el suelo en " + collision.contacts[0].point);
+
+            // Desactivamos el hitbox después de un tiempo
+            Invoke(nameof(DisableHitbox), 0.3f);
         }
+
+        // Opcional: si quieres dañar directamente a objetos al golpear desde arriba
+        IDamageable damageable = collision.collider.GetComponent<IDamageable>();
+        if (damageable != null)
+        {
+            
+            ContactPoint contact = collision.contacts[0];
+            if (Vector3.Dot(contact.normal, Vector3.up) > 0.5f)
+            {
+                areaHitboxOnImpact.SetDamage(25f, 8f, 3f);
+                areaHitboxOnImpact.EnableHitbox();
+
+                // Desactivamos el hitbox después de un tiempo
+                Invoke(nameof(DisableHitbox), 0.3f);
+            }
+        }
+    }
+
+    private void DisableHitbox()
+    {
+        areaHitboxOnImpact.DisableHitbox();
+        //Destroy(gameObject); // si quieres eliminar el cubo tras el impacto
     }
 }
