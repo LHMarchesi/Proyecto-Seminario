@@ -1,8 +1,7 @@
 ﻿using System.Collections;
-using System.Security.Cryptography;
 using UnityEngine;
 
-public class BossEnemy : BaseEnemy, IDamageable
+public class    BossEnemy : BaseEnemy, IDamageable
 {
     private enum BossState
     {
@@ -17,12 +16,13 @@ public class BossEnemy : BaseEnemy, IDamageable
     public BossAttackStats[] phase2Attacks;
     public BossAttackStats[] phase3Attacks;
 
-    public BossHitbox meleeHitBox;
-    public BossHitbox areaHitBox;
+    [SerializeField] private BossHitbox meleeHitBox;
+    [SerializeField] private BossHitbox areaHitBox;
+    protected bool canMove = true;
 
     private BossState currentState;
     private int currentPhase = 1;
-    private float attackCooldown;
+    protected float attackCooldown;
 
     protected override void OnEnable()
     {
@@ -88,14 +88,20 @@ public class BossEnemy : BaseEnemy, IDamageable
             currentPhase = 2;
     }
 
-    private void ChaseTarget()
+    public virtual void ChaseTarget()
     {
+        if (!canMove)
+        {
+            currentState = BossState.Idle;
+            return;
+        }
+
         handleAnimations.ChangeAnimationState("Chasing_Boss");
         MoveTowardsTarget();
         FaceTarget();
     }
 
-    private void PerformAttack()
+    public virtual void PerformAttack()
     {
         if (attackCooldown > 0f) return;
 
@@ -136,7 +142,7 @@ public class BossEnemy : BaseEnemy, IDamageable
         attackCooldown = chosenAttack.cooldown; // usar el cooldown del ataque
     }
 
-    private float GetCurrentAttackRange()
+    protected float GetCurrentAttackRange()
     {
         BossAttackStats[] attacks = GetAttacksForPhase();
         float maxRange = 0f;

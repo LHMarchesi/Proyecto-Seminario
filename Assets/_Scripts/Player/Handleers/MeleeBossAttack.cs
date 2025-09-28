@@ -2,6 +2,10 @@
 [CreateAssetMenu(fileName = "MeleeBossAttack", menuName = "BossAttacks/MeleeAttack")]
 public class MeleeBossAttack : BossAttackStats
 {
+    public float knockbackHorizontal;
+    public float knockbackVertical;
+    public float damage;
+
     public override void Execute(BossEnemy boss, Transform target, HandleAnimations animations)
     {
         if (animations != null && !string.IsNullOrEmpty(animationName))

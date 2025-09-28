@@ -6,10 +6,7 @@ public abstract class BossAttackStats : ScriptableObject
     public string animationName;
     public float attackDelay;
     public float attackDuration;
-    public float knockbackHorizontal;
-    public float knockbackVertical;
     public float cooldown;
-    public float damage;
     public float range;
 
     public abstract void Execute(BossEnemy boss, Transform target, HandleAnimations animations);
