@@ -8,6 +8,8 @@ public class HandleAnimations : MonoBehaviour
     void Awake()
     {
         animator = GetComponentInChildren<Animator>();
+        if (animator == null)
+            Debug.LogError("No se encontró Animator en " + gameObject.name);
     }
  
     public void ChangeAnimationState(string newState)
