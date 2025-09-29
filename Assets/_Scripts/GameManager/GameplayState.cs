@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class GameplayState : IGameState
 {
-    public void Enter() { }
+    public void Enter() {
+        Cursor.lockState = CursorLockMode.Locked;
+    }
     public void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
