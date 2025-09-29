@@ -13,6 +13,7 @@ public class MeleeEnemy : BaseEnemy
 
     private MeleeEnemyState currentState;
     private float attackCooldown;
+    [SerializeField] private GameObject DeathEffect ;
 
     protected override void OnEnable()
     {
@@ -108,7 +109,8 @@ public class MeleeEnemy : BaseEnemy
     protected override void Die(float xpDrop)
     {
         base.Die(stats.expDrop);
-     //   handleAnimations.ChangeAnimationState("Die_RangedEnemy");
-      //  Invoke(nameof(Spawn), 2f); // Respawn after 2 seconds
+        GameObject GO = Instantiate(DeathEffect, transform.position, Quaternion.identity); // Instantiate effect
+        Destroy(GO, 3);
+
     }
 }
