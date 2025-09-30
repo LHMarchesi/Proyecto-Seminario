@@ -19,6 +19,7 @@ public class BossEnemy : BaseEnemy, IDamageable
 
     public BossHitbox meleeHitBox;
     public BossHitbox areaHitBox;
+    public SliderPassValue healthSlider;
 
     private BossState currentState;
     private int currentPhase = 1;
@@ -27,6 +28,7 @@ public class BossEnemy : BaseEnemy, IDamageable
     protected override void OnEnable()
     {
         base.OnEnable();
+        healthSlider.ChangeValue(stats.maxHealth);
         currentState = BossState.Chasing;
         attackCooldown = 0f;
     }
@@ -161,6 +163,7 @@ public class BossEnemy : BaseEnemy, IDamageable
     protected override void OnDamage(float damage)
     {
         base.OnDamage(damage);
+        healthSlider.ChangeValue(currentHealth);
         handleAnimations.ChangeAnimationState("TakeDamage_Boss");
         currentState = BossState.Damaged;
         Invoke(nameof(EndDamageState), 0.5f);
