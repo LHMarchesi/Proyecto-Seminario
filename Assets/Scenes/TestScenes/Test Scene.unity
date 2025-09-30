@@ -2673,45 +2673,36 @@ MonoBehaviour:
   availableAbilities:
   - abilityName: Health
     abilityPrefab: {fileID: 5388500805080441627, guid: 01ca280bb3e226f4dbc63a5fc7008077, type: 3}
-    icon: {fileID: 21300000, guid: 2f2b64bca66c76e459bd81f83d8a0f87, type: 3}
-    dropChance: 0
+    icon: {fileID: 21300000, guid: d9f52661e150e6147a52632ce4b7a645, type: 3}
+    dropChance: 1
   - abilityName: Explode
     abilityPrefab: {fileID: 2603085137963816570, guid: 7eae963b0f9403942af2e7756a4ee97d, type: 3}
-    icon: {fileID: 21300000, guid: c827a5d0793c83e4e89f32b4a27e9650, type: 3}
-    dropChance: 0
+    icon: {fileID: 21300000, guid: 58e00eb7277343a4f8260cf2abeedb9f, type: 3}
+    dropChance: 22.3
   - abilityName: LightingStrike
     abilityPrefab: {fileID: 3024337285511993676, guid: 37d59c6c0bd03b5418ec3fdd8cf40a14, type: 3}
-    icon: {fileID: 21300000, guid: 8669499b0f9d54a4a9f0112080c8ae66, type: 3}
+    icon: {fileID: 21300000, guid: c1cb77090abb86646a60e6e514b8bf5f, type: 3}
     dropChance: 0
   experienceCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      time: 0.0021476746
+      value: 0.97169876
+      inSlope: 0.028362151
+      outSlope: 0.028362151
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.6524013
-      value: 0.43412006
-      inSlope: 1.4496562
-      outSlope: 1.4496562
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0.050833456
-      outSlope: 0.050833456
-      tangentMode: 0
+      inSlope: 0.028362151
+      outSlope: 0.028362151
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 1
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -5841,6 +5832,14 @@ PrefabInstance:
       propertyPath: debugStatesText
       value: 
       objectReference: {fileID: 1236479625}
+    - target: {fileID: 6364020380140799004, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: hitVFXPrefab
+      value: 
+      objectReference: {fileID: 5637690044912728766, guid: 1da15afd47886b04f91f42e108d3a9a7, type: 3}
+    - target: {fileID: 6364020380140799004, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: parentVFXToHit
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8619436737391512889, guid: a7630a00b79f3294393851b790b546c0, type: 3}
       propertyPath: attackDelay
       value: 0.3
