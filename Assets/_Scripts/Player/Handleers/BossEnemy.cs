@@ -161,7 +161,7 @@ public class BossEnemy : BaseEnemy, IDamageable
     protected override void OnDamage(float damage)
     {
         base.OnDamage(damage);
-        //  handleAnimations.ChangeAnimationState("TakeDamage_Boss");
+        handleAnimations.ChangeAnimationState("TakeDamage_Boss");
         currentState = BossState.Damaged;
         Invoke(nameof(EndDamageState), 0.5f);
     }
