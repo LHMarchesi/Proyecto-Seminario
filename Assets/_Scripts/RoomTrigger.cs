@@ -19,6 +19,7 @@ public class RoomTrigger : MonoBehaviour
         {
             activated = true;
             DetectEnemiesInRoom();
+            DetectDoorsInRoom();
             StartCoroutine(ActivarObjetosConDelay());
         }
 
@@ -26,12 +27,39 @@ public class RoomTrigger : MonoBehaviour
 
     IEnumerator ActivarObjetosConDelay()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(1.5f);
 
         foreach (GameObject obj in activeDoors)
             obj.SetActive(true);
     }
 
+    void DetectDoorsInRoom()
+    {
+        activeDoors.Clear();
+
+        BoxCollider box = GetComponent<BoxCollider>();
+
+        Vector3 worldCenter = box.transform.TransformPoint(box.center);
+        Vector3 worldHalfExtents = Vector3.Scale(box.size, box.transform.lossyScale) * 0.5f;
+
+        Collider[] colliders = Physics.OverlapBox(
+            worldCenter,
+            worldHalfExtents,
+            box.transform.rotation);
+
+        foreach (var col in colliders)
+        {
+            if (col.CompareTag("Door"))
+            {
+                var door = col.gameObject;
+                if (door != null)
+                {
+                    activeDoors.Add(door);
+                    door.SetActive(false);
+                }
+            }
+        }
+    }
 
 
     void DetectEnemiesInRoom()
