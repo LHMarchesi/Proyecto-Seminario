@@ -9,6 +9,7 @@ public class RoomTrigger : MonoBehaviour
 
     private List<BaseEnemy> enemies = new List<BaseEnemy>();
     private bool activated = false;
+    public List<GameObject> objetosActivables;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -17,9 +18,20 @@ public class RoomTrigger : MonoBehaviour
         {
             activated = true;
             DetectEnemiesInRoom();
+            StartCoroutine(ActivarObjetosConDelay());
         }
 
     }
+
+    IEnumerator ActivarObjetosConDelay()
+    {
+        yield return new WaitForSeconds(5f);
+
+        foreach (GameObject obj in objetosActivables)
+            obj.SetActive(true);
+    }
+
+
 
     void DetectEnemiesInRoom()
     {
@@ -50,6 +62,8 @@ public class RoomTrigger : MonoBehaviour
 
         Debug.Log($"Habitaci�n detect� {enemies.Count} enemigos.");
 
+
+
         CheckIfAllDead();
     }
     void OnEnemyDie(BaseEnemy e)
@@ -65,6 +79,8 @@ public class RoomTrigger : MonoBehaviour
         {
             // door.OpenDoor();
             Debug.Log("Todos los enemigos de la habitaci�n fueron derrotados. Puerta abierta.");
+            foreach (GameObject obj in objetosActivables)
+                obj.SetActive(false);
             activated = false;
         }
     }
