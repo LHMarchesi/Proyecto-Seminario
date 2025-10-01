@@ -43,12 +43,21 @@ public class Projectile : MonoBehaviour, IPoolable
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent<IDamageable>(out var target))
+        if (!other.CompareTag("Player"))
+            return;
+
+        // Obtener el script del Player y aplicarle daño
+        if (other.TryGetComponent<PlayerController>(out var player))
         {
-            target.TakeDamage(damage);
-            poolManager?.Release(this);
+            player.TakeDamage(damage);
         }
-        gameObject.SetActive(false);
+        poolManager?.Release(this);
+        //gameObject.SetActive(false);
+    }
+
+    public void SetDamage(float damage)
+    {
+        this.damage = damage;
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using static UnityEngine.GridBrushBase;
 
 public class RangedEnemy : BaseEnemy
 {
@@ -116,13 +117,12 @@ public class RangedEnemy : BaseEnemy
 
     private void ShootProjectile()
     {
-        Projectile proj = projectilePool.Get();
-        proj.transform.SetParent(null);
-
         Vector3 directionToTarget = (target.position - firePoint.position).normalized;
 
-        proj.Initialize(directionToTarget * projectileSpeed, stats.attackDamage, projectilePool);
-        proj.transform.position = firePoint.position;
-        proj.transform.rotation = firePoint.rotation;
+        GameObject project = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(directionToTarget));
+        Projectile projectileScript = project.GetComponent<Projectile>();
+        Rigidbody projectilRB = project.GetComponent<Rigidbody>();
+        projectilRB.velocity = directionToTarget * projectileSpeed;
+        projectileScript.SetDamage(stats.attackDamage);
     }
 }
