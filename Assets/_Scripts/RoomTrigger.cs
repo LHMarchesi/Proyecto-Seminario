@@ -43,7 +43,7 @@ public class RoomTrigger : MonoBehaviour
                 if (enemy != null)
                 {
                     enemies.Add(enemy);
-                    enemy.onDeath += () => OnEnemyDie(enemy);
+                    enemy.OnDeath += () => OnEnemyDie(enemy);
                 }
             }
         }
@@ -54,7 +54,7 @@ public class RoomTrigger : MonoBehaviour
     }
     void OnEnemyDie(BaseEnemy e)
     {
-        e.onDeath -= () => OnEnemyDie(e);
+        e.OnDeath -= () => OnEnemyDie(e);
         enemies.Remove(e);
         CheckIfAllDead();
     }

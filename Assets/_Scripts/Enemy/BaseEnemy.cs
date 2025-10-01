@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.Rendering.Universal;
@@ -16,7 +17,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     protected HandleAnimations handleAnimations;
     protected Rigidbody rb;
     protected ExperienceManager playerEXP;
-
+    public Action OnDeath;
     private IObjectPool<BaseEnemy> enemyPool;
 
     public void SetPool(IObjectPool<BaseEnemy> pool)
@@ -62,7 +63,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     protected virtual void Die(float experienceDroped = 0)
     {
         if (enemyPool != null) { enemyPool.Release(this); } else { Destroy(gameObject); }
-
+        OnDeath?.Invoke();
         playerEXP.AddExperience(experienceDroped);
     }
 

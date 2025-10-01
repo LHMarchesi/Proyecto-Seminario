@@ -28,7 +28,6 @@ public class BossEnemy : BaseEnemy, IDamageable
     protected override void OnEnable()
     {
         base.OnEnable();
-        healthSlider.ChangeValue(stats.maxHealth);
         currentState = BossState.Chasing;
         attackCooldown = 0f;
     }
@@ -79,7 +78,10 @@ public class BossEnemy : BaseEnemy, IDamageable
                 break;
         }
     }
-
+    private void Start()
+    {
+        healthSlider.ChangeValue(stats.maxHealth);
+    }
     private void HandlePhases()
     {
         float healthPercent = currentHealth / stats.maxHealth;
