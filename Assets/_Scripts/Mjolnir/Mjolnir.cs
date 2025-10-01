@@ -40,6 +40,11 @@ public class Mjolnir : MonoBehaviour
     private bool wasThrowing = false;
     private Vector3 originalSize;
 
+    // --- VFX on hit (add-only) ---
+    [Header("VFX")]
+    [SerializeField] private GameObject hitVFXPrefab;   // Prefab with ParticleSystem or VFX Graph
+    [SerializeField] private float hitVFXLifetime = 2f; // Safety destroy time
+    [SerializeField] private bool parentVFXToHit = false; // Stick effect to the hit object
 
     private readonly List<IMjolnirRetractBehavior> retractBehaviors = new();
     public void RegisterRetractBehavior(IMjolnirRetractBehavior behavior)
@@ -75,7 +80,7 @@ public class Mjolnir : MonoBehaviour
             if (!isChargingThrow)
                 isChargingThrow = true;  // Start charging the throw
 
-            throwChargeTime += Time.deltaTime *2;  // Increment time charge
+            throwChargeTime += Time.deltaTime * 2;  // Increment time charge
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
 
 
@@ -208,6 +213,20 @@ public class Mjolnir : MonoBehaviour
         {
             damageable?.TakeDamage(damage);
             OnHitEnemy?.Invoke(collision.collider);
+
+            // --- spawn VFX on hit (add-only) ---
+            if (hitVFXPrefab != null && collision.contactCount > 0)
+            {
+                var contact = collision.GetContact(0);
+                Vector3 spawnPos = contact.point;
+                Quaternion spawnRot = Quaternion.LookRotation(contact.normal);
+                GameObject vfx = Instantiate(hitVFXPrefab, spawnPos, spawnRot);
+
+                if (parentVFXToHit)
+                    vfx.transform.SetParent(collision.collider.transform, true);
+
+                Destroy(vfx, hitVFXLifetime);
+            }
         }
     }
 
