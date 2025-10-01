@@ -2420,7 +2420,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Sample text
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2602,6 +2604,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8236112457721993193}
   - component: {fileID: 7099549637530886681}
+  - component: {fileID: 852037429517133496}
   m_Layer: 0
   m_Name: Enemy_Detection
   m_TagString: Untagged
@@ -2648,6 +2651,27 @@ MonoBehaviour:
   - {fileID: 6749074386320016515}
   - {fileID: 882654349152202794}
   - {fileID: 4280041287453111025}
+--- !u!65 &852037429517133496
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8499849053302624732}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 245.55234, y: 95.07, z: 257.78262}
+  m_Center: {x: -6.395859, y: 0, z: -41.587635}
 --- !u!1 &8698049897594567101
 GameObject:
   m_ObjectHideFlags: 0
