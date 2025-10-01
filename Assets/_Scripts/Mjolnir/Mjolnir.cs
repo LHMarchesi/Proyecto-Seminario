@@ -153,18 +153,18 @@ public class Mjolnir : MonoBehaviour
         }
 
 
-        // if (teleport == true)
-        // {
-        //      audio.PlayOneShot((AudioClip)Resources.Load("teleportVFX"));
-        //      playerContext.PlayerController.transform.position = this.transform.position;
-        //      Catch();
-        //  }
+        if (teleport == true)
+        {
+             
+              playerContext.PlayerController.transform.position = this.transform.position;
+              Catch();
+          }
 
         Vector3 directionToHand = hand.position - transform.position;
         Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
-        rb.isKinematic = true; // Detenemos la física
+        rb.isKinematic = true; // Detenemos la fï¿½sica
         transform.position = Vector3.MoveTowards(transform.position, hand.position, maxRetractPower * Time.deltaTime);
 
 
