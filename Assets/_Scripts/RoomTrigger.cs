@@ -1,15 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class RoomTrigger : MonoBehaviour
 {
     [Header("Referencia de la puerta")]
     public string enemyTag = "Enemy";
-
+    public TextMeshPro remainingEnemysTxt;
     private List<BaseEnemy> enemies = new List<BaseEnemy>();
     private bool activated = false;
-    public List<GameObject> objetosActivables;
+    public List<GameObject> activeDoors;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -27,7 +28,7 @@ public class RoomTrigger : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
 
-        foreach (GameObject obj in objetosActivables)
+        foreach (GameObject obj in activeDoors)
             obj.SetActive(true);
     }
 
@@ -60,8 +61,7 @@ public class RoomTrigger : MonoBehaviour
             }
         }
 
-        Debug.Log($"Habitaci�n detect� {enemies.Count} enemigos.");
-
+        remainingEnemysTxt.text = "Enemies remaining: " + enemies.Count.ToString();
 
 
         CheckIfAllDead();
@@ -70,6 +70,7 @@ public class RoomTrigger : MonoBehaviour
     {
         e.OnDeath -= () => OnEnemyDie(e);
         enemies.Remove(e);
+        remainingEnemysTxt.text = "Enemies remaining: " + enemies.Count.ToString();
         CheckIfAllDead();
     }
 
@@ -77,10 +78,10 @@ public class RoomTrigger : MonoBehaviour
     {
         if (enemies.Count == 0)
         {
-            // door.OpenDoor();
-            Debug.Log("Todos los enemigos de la habitaci�n fueron derrotados. Puerta abierta.");
-            foreach (GameObject obj in objetosActivables)
+            remainingEnemysTxt.text = "Puerta Abierta";
+            foreach (GameObject obj in activeDoors)
                 obj.SetActive(false);
+
             activated = false;
         }
     }
