@@ -27,6 +27,7 @@ public class Mjolnir : MonoBehaviour
 
     public Action<Collider> OnHitEnemy;
     public Action OnMjolnirThrow;
+    public Action OnMjolnirRetract;
     public Action OnChrgingThrow;
 
     private bool isHeld;
@@ -147,18 +148,12 @@ public class Mjolnir : MonoBehaviour
     {
         if (isHeld) return;     // Avoid running if already held
 
+        OnMjolnirRetract?.Invoke();
+
         foreach (var behavior in retractBehaviors)
         {
             behavior.OnRetract(this);
         }
-
-
-        if (teleport == true)
-        {
-             
-              playerContext.PlayerController.transform.position = this.transform.position;
-              Catch();
-          }
 
         Vector3 directionToHand = hand.position - transform.position;
         Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
@@ -180,16 +175,15 @@ public class Mjolnir : MonoBehaviour
             isRetracting = false;
             bool isCurrentlyThrowing = playerContext.HandleInputs.IsThrowing();
             rb.AddForce(cameraForward.normalized * finalThrowPower * 5f, ForceMode.VelocityChange);
-            //  audio.PlayOneShot((AudioClip)Resources.Load("parryVFX"));
-
         }
         this.transform.localScale = originalSize;
 
         transform.localScale = Vector3.Lerp(transform.localScale, originalSize, Time.deltaTime * 10f);
     }
 
-    void Catch()
+    public void Catch()
     {
+
         isHeld = true;
         rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
