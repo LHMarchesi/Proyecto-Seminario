@@ -102,7 +102,7 @@ public class RoomTrigger : MonoBehaviour
         if (enemies.Count == 0)
         {
             foreach (GameObject obj in activeDoors)
-                Destroy(obj);
+                obj.SetActive(false);
 
             activated = false;
 

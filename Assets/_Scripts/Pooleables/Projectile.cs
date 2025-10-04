@@ -37,7 +37,7 @@ public class Projectile : MonoBehaviour, IPoolable
         timer += Time.deltaTime;
         if (timer >= lifetime)
         {
-            poolManager?.Release(this);
+            Destroy(gameObject);
         }
     }
 

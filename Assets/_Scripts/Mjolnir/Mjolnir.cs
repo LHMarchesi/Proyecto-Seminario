@@ -121,9 +121,61 @@ public class Mjolnir : MonoBehaviour
         transform.parent = null;
 
         // Apply force and torque
-        rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
+        rb.AddForce(SearchForCloseEnemies() * finalThrowPower, ForceMode.VelocityChange);
         rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
     }
+
+    public Vector3 SearchForCloseEnemies()
+    {
+        float searchRadius = 40f;
+        float maxAngle = 30f; // Ángulo del cono de visión, en grados
+        LayerMask enemyMask = LayerMask.GetMask("HammerTarget");
+
+        // Obtener enemigos en un radio general
+        Collider[] hits = Physics.OverlapSphere(transform.position, searchRadius, enemyMask);
+
+        Transform bestTarget = null;
+        float bestScore = -1f;
+
+        Vector3 cameraForward = Camera.main.transform.forward;
+        Vector3 cameraPosition = Camera.main.transform.position;
+
+        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hitWAim, 60f, enemyMask))
+        {
+            return (hitWAim.transform.position - transform.position).normalized;
+        }
+
+        foreach (var hit in hits)
+        {
+            Vector3 toEnemy = (hit.transform.position - cameraPosition).normalized;
+            float angle = Vector3.Angle(cameraForward, toEnemy);
+
+            // Ignorar enemigos fuera del cono frontal
+            if (angle > maxAngle) continue;
+
+            // Calcular una "puntuación" de prioridad: más cerca y más centrado
+            float distance = Vector3.Distance(cameraPosition, hit.transform.position);
+            float score = Mathf.Lerp(1f, 0f, angle / maxAngle) / distance;
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestTarget = hit.transform;
+            }
+        }
+
+        if (bestTarget != null)
+        {
+            // Direccion hacia el objetivo elegido
+            Vector3 directionToTarget = (bestTarget.position - transform.position).normalized;
+            return directionToTarget;
+        }
+
+        // Si no hay enemigos válidos, lanzar hacia adelante
+        return cameraForward;
+    }
+
 
     public void ThrowWithPower(float powerMultiplier = 1f)
     {
@@ -207,6 +259,13 @@ public class Mjolnir : MonoBehaviour
         {
             damageable?.TakeDamage(damage);
             OnHitEnemy?.Invoke(collision.collider);
+
+            var enemy = collision.collider.GetComponent<BaseEnemy>();
+            if (enemy != null && enemy.IsDead())
+            {
+                playerContext.PlayerStateMachine.ChangeState(playerContext.PlayerStateMachine.catchingState);
+                isRetracting = true;
+            }
 
             // --- spawn VFX on hit (add-only) ---
             if (hitVFXPrefab != null && collision.contactCount > 0)
