@@ -143,6 +143,7 @@ public class ExperienceManager : MonoBehaviour
 public class AbilityEntry
 {
     public string abilityName;
+    public string abilityDescription;
     public GameObject abilityPrefab; // Prefab que contiene el PowerUp (LightningStrike, Explode, etc.)
     public Sprite icon;
     [Range(1, 100)]

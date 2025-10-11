@@ -128,7 +128,7 @@ public class Mjolnir : MonoBehaviour
     public Vector3 SearchForCloseEnemies()
     {
         float searchRadius = 40f;
-        float maxAngle = 30f; // Ángulo del cono de visión, en grados
+        float maxAngle = 15f; // Ángulo del cono de visión, en grados
         LayerMask enemyMask = LayerMask.GetMask("HammerTarget");
 
         // Obtener enemigos en un radio general
