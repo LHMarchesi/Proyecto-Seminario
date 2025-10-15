@@ -5,27 +5,27 @@ using UnityEngine;
 public class EnemyWaveSpawner : MonoBehaviour
 {
     [Header("Configuración de oleadas")]
-    public int maxWaves = 5;                 // Máximo de oleadas
+    public int maxWaves = 5;                 
 
     [Header("Prefabs y Spawnpoints")]
-    public List<GameObject> enemyPrefabs;    // Lista de enemigos posibles
-    public Transform[] spawnPoints;          // Puntos de spawn configurables
+    public List<GameObject> enemyPrefabs;    
+    public Transform[] spawnPoints;          
 
     private int currentWave = 0;
-    private int enemiesToSpawn = 3;          // Enemigos iniciales
+    public int enemiesToSpawn = 5;          
     private bool spawning = false;
-    private bool wavesStarted = false;       // 🔹 Controla si el jugador activó el spawner
+    private bool wavesStarted = false;       
 
-    private List<GameObject> aliveEnemies = new List<GameObject>(); // Enemigos de la oleada actual
+    private List<GameObject> aliveEnemies = new List<GameObject>(); 
 
     public List<GameObject> objetosActivables;
 
 
     void Update()
     {
-        if (!wavesStarted) return; // Hasta que el player no active, no pasa nada
+        if (!wavesStarted) return; 
 
-        // Si no estamos spawneando y la lista está vacía
+        
         if (!spawning && aliveEnemies.Count == 0)
         {
             if (currentWave < maxWaves)
@@ -54,8 +54,8 @@ public class EnemyWaveSpawner : MonoBehaviour
             yield return new WaitForSeconds(0.5f); // pequeño delay entre spawns (opcional)
         }
 
-        // Aumentar dificultad (2 o 3 enemigos más en la próxima oleada)
-        enemiesToSpawn += Random.Range(2, 4);
+
+        enemiesToSpawn += Random.Range(4, 6);
 
         spawning = false;
     }

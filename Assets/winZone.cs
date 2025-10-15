@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class winZone : MonoBehaviour
 {
+    public float rotationSpeed = 50f; // Degrees per second
     private void OnCollisionEnter(Collision collision)
     {
         SceneManager.LoadScene("MainMenu");
@@ -13,5 +14,11 @@ public class winZone : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         SceneManager.LoadScene("MainMenu");
+    }
+
+
+    void Update()
+    {
+        transform.Rotate(0, rotationSpeed * Time.deltaTime, 0);
     }
 }

@@ -1,15 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class RoomTrigger : MonoBehaviour
 {
     [Header("Referencia de la puerta")]
     public string enemyTag = "Enemy";
-
+    public TextMeshPro remainingEnemysTxt;
     private List<BaseEnemy> enemies = new List<BaseEnemy>();
     private bool activated = false;
-    public List<GameObject> objetosActivables;
+    public List<GameObject> activeDoors;
+
+
+    private void Start()
+    {
+        foreach (GameObject obj in activeDoors)
+            obj.SetActive(false);
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -17,20 +27,36 @@ public class RoomTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             activated = true;
-            DetectEnemiesInRoom();
-            StartCoroutine(ActivarObjetosConDelay());
+            StartCoroutine(ActivateDoorsWithDelay());
         }
 
     }
 
-    IEnumerator ActivarObjetosConDelay()
+    private void OnTriggerStay(Collider other)
     {
-        yield return new WaitForSeconds(5f);
-
-        foreach (GameObject obj in objetosActivables)
-            obj.SetActive(true);
+        if (other.CompareTag("Player"))
+        {
+            DetectEnemiesInRoom();
+        }
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            UIManager.Instance.UpdateEnemiesRemaining(false, 0);
+        }
+    }
+
+    IEnumerator ActivateDoorsWithDelay()
+    {
+        yield return new WaitForSeconds(1.5f);
+
+        // SoundManager.Instance.PlaySFX(SoundManager.Sounds.DoorClosed);
+
+        foreach (GameObject obj in activeDoors)
+            obj.SetActive(true);
+    }
 
 
     void DetectEnemiesInRoom()
@@ -60,9 +86,7 @@ public class RoomTrigger : MonoBehaviour
             }
         }
 
-        Debug.Log($"Habitaci�n detect� {enemies.Count} enemigos.");
-
-
+        UIManager.Instance.UpdateEnemiesRemaining(true, enemies.Count);
 
         CheckIfAllDead();
     }
@@ -77,11 +101,12 @@ public class RoomTrigger : MonoBehaviour
     {
         if (enemies.Count == 0)
         {
-            // door.OpenDoor();
-            Debug.Log("Todos los enemigos de la habitaci�n fueron derrotados. Puerta abierta.");
-            foreach (GameObject obj in objetosActivables)
+            foreach (GameObject obj in activeDoors)
                 obj.SetActive(false);
+
             activated = false;
+
+            // SoundManager.Instance.PlaySFX(SoundManager.Sounds.DoorOpen);
         }
     }
 }

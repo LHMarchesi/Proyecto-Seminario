@@ -44,6 +44,11 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     {
     }
 
+    public bool IsDead()
+    {
+        return currentHealth <= 0;
+    }
+
     public void TakeDamage(float damage)
     {
         if (Time.time - lastDamageTime < damageCooldown)

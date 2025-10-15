@@ -8,12 +8,14 @@ public class PlayerContext : MonoBehaviour // Save valuable data from the player
     private PlayerController playerController;
     private Mjolnir mjolnir;
     private HandleAttack handleAttack;
+    private PlayerStateMachine playerStateMachine;
     public GameObject smashVFX;
     public Mjolnir Mjolnir { get => mjolnir; set => mjolnir = value; }
     public HandleAttack HandleAttack { get => handleAttack; set => handleAttack = value; }
     public HandleAnimations HandleAnimations { get => handleAnimations; set => handleAnimations = value; }
     public HandleInputs HandleInputs { get => handleInputs; set => handleInputs = value; }
     public PlayerController PlayerController { get => playerController; set => playerController = value; }
+    public PlayerStateMachine PlayerStateMachine { get => playerStateMachine; set => playerStateMachine = value; }
 
     private void OnEnable()
     {
@@ -22,6 +24,7 @@ public class PlayerContext : MonoBehaviour // Save valuable data from the player
         playerController = GetComponent<PlayerController>();
         Mjolnir = GetComponentInChildren<Mjolnir>();
         HandleAttack = GetComponentInChildren<HandleAttack>();
+        PlayerStateMachine = GetComponent<PlayerStateMachine>();
     }
 
     public Action OnUpdate;
