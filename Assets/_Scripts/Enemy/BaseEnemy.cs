@@ -20,6 +20,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     public Action OnDeath;
     private IObjectPool<BaseEnemy> enemyPool;
 
+
     public void SetPool(IObjectPool<BaseEnemy> pool)
     {
         enemyPool = pool;
