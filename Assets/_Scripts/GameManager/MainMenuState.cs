@@ -11,7 +11,9 @@ public class MainMenuState : IGameState
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
-    public void Update() { }
+    public void Update() {
+        Cursor.visible = true;
+    }
 }
 
 
