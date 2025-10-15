@@ -70,30 +70,32 @@ public class DialogueController : MonoBehaviour
     {
         if (!dialogueCanvas || !dialogueCanvas.enabled) return;
 
-        if (Time.unscaledTime < inputBlockUntil) return;
+        // only E advances or completes
+        bool advancePressed = Input.GetKeyDown(KeyCode.E);
 
-        if (Input.anyKeyDown)
+        // prevent the initial press from skipping the first line
+        if (Time.unscaledTime < inputBlockUntil)
+            return;
+
+        if (advancePressed)
         {
             if (typing)
             {
                 typing = false;
                 StopAllCoroutines();
-                bodyText.text = data.lines[lineIndex];
+                bodyText.text = data.lines[lineIndex]; // complete current line
             }
             else
             {
                 lineIndex++;
                 if (lineIndex >= data.lines.Length) EndDialogue();
-                else
-                {
-                    StopAllCoroutines();
-                    StartCoroutine(TypeCurrentLine());
-                }
+                else { StopAllCoroutines(); StartCoroutine(TypeCurrentLine()); }
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape)) EndDialogue();
+    
     }
+
 
     void EndDialogue()
     {
