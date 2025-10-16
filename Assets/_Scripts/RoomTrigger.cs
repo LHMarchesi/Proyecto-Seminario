@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class RoomTrigger : MonoBehaviour
 {
     [Header("Referencia de la puerta")]
     public string enemyTag = "Enemy";
-    public TextMeshPro remainingEnemysTxt;
     private List<BaseEnemy> enemies = new List<BaseEnemy>();
     private bool activated = false;
     public List<GameObject> activeDoors;
-
+    public bool isFinalRoom;
+    public GameObject finalDoor;
 
     private void Start()
     {
         foreach (GameObject obj in activeDoors)
             obj.SetActive(false);
+
+        if (finalDoor != null) finalDoor.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -107,6 +107,11 @@ public class RoomTrigger : MonoBehaviour
             activated = false;
 
             // SoundManager.Instance.PlaySFX(SoundManager.Sounds.DoorOpen);
+
+            if (isFinalRoom)
+            {
+                finalDoor.SetActive(true);
+            }
         }
     }
 }
