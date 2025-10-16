@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class ExperienceManager : MonoBehaviour
 {
@@ -77,10 +78,12 @@ public class ExperienceManager : MonoBehaviour
     void LevelUp()
     {
         panel.SetActive(true);
+        StartCoroutine(pauseWDelay());
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         playerContext.HandleInputs.SetPaused(true);
 
+      
         List<AbilityEntry> options = GetRandomAbilityOptions(2); // Elegimos 2 opciones al azar
 
         foreach (var ability in options)
@@ -113,6 +116,8 @@ public class ExperienceManager : MonoBehaviour
         panel.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1;
+
     }
     void UpdateLevel()
     {
@@ -127,7 +132,7 @@ public class ExperienceManager : MonoBehaviour
         float start = totalExperience - previousLevelsExperience;
         float end = nextLevelsExperience - previousLevelsExperience;
 
-    //    levelText.text = currentLevel.ToString();
+        //    levelText.text = currentLevel.ToString();
         experienceFill.fillAmount = (float)start / (float)end;
     }
 
@@ -137,7 +142,16 @@ public class ExperienceManager : MonoBehaviour
         shuffled.Shuffle();
         return shuffled.GetRange(0, Mathf.Min(count, shuffled.Count));
     }
+
+    IEnumerator pauseWDelay()
+    {
+        yield return new WaitForSecondsRealtime(.3f);
+        Debug.Log("hello");
+        Time.timeScale = 0;
+    }
 }
+
+
 
 [System.Serializable]
 public class AbilityEntry
