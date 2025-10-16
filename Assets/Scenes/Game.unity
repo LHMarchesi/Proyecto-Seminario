@@ -5286,6 +5286,8 @@ MonoBehaviour:
   promptCanvas: {fileID: 1918226591}
   interactKey: 101
   blipSource: {fileID: 1257126769}
+  reInteractCooldown: 1
+  requireExitToRetrigger: 1
 --- !u!54 &1257126767
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6176,6 +6178,7 @@ MonoBehaviour:
   bodyText: {fileID: 1604516927}
   minBlipInterval: 0.035
   blipPitchJitter: 0.05
+  autoCloseDelayOnLastLine: 0.35
 --- !u!4 &1460226213
 Transform:
   m_ObjectHideFlags: 0
@@ -6589,7 +6592,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.053000003, y: 0.13646364}
   m_AnchorMax: {x: 0.657, y: 0.3193841}
-  m_AnchoredPosition: {x: -2, y: -1}
+  m_AnchoredPosition: {x: 347, y: -1}
   m_SizeDelta: {x: 270, y: 85}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1522958368
@@ -7098,7 +7101,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.053000003, y: 0.14846364}
   m_AnchorMax: {x: 0.646, y: 0.3058477}
-  m_AnchoredPosition: {x: -174, y: -11.6}
+  m_AnchoredPosition: {x: 175, y: -11.600006}
   m_SizeDelta: {x: -393.57843, y: -43.477722}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &1617048545 stripped
