@@ -71,6 +71,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         if (enemyPool != null) { enemyPool.Release(this); } else { Destroy(gameObject); }
         OnDeath?.Invoke();
         playerEXP.AddExperience(experienceDroped);
+        GetComponent<EnemyDropManager>()?.DropItems();
     }
 
     protected virtual void Spawn()
