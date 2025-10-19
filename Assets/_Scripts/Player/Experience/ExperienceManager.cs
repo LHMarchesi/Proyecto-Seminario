@@ -20,8 +20,9 @@ public class ExperienceManager : MonoBehaviour
     [Header("Stat Points")]
     [Tooltip("Puntos de mejora disponibles para gastar al subir de nivel")]
     public int availableStatPoints = 0;
+
     [Tooltip("Cantidad de puntos de mejora otorgados por nivel")]
-    public int statPointsPerLevel = 3; // 🔹 Editable desde el inspector
+    public int statPointsPerLevel = 3;
 
     [Header("Interface")]
     [SerializeField] TextMeshProUGUI levelText;
@@ -34,7 +35,7 @@ public class ExperienceManager : MonoBehaviour
 
     private List<GameObject> spawnedButtons = new List<GameObject>();
 
-    // 🔹 Evento opcional: para que otros scripts (como la UI de stats) se actualicen
+    // 🔹 Evento opcional para que otros scripts (como la UI) se actualicen
     public delegate void OnLevelUpEvent();
     public event OnLevelUpEvent OnLevelUp;
 
@@ -62,13 +63,13 @@ public class ExperienceManager : MonoBehaviour
 
     void LevelUp()
     {
-        // 🔹 Otorgamos puntos de mejora
+        // 🔹 Otorgar puntos de mejora
         availableStatPoints += statPointsPerLevel;
 
-        // 🔹 Llamamos el evento (si existe alguien escuchando)
+        // 🔹 Disparar evento
         OnLevelUp?.Invoke();
 
-        // 🔹 Mantenemos tu lógica de elección de habilidades
+        // 🔹 Lógica de elección de habilidades
         panel.SetActive(true);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -127,28 +128,6 @@ public class ExperienceManager : MonoBehaviour
             levelText.text = $"Nivel {currentLevel}";
     }
 
-    AbilityEntry GetRandomAbility()
-    {
-        int randomNumber = Random.Range(1, 101);
-        List<AbilityEntry> possibleAbilities = new List<AbilityEntry>();
-
-        foreach (var ability in availableAbilities)
-        {
-            if (randomNumber <= ability.dropChance)
-            {
-                possibleAbilities.Add(ability);
-            }
-        }
-
-        if (possibleAbilities.Count > 0)
-        {
-            return possibleAbilities[Random.Range(0, possibleAbilities.Count)];
-        }
-
-        Debug.LogWarning("No ability selected");
-        return null;
-    }
-
     List<AbilityEntry> GetRandomAbilityOptions(int count)
     {
         List<AbilityEntry> shuffled = new List<AbilityEntry>(availableAbilities);
@@ -156,7 +135,6 @@ public class ExperienceManager : MonoBehaviour
         return shuffled.GetRange(0, Mathf.Min(count, shuffled.Count));
     }
 
-    // 🔹 Nueva función auxiliar (por si otra clase necesita gastar puntos)
     public bool SpendStatPoint()
     {
         if (availableStatPoints <= 0)
@@ -165,6 +143,8 @@ public class ExperienceManager : MonoBehaviour
         availableStatPoints--;
         return true;
     }
+
+    public int GetAvailableStatPoints() => availableStatPoints;
 }
 
 [System.Serializable]

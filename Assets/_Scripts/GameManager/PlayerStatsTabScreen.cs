@@ -1,86 +1,105 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerStatsTabScreen : MonoBehaviour
 {
-    [Header("Referencias")]
-    public GameObject statsPanel; // Canvas o Panel que mostrar� las estad�sticas
-    public PlayerController player; // referencia al script del jugador
+    [Header("References")]
+    public PlayerController playerController;
+    public ExperienceManager experienceManager;
+    public GameObject statsPanel;
 
-    [Header("Textos UI")]
-    public TextMeshProUGUI healthText;
-    public TextMeshProUGUI runSpeedText;
-    public TextMeshProUGUI walkSpeedText;
+    [Header("Stat Display")]
+    public TextMeshProUGUI maxHealthText;
+    public TextMeshProUGUI walkingSpeedText;
+    public TextMeshProUGUI runningSpeedText;
+    public TextMeshProUGUI statPointsText;
 
-    [Header("Botones")]
-    public Button increaseHealthButton;
-    public Button increaseRunSpeedButton;
-    public Button increaseWalkSpeedButton;
-
-    [Header("Ajustes de Mejora")]
-    public float healthIncreaseAmount = 10f;
-    public float runSpeedIncreaseAmount = 0.5f;
-    public float walkSpeedIncreaseAmount = 0.25f;
+    [Header("TMP Buttons")]
+    public TextMeshProUGUI increaseHealthButton;
+    public TextMeshProUGUI increaseWalkSpeedButton;
+    public TextMeshProUGUI increaseRunSpeedButton;
 
     private bool isOpen = false;
 
-    private void Start()
+    void Start()
     {
         statsPanel.SetActive(false);
-
-        // Asignar funciones a los botones
-        increaseHealthButton.onClick.AddListener(() => IncreaseStat("Health"));
-        increaseRunSpeedButton.onClick.AddListener(() => IncreaseStat("RunSpeed"));
-        increaseWalkSpeedButton.onClick.AddListener(() => IncreaseStat("WalkSpeed"));
+        experienceManager.OnLevelUp += UpdateUI;
+        AddButtonListeners();
     }
 
-    private void Update()
+    void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        // ✅ Mostrar el panel solo mientras se mantenga TAB
+        if (Keyboard.current.tabKey.isPressed)
         {
-            ToggleStatsPanel();
+            if (!isOpen)
+                OpenPanel();
         }
-
-        if (isOpen)
+        else if (isOpen)
         {
-            UpdateUI();
+            ClosePanel();
         }
     }
 
-    private void ToggleStatsPanel()
+    void AddButtonListeners()
     {
-        isOpen = !isOpen;
-        statsPanel.SetActive(isOpen);
+        increaseHealthButton.GetComponentInParent<UnityEngine.UI.Button>().onClick.AddListener(IncreaseHealth);
+        increaseWalkSpeedButton.GetComponentInParent<UnityEngine.UI.Button>().onClick.AddListener(IncreaseWalkSpeed);
+        increaseRunSpeedButton.GetComponentInParent<UnityEngine.UI.Button>().onClick.AddListener(IncreaseRunSpeed);
     }
 
-    private void UpdateUI()
+    void OpenPanel()
     {
-        if (player == null) return;
+        isOpen = true;
+        statsPanel.SetActive(true);
+        UpdateUI();
 
-        healthText.text = $"Max Health: {player.MaxHealth:F0}";
-        runSpeedText.text = $"Run Speed: {player.RunningSpeed:F2}";
-        walkSpeedText.text = $"Walk Speed: {player.WalkingSpeed:F2}";
+        // 🔹 Mostrar cursor y desbloquearlo
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
-    private void IncreaseStat(string stat)
+    void ClosePanel()
     {
-        if (player == null) return;
+        isOpen = false;
+        statsPanel.SetActive(false);
 
-        switch (stat)
-        {
-            case "Health":
-                player.MaxHealth += healthIncreaseAmount;
-                break;
-            case "RunSpeed":
-                player.RunningSpeed += runSpeedIncreaseAmount;
-                break;
-            case "WalkSpeed":
-                player.WalkingSpeed += walkSpeedIncreaseAmount;
-                break;
-        }
+        // 🔹 Ocultar cursor y volver a bloquearlo
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
 
+    public void UpdateUI()
+    {
+        maxHealthText.text = $"Max Health: {playerController.MaxHealth:F1}";
+        walkingSpeedText.text = $"Walking Speed: {playerController.WalkingSpeed:F1}";
+        runningSpeedText.text = $"Running Speed: {playerController.RunningSpeed:F1}";
+        statPointsText.text = $"Stat Points: {experienceManager.GetAvailableStatPoints()}";
+    }
+
+    void IncreaseHealth()
+    {
+        if (!experienceManager.SpendStatPoint()) return;
+        playerController.AddHealth(playerController.MaxHealth + 10f);
+        UpdateUI();
+    }
+
+    void IncreaseWalkSpeed()
+    {
+        if (!experienceManager.SpendStatPoint()) return;
+        playerController.ChangeSpeed(playerController.WalkingSpeed + 1f);
+        UpdateUI();
+    }
+
+    void IncreaseRunSpeed()
+    {
+        if (!experienceManager.SpendStatPoint()) return;
+        playerController.ChangeSpeed(playerController.RunningSpeed + 2f);
         UpdateUI();
     }
 }
