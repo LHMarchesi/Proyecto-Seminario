@@ -9,7 +9,7 @@ public class HandleAnimations : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
     }
- 
+
     public void ChangeAnimationState(string newState)
     {
         // STOP THE SAME ANIMATION FROM INTERRUPTING WITH ITSELF //
@@ -18,5 +18,11 @@ public class HandleAnimations : MonoBehaviour
         // PLAY THE ANIMATION //
         currentAnimation = newState;
         animator.CrossFadeInFixedTime(currentAnimation, 0.2f);
+    }
+
+    public float GetCurrentAnimationLength()
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        return stateInfo.length;
     }
 }
