@@ -1,8 +1,7 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections;
 
 public class ExperienceManager : MonoBehaviour
 {
@@ -18,18 +17,27 @@ public class ExperienceManager : MonoBehaviour
     float currentLevel, totalExperience;
     float previousLevelsExperience, nextLevelsExperience;
 
+    [Header("Stat Points")]
+    [Tooltip("Puntos de mejora disponibles para gastar al subir de nivel")]
+    public int availableStatPoints = 0;
+
+    [Tooltip("Cantidad de puntos de mejora otorgados por nivel")]
+    public int statPointsPerLevel = 3;
+
     [Header("Interface")]
     [SerializeField] TextMeshProUGUI levelText;
     [SerializeField] Image experienceFill;
 
-    [Header("Panel de Elecci�n de Habilidades")]
+    [Header("Panel de Elección de Habilidades")]
     [SerializeField] GameObject panel;
     [SerializeField] Transform abilityButtonContainer;
     [SerializeField] GameObject abilityButtonPrefab;
 
-
-
     private List<GameObject> spawnedButtons = new List<GameObject>();
+
+    // 🔹 Evento opcional para que otros scripts (como la UI) se actualicen
+    public delegate void OnLevelUpEvent();
+    public event OnLevelUpEvent OnLevelUp;
 
     void Awake()
     {
@@ -53,38 +61,21 @@ public class ExperienceManager : MonoBehaviour
         }
     }
 
-    AbilityEntry GetRandomAbility()
-    {
-        int randomNumber = Random.Range(1, 101);
-        List<AbilityEntry> possibleAbilities = new List<AbilityEntry>();
-
-        foreach (var ability in availableAbilities)
-        {
-            if (randomNumber <= ability.dropChance)
-            {
-                possibleAbilities.Add(ability);
-            }
-        }
-
-        if (possibleAbilities.Count > 0)
-        {
-            return possibleAbilities[Random.Range(0, possibleAbilities.Count)];
-        }
-
-        Debug.LogWarning("No ability selected");
-        return null;
-    }
-
     void LevelUp()
     {
+        // 🔹 Otorgar puntos de mejora
+        availableStatPoints += statPointsPerLevel;
+
+        // 🔹 Disparar evento
+        OnLevelUp?.Invoke();
+
+        // 🔹 Lógica de elección de habilidades
         panel.SetActive(true);
-        StartCoroutine(pauseWDelay());
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         playerContext.HandleInputs.SetPaused(true);
 
-      
-        List<AbilityEntry> options = GetRandomAbilityOptions(2); // Elegimos 2 opciones al azar
+        List<AbilityEntry> options = GetRandomAbilityOptions(2);
 
         foreach (var ability in options)
         {
@@ -108,7 +99,7 @@ public class ExperienceManager : MonoBehaviour
             powerUp.PickUp();
         }
 
-        // Limpiar botones UI
+        // 🔹 Limpiar botones UI
         foreach (var go in spawnedButtons)
             Destroy(go);
         spawnedButtons.Clear();
@@ -116,9 +107,8 @@ public class ExperienceManager : MonoBehaviour
         panel.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        Time.timeScale = 1;
-
     }
+
     void UpdateLevel()
     {
         float curveValue = experienceCurve.Evaluate(currentLevel);
@@ -132,8 +122,10 @@ public class ExperienceManager : MonoBehaviour
         float start = totalExperience - previousLevelsExperience;
         float end = nextLevelsExperience - previousLevelsExperience;
 
-        //    levelText.text = currentLevel.ToString();
         experienceFill.fillAmount = (float)start / (float)end;
+
+        if (levelText != null)
+            levelText.text = $"Nivel {currentLevel}";
     }
 
     List<AbilityEntry> GetRandomAbilityOptions(int count)
@@ -143,15 +135,17 @@ public class ExperienceManager : MonoBehaviour
         return shuffled.GetRange(0, Mathf.Min(count, shuffled.Count));
     }
 
-    IEnumerator pauseWDelay()
+    public bool SpendStatPoint()
     {
-        yield return new WaitForSecondsRealtime(.3f);
-        Debug.Log("hello");
-        Time.timeScale = 0;
+        if (availableStatPoints <= 0)
+            return false;
+
+        availableStatPoints--;
+        return true;
     }
+
+    public int GetAvailableStatPoints() => availableStatPoints;
 }
-
-
 
 [System.Serializable]
 public class AbilityEntry
