@@ -92,10 +92,10 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     protected virtual void MoveTowardsTarget()
     {
-       // if (target == null) return;
+       if (target == null) return;
 
-      // Vector3 direction = (target.position - transform.position).normalized;
-       // transform.Translate(direction * stats.moveSpeed * Time.deltaTime, Space.World);
+      Vector3 direction = (target.position - transform.position).normalized;
+      transform.Translate(direction * stats.moveSpeed * Time.deltaTime, Space.World);
     }
 
     protected void GetKnockback(float knockbackAmount)
