@@ -71,8 +71,8 @@ public class RoomTrigger : MonoBehaviour
             }
         }
 
-        // Initial UI feedback
-        UIManager.Instance.UpdateEnemiesRemaining(true, enemies.Count);
+        
+       
         CheckIfAllDead();
     }
 
@@ -83,6 +83,7 @@ public class RoomTrigger : MonoBehaviour
         {
             activated = true;
             StartCoroutine(ActivateDoorsWithDelay());
+            UIManager.Instance.UpdateEnemiesRemaining(true, enemies.Count);
         }
     }
 

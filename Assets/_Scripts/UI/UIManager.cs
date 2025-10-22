@@ -38,7 +38,10 @@ public class UIManager : MonoBehaviour
         ShowLoseScreenn(false);
     }
 
-
+    public void ChangeEnemyText(string text)
+    {
+        enemiesRemainingTxt.text = text;
+    }
 
 
     public void RegisterHability(string id, Sprite sprite)
@@ -81,7 +84,7 @@ public class UIManager : MonoBehaviour
         //  healthText.text = playerContext.PlayerController.MaxHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
         PauseScreen = GameObject.FindGameObjectWithTag("PauseScreen")?.GetComponent<Image>();
         TogglePauseScreen(false);
-        UpdateEnemiesRemaining(false, 0);
+        
     }
 
     public void UpdateEnemiesRemaining(bool show,int count)
