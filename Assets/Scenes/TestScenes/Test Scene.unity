@@ -3164,6 +3164,7 @@ GameObject:
   - component: {fileID: 802769168}
   - component: {fileID: 802769170}
   - component: {fileID: 802769169}
+  - component: {fileID: 802769171}
   m_Layer: 5
   m_Name: Tab Screen
   m_TagString: Untagged
@@ -3235,6 +3236,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 802769167}
   m_CullTransparentMesh: 1
+--- !u!114 &802769171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802769167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee7745442910b1b479c1659c825f4db7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerController: {fileID: 2020636354}
+  experienceManager: {fileID: 920831039}
+  statsPanel: {fileID: 802769167}
+  maxHealthText: {fileID: 1867334791}
+  walkingSpeedText: {fileID: 55799311}
+  runningSpeedText: {fileID: 1484231724}
+  statPointsText: {fileID: 913078114}
+  increaseHealthButton: {fileID: 64325711}
+  increaseWalkSpeedButton: {fileID: 1383930740}
+  increaseRunSpeedButton: {fileID: 1442177461}
 --- !u!1 &820672410
 GameObject:
   m_ObjectHideFlags: 0
@@ -10397,10 +10420,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 794023557}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.053000003, y: 0.14846364}
-  m_AnchorMax: {x: 0.646, y: 0.3058477}
-  m_AnchoredPosition: {x: -174, y: -11.6}
-  m_SizeDelta: {x: -393.57843, y: -43.477722}
+  m_AnchorMin: {x: 0.06739568, y: 0.14846364}
+  m_AnchorMax: {x: 0.646, y: 0.3193841}
+  m_AnchoredPosition: {x: -182, y: -15.6}
+  m_SizeDelta: {x: -377.57843, y: -51.477722}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1292524570
 MonoBehaviour:
@@ -10485,7 +10508,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -28.28431, y: -27.869612, z: -443.60626, w: -24.591473}
+  m_margin: {x: -20.375877, y: -37.359642, z: -443.60626, w: -0.8663712}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
