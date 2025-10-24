@@ -25,6 +25,16 @@ public class BossEnemy : BaseEnemy, IDamageable
     private int currentPhase = 1;
     private float attackCooldown;
 
+    [Header("Spawn Settings (Attack 4A)")]
+    public GameObject spawnPrefab;        // Prefab a spawnear
+    public float spawnRange = 10f;        // Radio máximo de spawneo
+    public int minSpawnCount = 1;
+    public int maxSpawnCount = 5;
+    public bool enablePassiveSpawns = true;   // Permite activar o desactivar el spawneo pasivo
+    public float spawnInterval = 20f;         // Cada cuánto tiempo spawnea
+    private float spawnTimer = 0f;            // Timer interno
+
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -77,7 +87,45 @@ public class BossEnemy : BaseEnemy, IDamageable
                 GetKnockback(stats.knockbackAmmount);
                 break;
         }
+
+        if (enablePassiveSpawns)
+        {
+            spawnTimer += Time.deltaTime;
+            if (spawnTimer >= spawnInterval)
+            {
+                spawnTimer = 0f;
+                PerformSpawnAttack();
+            }
+        }
     }
+
+    public void PerformSpawnAttack()
+    {
+        int spawnCount = Random.Range(minSpawnCount, maxSpawnCount + 1);
+
+        for (int i = 0; i < spawnCount; i++)
+        {
+            Vector2 randomCircle = Random.insideUnitCircle * spawnRange;
+            Vector3 spawnPos = new Vector3(
+                transform.position.x + randomCircle.x,
+                transform.position.y,
+                transform.position.z + randomCircle.y
+            );
+
+            // Evitar spawnear por debajo del jefe
+            if (spawnPos.y < transform.position.y)
+                spawnPos.y = transform.position.y;
+
+            Instantiate(spawnPrefab, spawnPos, Quaternion.identity);
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, spawnRange);
+    }
+
     private void Start()
     {
         healthSlider.ChangeValue(stats.maxHealth);

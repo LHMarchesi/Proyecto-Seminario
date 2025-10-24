@@ -1,85 +1,91 @@
-ï»¿using System.Collections.Generic;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class FlockManager : MonoBehaviour
 {
-    [SerializeField] private List<BaseEnemy> enemies = new List<BaseEnemy>();
-    public float neighborRadius;
-    public float separationRadius;
-    public float cohesionWeight;
-    public float separationWeight;
-    public float targetWeight;
-    public float alignmentWeight;
+    public static FlockManager Instance;
 
-    public void Register(BaseEnemy enemy)
-    {
-        if (!enemies.Contains(enemy))
-            enemies.Add(enemy);
-    }
+    [Header("Spatial Grid Settings")]
+    [Tooltip("Tamaño de cada celda usada para optimizar la búsqueda de vecinos.")]
+    public float cellSize = 10f;
+
+    private readonly Dictionary<Vector2Int, List<EnemyFlockBehaviour>> grid = new Dictionary<Vector2Int, List<EnemyFlockBehaviour>>();
+    private readonly List<EnemyFlockBehaviour> agents = new List<EnemyFlockBehaviour>();
 
     private void Awake()
     {
-        TryRegistChildren();
-    }
-
-    private void TryRegistChildren()
-    {
-        BaseEnemy[] childrenEnemies = GetComponentsInChildren<BaseEnemy>();
-        foreach (var enemy in childrenEnemies)
-        {
-            Register(enemy);
-        }
-    }
-
-    public void Unregister(BaseEnemy enemy)
-    {
-        enemies.Remove(enemy);
-        if(enemies.Count == 0)
-        {
+        if (Instance == null)
+            Instance = this;
+        else
             Destroy(gameObject);
+    }
+
+    public void RegisterAgent(EnemyFlockBehaviour agent)
+    {
+        if (!agents.Contains(agent))
+            agents.Add(agent);
+    }
+
+    public void UnregisterAgent(EnemyFlockBehaviour agent)
+    {
+        agents.Remove(agent);
+    }
+
+    private void LateUpdate()
+    {
+        grid.Clear();
+
+        foreach (var agent in agents)
+        {
+            if (agent == null) continue;
+            Vector2Int cell = GetCell(agent.transform.position);
+            if (!grid.ContainsKey(cell))
+                grid[cell] = new List<EnemyFlockBehaviour>();
+            grid[cell].Add(agent);
         }
     }
 
-    public Vector3 ComputeFlockDirection(BaseEnemy self, Transform target,
-        float neighborRadius, float separationRadius,
-        float alignmentWeight, float cohesionWeight,
-        float separationWeight, float targetWeight)
+    private Vector2Int GetCell(Vector3 position)
     {
-        Vector3 alignment = Vector3.zero;
-        Vector3 cohesion = Vector3.zero;
-        Vector3 separation = Vector3.zero;
-        int count = 0;
+        return new Vector2Int(
+            Mathf.FloorToInt(position.x / cellSize),
+            Mathf.FloorToInt(position.z / cellSize)
+        );
+    }
 
-        foreach (var other in enemies)
+    /// <summary>
+    /// Devuelve una lista de agentes cercanos a este, usando la grilla espacial.
+    /// </summary>
+    public List<EnemyFlockBehaviour> GetNearbyAgents(EnemyFlockBehaviour agent)
+    {
+        List<EnemyFlockBehaviour> nearby = new List<EnemyFlockBehaviour>();
+        Vector2Int centerCell = GetCell(agent.transform.position);
+
+        // Buscar en la celda actual y las 8 adyacentes
+        for (int x = -1; x <= 1; x++)
         {
-            if (other == null || other == self) continue;
-            float dist = Vector3.Distance(self.transform.position, other.transform.position);
-            if (dist < neighborRadius)
+            for (int z = -1; z <= 1; z++)
             {
-                alignment += other.transform.forward;
-                cohesion += other.transform.position;
-                if (dist < separationRadius)
-                    separation += (self.transform.position - other.transform.position).normalized / dist;
-
-                count++;
+                Vector2Int neighborCell = new Vector2Int(centerCell.x + x, centerCell.y + z);
+                if (grid.ContainsKey(neighborCell))
+                    nearby.AddRange(grid[neighborCell]);
             }
         }
 
-        if (count > 0)
-        {
-            alignment /= count;
-            cohesion = ((cohesion / count) - self.transform.position).normalized;
-            separation /= count;
-        }
-
-        Vector3 targetDir = (target != null) ? (target.position - self.transform.position).normalized : Vector3.zero;
-
-        Vector3 combined = alignment * alignmentWeight +
-                           cohesion * cohesionWeight +
-                           separation * separationWeight +
-                           targetDir * targetWeight;
-
-        combined.y = 0;
-        return combined.normalized;
+        return nearby;
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(0f, 1f, 0f, 0.2f); // Verde translúcido
+
+        foreach (var cell in grid.Keys)
+        {
+            Vector3 cellWorldPos = new Vector3(cell.x * cellSize, 0f, cell.y * cellSize);
+            Gizmos.DrawWireCube(cellWorldPos + new Vector3(cellSize / 2f, 0f, cellSize / 2f), new Vector3(cellSize, 0.1f, cellSize));
+        }
+    }
+#endif
 }

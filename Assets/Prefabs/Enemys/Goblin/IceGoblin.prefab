@@ -103,8 +103,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.4510286, y: 1, z: 1}
+  m_Center: {x: -0.021561567, y: 0, z: 0}
 --- !u!1001 &9006182404824240715
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -471,6 +471,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a2fd11dcf8a3aaa43ad6b1b956da7d1c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2717502657245302856}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a2fd11dcf8a3aaa43ad6b1b956da7d1c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -3235155780025328227}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a2fd11dcf8a3aaa43ad6b1b956da7d1c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2452343333843137962}
   m_SourcePrefab: {fileID: 100100000, guid: a2fd11dcf8a3aaa43ad6b1b956da7d1c, type: 3}
 --- !u!1 &8087632599547195162 stripped
 GameObject:
@@ -573,6 +579,43 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-3235155780025328227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8087632599547195162}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96907e3ad7e3d0a4b953fc78b8fa00e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
+  neighborRadius: 6
+  separationDistance: 1.5
+  alignmentWeight: 2
+  cohesionWeight: 1
+  separationWeight: 1.5
+--- !u!114 &2452343333843137962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8087632599547195162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1df5e73f44570dc4ebf40b17dd299f1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  possibleDrops:
+  - itemPrefab: {fileID: 0}
+    dropChance: 0
+    minAmount: 0
+    maxAmount: 0
+  dropHeightOffset: 1
+  scatterRadius: 0.5
 --- !u!4 &8896538165331981728 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a2fd11dcf8a3aaa43ad6b1b956da7d1c, type: 3}

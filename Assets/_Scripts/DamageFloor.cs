@@ -45,5 +45,19 @@ public class DamageFloor : MonoBehaviour
                 }
             }
         }
+        else if (other.CompareTag("Enemy"))
+        {
+            var enemy = other.GetComponent<BaseEnemy>();
+            if(enemy != null)
+            {
+                enemy.TakeDamage(damage);
+                Rigidbody rb = other.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+                    rb.AddForce(Vector3.up * launchForce, ForceMode.Impulse);
+                }
+            }
+        }
     }
 }
