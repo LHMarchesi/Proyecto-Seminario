@@ -19,7 +19,7 @@ public class ExperienceManager : MonoBehaviour
 
     [Header("Stat Points")]
     [Tooltip("Puntos de mejora disponibles para gastar al subir de nivel")]
-    public int availableStatPoints = 0;
+    public int availableStatPoints = 3;
 
     [Tooltip("Cantidad de puntos de mejora otorgados por nivel")]
     public int statPointsPerLevel = 3;
@@ -35,14 +35,9 @@ public class ExperienceManager : MonoBehaviour
 
     private List<GameObject> spawnedButtons = new List<GameObject>();
 
-    // 🔹 Evento opcional para que otros scripts (como la UI) se actualicen
+    //  Evento para que otros scripts (como la UI) se actualicen
     public delegate void OnLevelUpEvent();
     public event OnLevelUpEvent OnLevelUp;
-
-    void Awake()
-    {
-        UpdateLevel();
-    }
 
     public void AddExperience(float amount)
     {
@@ -63,13 +58,13 @@ public class ExperienceManager : MonoBehaviour
 
     void LevelUp()
     {
-        // 🔹 Otorgar puntos de mejora
+        // Otorgar puntos de mejora
         availableStatPoints += statPointsPerLevel;
 
-        // 🔹 Disparar evento
+        // Disparar evento
         OnLevelUp?.Invoke();
 
-        // 🔹 Lógica de elección de habilidades
+        // Lógica de elección de habilidades
         panel.SetActive(true);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;

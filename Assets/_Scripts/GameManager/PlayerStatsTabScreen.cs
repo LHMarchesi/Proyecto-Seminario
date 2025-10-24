@@ -5,38 +5,41 @@ using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
+
 public class PlayerStatsTabScreen : MonoBehaviour
 {
+    [Header("Aumento de estadisitcas por StatPoint")]
+    public float maxHealthIncrease;
+    public float maxWalkSpeedIncrease;
+    public float maxRunSpeedIncrease;
+
     [Header("References")]
-    public PlayerController playerController;
-    public ExperienceManager experienceManager;
-    public GameObject statsPanel;
-
-    [Header("Stat Display")]
-    public TextMeshProUGUI maxHealthText;
-    public TextMeshProUGUI walkingSpeedText;
-    public TextMeshProUGUI runningSpeedText;
-    public TextMeshProUGUI statPointsText;
-
-    [Header("TMP Buttons")]
-    public TextMeshProUGUI increaseHealthButton;
-    public TextMeshProUGUI increaseWalkSpeedButton;
-    public TextMeshProUGUI increaseRunSpeedButton;
+    [SerializeField] private PlayerStats playerStats;
+    [SerializeField] private GameObject tabPanel;
+    [SerializeField] private ExperienceManager experienceManager;
+    [SerializeField] private TextMeshProUGUI maxHealthText;
+    [SerializeField] private TextMeshProUGUI walkingSpeedText;
+    [SerializeField] private TextMeshProUGUI runningSpeedText;
+    [SerializeField] private TextMeshProUGUI statPointsText;
+    [SerializeField] private Button increaseHealthButton;
+    [SerializeField] private Button increaseWalkSpeedButton;
+    [SerializeField] private Button increaseRunSpeedButton;
 
     private bool isOpen = false;
 
     void Start()
     {
-        statsPanel.SetActive(false);
+        tabPanel.SetActive(false);
         experienceManager.OnLevelUp += UpdateUI;
         AddButtonListeners();
     }
 
     void Update()
     {
-        // ✅ Mostrar el panel solo mientras se mantenga TAB
+        // Mostrar el panel solo mientras se mantenga TAB
         if (Keyboard.current.tabKey.isPressed)
         {
+            Debug.Log("Tab key is being pressed.");
             if (!isOpen)
                 OpenPanel();
         }
@@ -48,18 +51,19 @@ public class PlayerStatsTabScreen : MonoBehaviour
 
     void AddButtonListeners()
     {
-        increaseHealthButton.GetComponentInParent<UnityEngine.UI.Button>().onClick.AddListener(IncreaseHealth);
-        increaseWalkSpeedButton.GetComponentInParent<UnityEngine.UI.Button>().onClick.AddListener(IncreaseWalkSpeed);
-        increaseRunSpeedButton.GetComponentInParent<UnityEngine.UI.Button>().onClick.AddListener(IncreaseRunSpeed);
+        increaseHealthButton.onClick.AddListener(IncreaseHealth);
+        increaseWalkSpeedButton.onClick.AddListener(IncreaseWalkSpeed);
+        increaseRunSpeedButton.onClick.AddListener(IncreaseRunSpeed);
     }
 
     void OpenPanel()
     {
+        //playerContext.HandleInputs.SetPaused(true);
         isOpen = true;
-        statsPanel.SetActive(true);
+        tabPanel.SetActive(true);
         UpdateUI();
 
-        // 🔹 Mostrar cursor y desbloquearlo
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
     }
@@ -67,39 +71,38 @@ public class PlayerStatsTabScreen : MonoBehaviour
     void ClosePanel()
     {
         isOpen = false;
-        statsPanel.SetActive(false);
+        tabPanel.SetActive(false);
 
-        // 🔹 Ocultar cursor y volver a bloquearlo
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void UpdateUI()
     {
-        maxHealthText.text = $"Max Health: {playerController.MaxHealth:F1}";
-        walkingSpeedText.text = $"Walking Speed: {playerController.WalkingSpeed:F1}";
-        runningSpeedText.text = $"Running Speed: {playerController.RunningSpeed:F1}";
+        maxHealthText.text = $"Max Health: {playerStats.maxHealth:F1}";
+        walkingSpeedText.text = $"Walking Speed: {playerStats.walkingSpeed:F1}";
+        runningSpeedText.text = $"Running Speed: {playerStats.runningSpeed:F1}";
         statPointsText.text = $"Stat Points: {experienceManager.GetAvailableStatPoints()}";
     }
 
     void IncreaseHealth()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        playerController.AddHealth(playerController.MaxHealth + 10f);
+        playerStats.maxHealth += maxHealthIncrease;
         UpdateUI();
     }
 
     void IncreaseWalkSpeed()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        playerController.ChangeSpeed(playerController.WalkingSpeed + 1f);
+        playerStats.walkingSpeed += maxWalkSpeedIncrease;
         UpdateUI();
     }
 
     void IncreaseRunSpeed()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        playerController.ChangeSpeed(playerController.RunningSpeed + 2f);
+        playerStats.walkingSpeed += maxRunSpeedIncrease;
         UpdateUI();
     }
 }

@@ -30,12 +30,12 @@ public class MeleeEnemy : BaseEnemy
         base.OnEnable();
 
         flockManager = GetComponentInParent<FlockManager>();
-        if (flockManager != null)
-            flockManager.Register(this);
+       // if (flockManager != null)
+          //  flockManager.Register(this);
     }
 
 
-    private Vector3 GetFlockingDirection()
+   /* private Vector3 GetFlockingDirection()
     {
         if (flockManager == null)
             return (target != null) ? (target.position - transform.position).normalized : Vector3.zero;
@@ -43,7 +43,7 @@ public class MeleeEnemy : BaseEnemy
         return flockManager.ComputeFlockDirection(
             this, target, flockManager.neighborRadius, flockManager.separationRadius,
             flockManager.alignmentWeight, flockManager.cohesionWeight, flockManager.separationWeight, flockManager.targetWeight);
-    }
+    }*/
 
     protected override void Update()
     {
@@ -105,10 +105,10 @@ public class MeleeEnemy : BaseEnemy
     {
         handleAnimations.ChangeAnimationState("Chasing_MeleeEnemy");
 
-        if (flockManager != null)
+       /* if (flockManager != null)
         {
             flockManager.Register(this);
-            Vector3 direction = GetFlockingDirection();
+           Vector3 direction = GetFlockingDirection();
             direction.y = 0f;
 
             // Normalizar y mover
@@ -118,10 +118,10 @@ public class MeleeEnemy : BaseEnemy
             FaceDirection(direction);
         }
         else
-        {
+        {*/
             MoveTowardsTarget();
             FaceTarget();
-        }
+    //    }
         // Mirar hacia la dirección de movimiento
     }
 
@@ -163,8 +163,8 @@ public class MeleeEnemy : BaseEnemy
 
     protected override void Die(float xpDrop)
     {
-        if (flockManager != null)
-            flockManager.Unregister(this);
+       // if (flockManager != null)
+       //     flockManager.Unregister(this);
 
         base.Die(stats.expDrop);
         GameObject GO = Instantiate(DeathEffect, transform.position, Quaternion.identity); // Instantiate effect
