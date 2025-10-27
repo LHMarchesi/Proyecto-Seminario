@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class ExperienceManager : MonoBehaviour
 {
@@ -66,6 +67,7 @@ public class ExperienceManager : MonoBehaviour
 
         // Lógica de elección de habilidades
         panel.SetActive(true);
+        StartCoroutine(pauseWDelay());
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         playerContext.HandleInputs.SetPaused(true);
@@ -102,6 +104,7 @@ public class ExperienceManager : MonoBehaviour
         panel.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1;
     }
 
     void UpdateLevel()
@@ -140,7 +143,16 @@ public class ExperienceManager : MonoBehaviour
     }
 
     public int GetAvailableStatPoints() => availableStatPoints;
+
+
+    IEnumerator pauseWDelay()
+    {
+        yield return new WaitForSecondsRealtime(.3f);
+        Time.timeScale = 0;
+    }
 }
+
+
 
 [System.Serializable]
 public class AbilityEntry
@@ -166,4 +178,5 @@ public static class ListExtensions
             (list[n], list[k]) = (list[k], list[n]);
         }
     }
+
 }

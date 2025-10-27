@@ -159,7 +159,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public bool IsGrounded()
     {
-        Vector3 boxCenter = transform.position + Vector3.down * 1f;
+        Vector3 boxCenter = transform.position + Vector3.down * 2f;
         Vector3 boxHalfExtents = new Vector3(0.3f, 0.1f, 0.3f); // ajustalo según el tamaño de tu personaje
         bool hit = Physics.CheckBox(boxCenter, boxHalfExtents, Quaternion.identity, LayerMask.GetMask("Ground"));
 

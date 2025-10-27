@@ -11,8 +11,6 @@ GameObject:
   - component: {fileID: 7286463159496770305}
   - component: {fileID: 7591871833859919875}
   - component: {fileID: 986446370426116995}
-  - component: {fileID: 5603650085340847830}
-  - component: {fileID: 1391682250741777873}
   m_Layer: 10
   m_Name: StonePillarNEW
   m_TagString: Enemy
@@ -30,8 +28,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071067}
   m_LocalPosition: {x: -1.7002, y: -0.18185604, z: -2.6599}
-  m_LocalScale: {x: 351.8824, y: 351.88235, z: 351.88235}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 500, y: 500, z: 500}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 6238730642195011558}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -85,40 +83,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5603650085340847830
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 873969675432400403}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.009592545, y: 0.0097008785, z: 0.017429171}
-  m_Center: {x: 0.0000011440309, y: 0.0000010012474, z: 0.008738219}
---- !u!114 &1391682250741777873
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 873969675432400403}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a46cec41edd05894e966d8739c2f147e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentHealth: 180
 --- !u!1 &1979525465993521491
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,7 +92,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8300573212502633127}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Spawnpoint (2)
   m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
@@ -159,7 +123,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1397225480379134834}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Spawnpoint (3)
   m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
@@ -192,7 +156,7 @@ GameObject:
   - component: {fileID: 4906785663705490140}
   - component: {fileID: 3846724231638465933}
   - component: {fileID: 8397675169957309622}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: DestroyPillarIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -287,7 +251,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5764818776463147434}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Spawnpoint
   m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
@@ -318,7 +282,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3429379989852505447}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Spawnpoint (1)
   m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
@@ -351,7 +315,7 @@ GameObject:
   - component: {fileID: 7487309926739574536}
   - component: {fileID: 7353575315797818131}
   - component: {fileID: 5358588307595188432}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: EnemySpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -438,7 +402,7 @@ GameObject:
   - component: {fileID: 129918612438715901}
   - component: {fileID: 7067168513183244756}
   - component: {fileID: 5890279354908206834}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -537,9 +501,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6238730642195011558}
-  m_Layer: 0
+  - component: {fileID: 1401358427852043759}
+  - component: {fileID: 8830705668423636507}
+  m_Layer: 10
   m_Name: PillarSpawner
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -562,3 +528,39 @@ Transform:
   - {fileID: 7887182015436637275}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1401358427852043759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9020160763774116252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a46cec41edd05894e966d8739c2f147e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentHealth: 50
+  destroyEffect: {fileID: 4085614596914174490, guid: 921911fbcb5b14542b197eb963dd5f10, type: 3}
+  effectSpawnPos: {fileID: 7286463159496770305}
+--- !u!65 &8830705668423636507
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9020160763774116252}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.3900304, y: 6.224226, z: 3.575605}
+  m_Center: {x: -1.6814816, y: 2.9082232, z: -2.6202967}
