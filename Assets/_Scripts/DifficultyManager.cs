@@ -30,13 +30,13 @@ public class DifficultyManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(StartGameRoutine());
+        //StartCoroutine(StartGameRoutine());
     }
 
     IEnumerator StartGameRoutine()
     {
         yield return new WaitForSeconds(0.5f); // Espera a que los enemigos estén en escena
-        ResetDifficulty();
+     //   ResetDifficulty();
     }
 
     public void ResetDifficulty()
