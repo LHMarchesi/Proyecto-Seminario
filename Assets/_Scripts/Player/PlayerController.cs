@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     public float currentSpeed;
     private float lookRotation;
     private bool isDashing;
+    private bool canTakeDamage;
     private Vector3 dashDirection;
     private float dashSpeed;
     private float lastDashTime = -Mathf.Infinity;
@@ -29,7 +30,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody>();
         playerContext = GetComponent<PlayerContext>();
         currentHealth = playerStats.maxHealth;
-
+        canTakeDamage = true;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -170,6 +171,8 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public void TakeDamage(float damage)
     {
+        if(!canTakeDamage) return;
+
         currentHealth -= damage;
         UIManager.Instance.OnPlayerTakeDamage();
         if (currentHealth <= 0)
@@ -196,6 +199,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     protected virtual void Die()
     {
         Debug.Log("Lose");
+        canTakeDamage = false;
         GameManager.Instance.ChangeState(new LoseState());
     }
 }

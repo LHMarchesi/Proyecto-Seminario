@@ -27,9 +27,13 @@ public class PlayerStatsTabScreen : MonoBehaviour
     [SerializeField] private Button increaseRunSpeedButton;
 
     private bool isOpen = false;
+    private PlayerContext playerContext;
 
     void Start()
     {
+        playerContext = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerContext>();
+        
+
         SetStatsToDefault(); 
         tabPanel.SetActive(false);
         experienceManager.OnLevelUp += UpdateUI;
@@ -41,7 +45,6 @@ public class PlayerStatsTabScreen : MonoBehaviour
         // Mostrar el panel solo mientras se mantenga TAB
         if (Keyboard.current.tabKey.isPressed)
         {
-            Debug.Log("Tab key is being pressed.");
             if (!isOpen)
                 OpenPanel();
         }
@@ -60,7 +63,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
 
     void OpenPanel()
     {
-        //playerContext.HandleInputs.SetPaused(true);
+        playerContext.HandleInputs.SetPaused(true);
         isOpen = true;
         tabPanel.SetActive(true);
         UpdateUI();
@@ -72,6 +75,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
 
     void ClosePanel()
     {
+        playerContext.HandleInputs.SetPaused(false);
         isOpen = false;
         tabPanel.SetActive(false);
 

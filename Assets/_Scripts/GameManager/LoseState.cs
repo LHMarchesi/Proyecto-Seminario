@@ -10,7 +10,6 @@ public class LoseState : IGameState
         UIManager.Instance.ShowLoseScreenn(true);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        Time.timeScale = 0f;
        
     }
     public void Update()
@@ -20,7 +19,6 @@ public class LoseState : IGameState
     public void Exit()
     {
         playerContext.HandleInputs.SetPaused(false);
-        Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         UIManager.Instance.ShowLoseScreenn(false);

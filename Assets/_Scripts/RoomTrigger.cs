@@ -170,7 +170,7 @@ public class RoomTrigger : MonoBehaviour
             activated = false;
 
             // Subir dificultad
-            DifficultyManager.Instance.IncreaseDifficulty();
+       //     DifficultyManager.Instance.IncreaseDifficulty();
 
             if (isFinalRoom && finalDoor != null)
                 finalDoor.SetActive(true);
