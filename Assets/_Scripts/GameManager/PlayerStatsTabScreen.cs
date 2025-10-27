@@ -14,7 +14,8 @@ public class PlayerStatsTabScreen : MonoBehaviour
     public float maxRunSpeedIncrease;
 
     [Header("References")]
-    [SerializeField] private PlayerStats playerStats;
+    [SerializeField] private PlayerStats defaultPlayerStats;
+    [SerializeField] private PlayerStats currentPlayerStats;
     [SerializeField] private GameObject tabPanel;
     [SerializeField] private ExperienceManager experienceManager;
     [SerializeField] private TextMeshProUGUI maxHealthText;
@@ -29,6 +30,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
 
     void Start()
     {
+        SetStatsToDefault(); 
         tabPanel.SetActive(false);
         experienceManager.OnLevelUp += UpdateUI;
         AddButtonListeners();
@@ -79,30 +81,38 @@ public class PlayerStatsTabScreen : MonoBehaviour
 
     public void UpdateUI()
     {
-        maxHealthText.text = $"Max Health: {playerStats.maxHealth:F1}";
-        walkingSpeedText.text = $"Walking Speed: {playerStats.walkingSpeed:F1}";
-        runningSpeedText.text = $"Running Speed: {playerStats.runningSpeed:F1}";
+        maxHealthText.text = $"Max Health: {currentPlayerStats.maxHealth:F1}";
+        walkingSpeedText.text = $"Walking Speed: {currentPlayerStats.walkingSpeed:F1}";
+        runningSpeedText.text = $"Running Speed: {currentPlayerStats.runningSpeed:F1}";
         statPointsText.text = $"Stat Points: {experienceManager.GetAvailableStatPoints()}";
     }
 
     void IncreaseHealth()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        playerStats.maxHealth += maxHealthIncrease;
+        currentPlayerStats.maxHealth += maxHealthIncrease;
         UpdateUI();
     }
 
     void IncreaseWalkSpeed()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        playerStats.walkingSpeed += maxWalkSpeedIncrease;
+        currentPlayerStats.walkingSpeed += maxWalkSpeedIncrease;
         UpdateUI();
     }
 
     void IncreaseRunSpeed()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        playerStats.walkingSpeed += maxRunSpeedIncrease;
+        currentPlayerStats.walkingSpeed += maxRunSpeedIncrease;
         UpdateUI();
+    }
+
+    private void SetStatsToDefault()
+    {
+        Debug.Log("Stats set to default."); 
+        currentPlayerStats.maxHealth = defaultPlayerStats.maxHealth;
+        currentPlayerStats.walkingSpeed = defaultPlayerStats.walkingSpeed;
+        currentPlayerStats.runningSpeed = defaultPlayerStats.runningSpeed;
     }
 }

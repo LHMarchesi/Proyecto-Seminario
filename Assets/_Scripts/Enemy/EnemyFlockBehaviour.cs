@@ -1,92 +1,58 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyFlockBehaviour : MonoBehaviour
+public class FlockingBehavior : MonoBehaviour
 {
-    [Header("Flocking Settings")]
-    public float speed = 5f;
-    public float neighborRadius = 10f;
-    public float separationDistance = 3f;
-
-    [Range(0f, 5f)] public float alignmentWeight = 1f;
-    [Range(0f, 5f)] public float cohesionWeight = 1f;
-    [Range(0f, 5f)] public float separationWeight = 1f;
+    private EnemySpawner spawner;
+    private float cohesionWeight, separationWeight, alignmentWeight, neighborRadius;
 
     private Rigidbody rb;
-    private Transform player;
 
-    private void Start()
+    public void Initialize(EnemySpawner spawner, float cohesion, float separation, float alignment, float radius)
+    {
+        this.spawner = spawner;
+        this.cohesionWeight = cohesion;
+        this.separationWeight = separation;
+        this.alignmentWeight = alignment;
+        this.neighborRadius = radius;
+    }
+
+    void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        FlockManager.Instance.RegisterAgent(this);
     }
 
-    private void OnDestroy()
+    void FixedUpdate()
     {
-        if (FlockManager.Instance != null)
-            FlockManager.Instance.UnregisterAgent(this);
-    }
+        if (spawner == null) return;
 
-    private void FixedUpdate()
-    {
-        List<EnemyFlockBehaviour> nearbyAgents = FlockManager.Instance.GetNearbyAgents(this);
-        Vector3 moveDirection = CalculateFlocking(nearbyAgents);
-        rb.velocity = moveDirection * speed;
-    }
-
-    private Vector3 CalculateFlocking(List<EnemyFlockBehaviour> agents)
-    {
-        Vector3 alignment = Vector3.zero;
+        List<GameObject> neighbors = spawner.GetActiveEnemies();
         Vector3 cohesion = Vector3.zero;
         Vector3 separation = Vector3.zero;
+        Vector3 alignment = Vector3.zero;
+        int count = 0;
 
-        int neighborCount = 0;
-
-        foreach (var other in agents)
+        foreach (var other in neighbors)
         {
-            if (other == this || other == null) continue;
-
-            float distance = Vector3.Distance(transform.position, other.transform.position);
-            if (distance > neighborRadius) continue;
-
-            alignment += other.transform.forward;
-            cohesion += other.transform.position;
-
-            if (distance < separationDistance)
-                separation += (transform.position - other.transform.position) / distance;
-
-            neighborCount++;
+            if (other == gameObject) continue;
+            float dist = Vector3.Distance(transform.position, other.transform.position);
+            if (dist < neighborRadius)
+            {
+                cohesion += other.transform.position;
+                alignment += other.GetComponent<Rigidbody>().velocity;
+                separation += (transform.position - other.transform.position) / (dist * dist);
+                count++;
+            }
         }
 
-        if (neighborCount > 0)
+        if (count > 0)
         {
-            alignment = (alignment / neighborCount).normalized * alignmentWeight;
-            cohesion = ((cohesion / neighborCount) - transform.position).normalized * cohesionWeight;
+            cohesion = ((cohesion / count) - transform.position).normalized * cohesionWeight;
+            alignment = (alignment / count).normalized * alignmentWeight;
             separation = separation.normalized * separationWeight;
         }
 
-        // Dirigirse también al jugador (si existe)
-        Vector3 targetDir = Vector3.zero;
-        if (player != null)
-            targetDir = (player.position - transform.position).normalized * 0.5f;
-
-        Vector3 finalDir = (alignment + cohesion + separation + targetDir).normalized;
-
-        if (finalDir != Vector3.zero)
-            transform.rotation = Quaternion.LookRotation(finalDir);
-
-        return finalDir;
+        Vector3 flockForce = cohesion + alignment + separation;
+        rb.AddForce(flockForce);
     }
-
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = new Color(0f, 0.5f, 1f, 0.4f); // Azul translúcido
-        Gizmos.DrawWireSphere(transform.position, neighborRadius);
-
-        Gizmos.color = new Color(1f, 0.5f, 0f, 0.4f); // Naranja translúcido
-        Gizmos.DrawWireSphere(transform.position, separationDistance);
-    }
-#endif
 }

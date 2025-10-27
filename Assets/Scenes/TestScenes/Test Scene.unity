@@ -3286,7 +3286,8 @@ MonoBehaviour:
   maxHealthIncrease: 5
   maxWalkSpeedIncrease: 1.15
   maxRunSpeedIncrease: 1.2
-  playerStats: {fileID: 11400000, guid: 8ad56ffaf84276f4a89017ccfbefaae9, type: 2}
+  defaultPlayerStats: {fileID: 11400000, guid: 8ad56ffaf84276f4a89017ccfbefaae9, type: 2}
+  currentPlayerStats: {fileID: 11400000, guid: b614df207a6efd546a1e00712f4cfea5, type: 2}
   tabPanel: {fileID: 1068366123}
   experienceManager: {fileID: 920831039}
   maxHealthText: {fileID: 1867334791}
@@ -11302,6 +11303,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1350500648}
   m_CullTransparentMesh: 1
+--- !u!1 &1359361036
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1359361038}
+  - component: {fileID: 1359361037}
+  m_Layer: 0
+  m_Name: DifficultyManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1359361037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359361036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9e85b144beeebe479aba8412aa7bc74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthMultiplier: 0.5
+  speedMultiplier: 0.04
+  damageMultiplier: 0.6
+  expMultiplier: 0.2
+  enemyMultiplierIncrement: 1
+  currentDifficultyLevel: 1
+--- !u!4 &1359361038
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359361036}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.3527308, y: 10.050852, z: -356.29352}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1366313344 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1305882095604940057, guid: a7630a00b79f3294393851b790b546c0, type: 3}
@@ -13443,6 +13494,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1536921359047625878, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: playerStats
+      value: 
+      objectReference: {fileID: 11400000, guid: b614df207a6efd546a1e00712f4cfea5, type: 2}
     - target: {fileID: 4279772628873052960, guid: a7630a00b79f3294393851b790b546c0, type: 3}
       propertyPath: m_Name
       value: Player
@@ -14135,3 +14190,4 @@ SceneRoots:
   - {fileID: 794023557}
   - {fileID: 1326496138}
   - {fileID: 1850833198}
+  - {fileID: 1359361038}

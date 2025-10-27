@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class RoomTrigger : MonoBehaviour
 {
     [Header("Enemy detection")]
@@ -16,6 +15,7 @@ public class RoomTrigger : MonoBehaviour
     [Header("Spawning")]
     public bool spawnOnStart = true;
 
+    private bool roomCleared = false;
     [Serializable]
     public class SpawnBatch
     {
@@ -29,6 +29,7 @@ public class RoomTrigger : MonoBehaviour
     private readonly List<BaseEnemy> enemies = new List<BaseEnemy>();
     private readonly Dictionary<BaseEnemy, Action> deathHandlers = new Dictionary<BaseEnemy, Action>();
     private bool activated = false;
+    private bool alreadyCounted;
 
     private void Start()
     {
@@ -43,12 +44,17 @@ public class RoomTrigger : MonoBehaviour
 
     private void SpawnConfiguredEnemies()
     {
+        roomCleared = false;
+        alreadyCounted = false;
+
         foreach (var batch in spawnBatches)
         {
             if (batch == null || batch.spawnPoint == null || batch.enemyPrefab == null || batch.count <= 0)
                 continue;
 
-            for (int i = 0; i < batch.count; i++)
+            int adjustedCount = Mathf.RoundToInt(batch.count * DifficultyManager.EnemyMultiplier);
+
+            for (int i = 0; i < adjustedCount; i++)
             {
                 Vector3 offset2D = (batch.spreadRadius > 0f)
                     ? UnityEngine.Random.insideUnitCircle * batch.spreadRadius
@@ -59,7 +65,6 @@ public class RoomTrigger : MonoBehaviour
 
                 GameObject go = Instantiate(batch.enemyPrefab, spawnPos, spawnRot);
 
-                // Ensure tag matches if needed
                 if (!string.IsNullOrEmpty(enemyTag)) go.tag = enemyTag;
 
                 var enemy = go.GetComponent<BaseEnemy>();
@@ -67,13 +72,10 @@ public class RoomTrigger : MonoBehaviour
                 {
                     enemies.Add(enemy);
                     SafeSubscribe(enemy);
+
                 }
             }
         }
-
-        
-       
-        CheckIfAllDead();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -158,13 +160,21 @@ public class RoomTrigger : MonoBehaviour
 
     void CheckIfAllDead()
     {
-        if (enemies.Count == 0)
+        if (enemies.Count == 0 && !alreadyCounted && activated)
         {
-            foreach (GameObject obj in activeDoors) obj.SetActive(false);
+            alreadyCounted = true; // Evita repetir el conteo
+
+            foreach (GameObject obj in activeDoors)
+                obj.SetActive(false);
+
             activated = false;
+
+            // Subir dificultad
+            DifficultyManager.Instance.IncreaseDifficulty();
 
             if (isFinalRoom && finalDoor != null)
                 finalDoor.SetActive(true);
         }
     }
+
 }
