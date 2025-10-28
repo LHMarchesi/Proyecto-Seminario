@@ -20,10 +20,17 @@ public partial class EnemySpawner : MonoBehaviour
     [SerializeField] public float alignmentWeight = 1f;
     [SerializeField] public float neighborRadius = 3f;
 
+    [Header("Dificultad")]
+    [SerializeField] private float healthIncreasePerWave = 5f;
+    [SerializeField] private float damageIncreasePerWave = 1f;
+    [SerializeField] private float speedIncreasePerWave = 0.2f;
+    [SerializeField] private float attackSpeedIncreasePerWave = 0.1f;
+
     private Queue<GameObject> pool = new Queue<GameObject>();
     private List<GameObject> activeEnemies = new List<GameObject>();
     private Coroutine spawnCoroutine;
     private bool isSpawning = false;
+    private int currentWave = 0;
 
     void Start()
     {
@@ -62,13 +69,15 @@ public partial class EnemySpawner : MonoBehaviour
     {
         while (true)
         {
+            currentWave++;
+            Debug.Log($"--- Iniciando ola {currentWave} ---");
+
             for (int i = 0; i < enemiesPerWave; i++)
             {
                 SpawnEnemy();
-                yield return new WaitForSeconds(1f / spawnRate); // delay entre enemigos
+                yield return new WaitForSeconds(1f / spawnRate);
             }
 
-            // Espera antes de la siguiente ola
             yield return new WaitForSeconds(3f);
         }
     }
@@ -84,9 +93,28 @@ public partial class EnemySpawner : MonoBehaviour
         enemy.SetActive(true);
         activeEnemies.Add(enemy);
 
+        // Aplicar dificultad escalada
+        ApplyDifficultyScaling(baseEnemy); //DE MOMENTO SUBE LA DIFICULTAD CADA VEZ QUE SPAWNEA
+
+        // Flocking
         var flock = enemy.GetComponent<FlockingBehavior>();
         if (flock != null && enableFlocking)
             flock.Initialize(this, cohesionWeight, separationWeight, alignmentWeight, neighborRadius);
+    }
+
+    void ApplyDifficultyScaling(BaseEnemy enemy)
+    {
+        float healthBonus = healthIncreasePerWave * (currentWave - 1);
+        float damageBonus = damageIncreasePerWave * (currentWave - 1);
+        float speedBonus = speedIncreasePerWave * (currentWave - 1);
+        float attackSpeedBonus = attackSpeedIncreasePerWave * (currentWave - 1);
+
+        enemy.AddMaxHealth(healthBonus);
+        enemy.AddMaxAttackDamage(damageBonus);
+        enemy.AddMaxSpeed(speedBonus);
+        enemy.AddAttackSpeed(attackSpeedBonus);
+
+        Debug.Log($"Enemy scaled for wave {currentWave}: +{healthBonus} HP, +{damageBonus} DMG, +{speedBonus} SPD, +{attackSpeedBonus} ATKSPD");
     }
 
     public List<GameObject> GetActiveEnemies() => activeEnemies;
