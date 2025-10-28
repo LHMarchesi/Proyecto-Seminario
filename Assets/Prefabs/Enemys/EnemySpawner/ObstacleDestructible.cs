@@ -29,6 +29,7 @@ public class ObstacleDestructible : MonoBehaviour, IDamageable
 
     private void DestroyObject()
     {
+        GetComponent<EnemyDropManager>()?.DropItems();
         Instantiate(destroyEffect, effectSpawnPos);
         Destroy(gameObject);
     }

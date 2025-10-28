@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 2840571506807330246}
   - component: {fileID: 3498048212036655716}
   - component: {fileID: 5140400685646370041}
-  - component: {fileID: 4169406177197844375}
+  - component: {fileID: 2801317738866485725}
   m_Layer: 0
-  m_Name: Experience Orb
+  m_Name: Health Orb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2704dfa1db4287e4db8b08fb496370bf, type: 2}
+  - {fileID: 2100000, guid: a89af219d7c35a049a43ff91853a44f0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -180,7 +180,7 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.61140585, g: 1, b: 0.15566039, a: 1}
+      key0: {r: 1, g: 0.32528523, b: 0.15686274, a: 1}
       key1: {r: 1, g: 1, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
@@ -220,7 +220,7 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
---- !u!114 &4169406177197844375
+--- !u!114 &2801317738866485725
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -229,12 +229,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 641856635030051165}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99dc681c4fefce94e8abdd93747736aa, type: 3}
+  m_Script: {fileID: 11500000, guid: e47274938511c0c45b22885bdb6a2216, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
   detectionRange: 10
   hoverHeight: 0.5
   pickupSound: {fileID: 8300000, guid: ce9efaa4d46cd5246853161e801cef9b, type: 3}
-  minExperience: 1
-  maxExperience: 8
+  minHeal: 5
+  maxHeal: 15

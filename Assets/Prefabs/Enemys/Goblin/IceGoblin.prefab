@@ -500,6 +500,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: 4ccd053e92830af4898f227ee16a307a, type: 2}
+  experienceOrb: {fileID: 0}
   currentHealth: 0
   DeathEffect: {fileID: 3217454784262245277, guid: fbc697af87f4c8645a7b3f2bba17ff22, type: 3}
 --- !u!54 &5354958536534237764
@@ -608,10 +609,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   possibleDrops:
-  - itemPrefab: {fileID: 0}
-    dropChance: 0
-    minAmount: 0
-    maxAmount: 0
+  - itemPrefab: {fileID: 641856635030051165, guid: aadcabfe03d40a54cb6638c033cd08f5, type: 3}
+    dropChance: 0.641
+    minAmount: 1
+    maxAmount: 3
+  - itemPrefab: {fileID: 641856635030051165, guid: 7855fc9fce0ccad418e5ccacfdfaaeba, type: 3}
+    dropChance: 0.594
+    minAmount: 1
+    maxAmount: 3
   dropHeightOffset: 1
   scatterRadius: 0.5
 --- !u!4 &8896538165331981728 stripped

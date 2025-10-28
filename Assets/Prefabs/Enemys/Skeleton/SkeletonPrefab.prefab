@@ -262,6 +262,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fd3aa91739253ce4aa1bd346907eeb3d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8524514372400952532}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fd3aa91739253ce4aa1bd346907eeb3d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -7940129014636849318}
   m_SourcePrefab: {fileID: 100100000, guid: fd3aa91739253ce4aa1bd346907eeb3d, type: 3}
 --- !u!1 &488732150065989839 stripped
 GameObject:
@@ -281,6 +284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: cc992a80e07360e408ffd088423bf301, type: 2}
+  experienceOrb: {fileID: 0}
   currentHealth: 0
   DeathEffect: {fileID: 3217454784262245277, guid: 320b1a9e4c283e149816f18925e1f3c0, type: 3}
 --- !u!54 &4035131701050188508
@@ -376,6 +380,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96907e3ad7e3d0a4b953fc78b8fa00e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-7940129014636849318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488732150065989839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1df5e73f44570dc4ebf40b17dd299f1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  possibleDrops:
+  - itemPrefab: {fileID: 641856635030051165, guid: aadcabfe03d40a54cb6638c033cd08f5, type: 3}
+    dropChance: 0.641
+    minAmount: 1
+    maxAmount: 3
+  - itemPrefab: {fileID: 641856635030051165, guid: 7855fc9fce0ccad418e5ccacfdfaaeba, type: 3}
+    dropChance: 0.594
+    minAmount: 1
+    maxAmount: 3
+  dropHeightOffset: 1
+  scatterRadius: 0.5
 --- !u!4 &973766949119939189 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fd3aa91739253ce4aa1bd346907eeb3d, type: 3}
