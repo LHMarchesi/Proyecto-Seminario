@@ -13,8 +13,7 @@ public class FallingWithHammer : PlayerState
         playerContext.HandleAnimations.ChangeAnimationState("AirAttack");
         // Dirección tunable
         initialDir =
-             playerContext.PlayerController.transform.forward * playerContext.PlayerController.playerStats.forwardMultiplier +
-             Vector3.down * playerContext.PlayerController.playerStats.downwardMultiplier;
+                        Vector3.down * playerContext.PlayerController.playerStats.downwardMultiplier;
     }
 
     public override void Update()
@@ -35,10 +34,10 @@ public class FallingWithHammer : PlayerState
     private void DoGroundImpact()
     {
         // radio del golpe
-        float radius = 10f;
-        float damage = 20f;
+        float radius = 20f;
+        float damage = 100f;
 
-        Vector3 impactPoint = new Vector3(playerContext.PlayerController.transform.position.x, playerContext.PlayerController.transform.position.y, playerContext.PlayerController.transform.position.z-2f);
+        Vector3 impactPoint = new Vector3(playerContext.PlayerController.transform.position.x, playerContext.PlayerController.transform.position.y, playerContext.PlayerController.transform.position.z - 2f);
 
         // buscar enemigos en el ?rea
         Collider[] hitColliders = Physics.OverlapSphere(impactPoint, radius);
@@ -50,7 +49,7 @@ public class FallingWithHammer : PlayerState
             IDamageable dmg = hit.GetComponent<IDamageable>();
             if (dmg != null)
             {
-               
+
                 dmg.TakeDamage(damage);
             }
         }

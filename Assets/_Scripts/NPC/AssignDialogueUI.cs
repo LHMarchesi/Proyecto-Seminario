@@ -21,9 +21,9 @@ public class AssignDialogueUI : MonoBehaviour
             ctrl = new GameObject("DialogueController").AddComponent<DialogueController>();
         }
 
-        var so = new SerializedObject(ctrl);
-        so.FindProperty("dialogueCanvas").objectReferenceValue = dialogueCanvas;
-        so.FindProperty("bodyText").objectReferenceValue = bodyText;
-        so.ApplyModifiedPropertiesWithoutUndo();
+        //var so = new SerializedObject(ctrl);
+     //   so.FindProperty("dialogueCanvas").objectReferenceValue = dialogueCanvas;
+      //  so.FindProperty("bodyText").objectReferenceValue = bodyText;
+      //  so.ApplyModifiedPropertiesWithoutUndo();
     }
 }

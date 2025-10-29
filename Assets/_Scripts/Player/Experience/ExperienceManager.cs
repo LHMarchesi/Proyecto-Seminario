@@ -13,7 +13,7 @@ public class ExperienceManager : MonoBehaviour
     public List<AbilityEntry> availableAbilities = new List<AbilityEntry>();
 
     [Header("Experience")]
-    [SerializeField] AnimationCurve experienceCurve;
+    [SerializeField] public AnimationCurve experienceCurve;
 
     float currentLevel, totalExperience;
     float previousLevelsExperience, nextLevelsExperience;
