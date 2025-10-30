@@ -127,18 +127,13 @@ public class PlayerController : MonoBehaviour, IDamageable
         isChargingJump = true;
         currentJumpCharge += playerStats.chargeSpeed * Time.fixedDeltaTime;
         currentJumpCharge = Mathf.Clamp(currentJumpCharge, playerStats.minJumpForce, playerStats.maxJumpForce);
-    }
-    public void DoJump()
-    {
-        if (!isChargingJump) return;
 
         float finalForce = Mathf.Max(currentJumpCharge, playerStats.minJumpForce);
-
+    }
+    public void DoJump(float force)
+    {
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // reset Y
-        rb.AddForce(Vector3.up * finalForce, ForceMode.Impulse);
-
-        currentJumpCharge = 0f;
-        isChargingJump = false;
+        rb.AddForce(Vector3.up * force, ForceMode.Impulse);
     }
     public bool IsFalling()
     {
@@ -171,7 +166,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public void TakeDamage(float damage)
     {
-        if(!canTakeDamage) return;
+        if (!canTakeDamage) return;
 
         currentHealth -= damage;
         UIManager.Instance.OnPlayerTakeDamage();

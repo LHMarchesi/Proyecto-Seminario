@@ -27,9 +27,10 @@ public class WalkState : PlayerState
         if (playerContext.HandleInputs.IsDashing() && playerContext.PlayerController.CanDash())
             stateMachine.ChangeState(stateMachine.dashState);
 
-        if (playerContext.HandleInputs.IsChargingJump())
-            stateMachine.ChangeState(stateMachine.chargingJumpState);
-
-       
+        if (playerContext.HandleInputs.IsJumping())
+        {
+            playerContext.PlayerController.DoJump(playerContext.PlayerController.playerStats.minJumpForce);
+            stateMachine.ChangeState(stateMachine.jumpState);
+        }
     }
 }

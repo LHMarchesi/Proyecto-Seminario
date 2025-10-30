@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 public class ChargingJumpState : PlayerState
 {
     public ChargingJumpState(PlayerStateMachine stateMachine, PlayerContext playerContext)
@@ -15,19 +17,21 @@ public class ChargingJumpState : PlayerState
         // Cuando suelta, cambiamos al estado de Jump
         if (playerContext.HandleInputs.JumpReleased())
         {
-            if (playerContext.PlayerController.currentJumpCharge >= 20)
+            if (playerContext.PlayerController.currentJumpCharge >= 30f)
             {
-                playerContext.HandleInputs.ConsumeJumpReleased();
+                playerContext.PlayerController.DoJump(playerContext.PlayerController.currentJumpCharge);
+                playerContext.PlayerController.currentJumpCharge = 0;
                 stateMachine.ChangeState(stateMachine.jumpState);
             }
             else
             {
-                playerContext.HandleInputs.ConsumeJumpReleased();
+               
                 playerContext.PlayerController.currentJumpCharge = 0;
                 stateMachine.ChangeState(stateMachine.idleState);
             }
-
+            playerContext.HandleInputs.ConsumeJumpReleased();
         }
         
+
     }
 }
