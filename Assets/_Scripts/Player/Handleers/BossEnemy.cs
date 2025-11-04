@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Security.Cryptography;
 using UnityEngine;
 
 public class BossEnemy : BaseEnemy, IDamageable

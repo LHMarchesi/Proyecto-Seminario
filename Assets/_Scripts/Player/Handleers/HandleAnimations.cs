@@ -10,10 +10,13 @@ public class HandleAnimations : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
     }
 
-    public void ChangeAnimationState(string newState)
+    public void ChangeAnimationState(string newState, bool canInterrup = false)
     {
         // STOP THE SAME ANIMATION FROM INTERRUPTING WITH ITSELF //
-        if (currentAnimation == newState) return;
+        if (!canInterrup)
+        {
+            if (currentAnimation == newState) return;
+        }
 
         // PLAY THE ANIMATION //
         currentAnimation = newState;
