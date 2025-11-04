@@ -52,7 +52,6 @@ public class Projectile : MonoBehaviour, IPoolable
             player.TakeDamage(damage);
         }
         poolManager?.Release(this);
-        //gameObject.SetActive(false);
     }
 
     public void SetDamage(float damage)
@@ -63,9 +62,10 @@ public class Projectile : MonoBehaviour, IPoolable
     /// <summary>
     /// Initializes projectile velocity and damage.
     /// </summary>
-    public void Initialize(Vector3 velocity, float damageAmount, PoolManager<Projectile> pool)
+    public void Initialize(Vector3 velocity, float damageAmount, PoolManager<Projectile> pool, Transform transform)
     {
         gameObject.SetActive(true); // Activate the game object
+        this.transform.position = transform.position;    
         rb.velocity = velocity;
         damage = damageAmount;
         poolManager = pool;

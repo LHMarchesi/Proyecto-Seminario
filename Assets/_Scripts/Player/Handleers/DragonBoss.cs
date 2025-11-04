@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class DragonBoss : MonoBehaviour, IDamageable
 {
@@ -11,10 +13,12 @@ public class DragonBoss : MonoBehaviour, IDamageable
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed;
-    [SerializeField] private float rangeAttackRange;
-    [SerializeField] private float attackCooldown;
-    [SerializeField] private float rangeAttackDamage;
-    [SerializeField] private float currentRangeAttackCooldown;
+    [SerializeField] private float entryScene_Range;
+    [SerializeField] private float rangeAttack_Range;
+    [SerializeField] private float rangeAttack_Cooldown;
+    [SerializeField] private float rangeAttack_Damage;
+    [SerializeField] private float rangeAttack_CurrentCooldown;
+    SkinnedMeshRenderer bossRenderer;
 
     private enum BossState
     {
@@ -31,16 +35,19 @@ public class DragonBoss : MonoBehaviour, IDamageable
     {
         handleAnimations = GetComponent<HandleAnimations>();
         target = GameObject.FindGameObjectWithTag("Player").transform;
-        currentState = BossState.Idle;
-        currentRangeAttackCooldown = attackCooldown;
+        bossRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+        bossRenderer.gameObject.SetActive(false);
+
+        currentState = BossState.Entry;
+        rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
+
+        projectilePoolManager = new PoolManager<Projectile>(projectilePrefab.GetComponent<Projectile>(), poolSize, transform);
     }
 
     private void Update()
     {
-        if (currentRangeAttackCooldown > 0f)
-            currentRangeAttackCooldown -= Time.deltaTime;
-
-
+        if (rangeAttack_CurrentCooldown > 0f)
+            rangeAttack_CurrentCooldown -= Time.deltaTime;
 
         if (target == null) return;
 
@@ -51,31 +58,33 @@ public class DragonBoss : MonoBehaviour, IDamageable
         switch (currentState)
         {
             case BossState.Entry:
-                // handleAnimations.ChangeAnimationState("Entry_Boss");
-                // After entry animation ends, switch to Idle
-                currentState = BossState.Idle;
+                if (distance < entryScene_Range)
+                {
+                    handleAnimations.ChangeAnimationState("Entry_Boss");
+                    bossRenderer.gameObject.SetActive(true);
+                    StartCoroutine(WaitForEntryAnimation());
+                }
                 break;
 
 
             case BossState.Idle:
-                //  handleAnimations.ChangeAnimationState("Idle_Boss");
-                if (distance < rangeAttackRange)
+                handleAnimations.ChangeAnimationState("Idle_Boss");
+                if (distance < rangeAttack_Range)
                     currentState = BossState.Attacking;
                 break;
 
             case BossState.Attacking:
-                if (distance > rangeAttackRange)
+                if (distance > rangeAttack_Range)
                 {
                     currentState = BossState.Idle;
                 }
                 else
                 {
-                    if (currentRangeAttackCooldown < 0f)
+                    if (rangeAttack_CurrentCooldown < 0f)
                     {
                         handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
                         Debug.Log("Dragon Boss performs range attack");
-                        currentRangeAttackCooldown = attackCooldown;
-                        currentState = BossState.Idle;
+                        rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
                     }
                 }
                 break;
@@ -86,16 +95,27 @@ public class DragonBoss : MonoBehaviour, IDamageable
         }
     }
 
-    public void PerformRangeAttack()
+    private IEnumerator WaitForEntryAnimation()
+    {
+        yield return null; // Espera un frame para asegurar que la animación empezó
+        float animLength = handleAnimations.GetCurrentAnimationLength();
+        Debug.Log("waiting for entry animation: " + animLength);
+        yield return new WaitForSeconds(animLength);
+        Debug.Log("entry animation finished");
+        currentState = BossState.Idle;
+    }
+
+    PoolManager<Projectile> projectilePoolManager;
+    private int poolSize = 7;
+    public void PerformRangeAttack() // Usado en animation event instancia un proyectil
     {
         Vector3 directionToTarget = (target.position - firePoint.position).normalized;
 
-        GameObject project = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(directionToTarget));
-        Projectile projectileScript = project.GetComponent<Projectile>();
-        Rigidbody projectilRB = project.GetComponent<Rigidbody>();
-        projectilRB.velocity = directionToTarget * projectileSpeed;
-        projectileScript.SetDamage(rangeAttackDamage);
+        GameObject projectile = projectilePoolManager.Get().gameObject;
+        Projectile projectileScript = projectile.GetComponent<Projectile>();
+        projectileScript.Initialize(directionToTarget * projectileSpeed, rangeAttack_Damage, projectilePoolManager, firePoint.transform);
     }
+
 
     private void HandlePhases()
     {
@@ -105,6 +125,16 @@ public class DragonBoss : MonoBehaviour, IDamageable
             currentPhase = 3;
         else if (healthPercent <= 0.5f && currentPhase < 2)
             currentPhase = 2;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, rangeAttack_Range);
+
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, entryScene_Range);
     }
 
 }
