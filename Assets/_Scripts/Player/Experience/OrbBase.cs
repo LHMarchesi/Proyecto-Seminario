@@ -65,10 +65,8 @@ public abstract class OrbBase : MonoBehaviour
         if (pickupSound != null)
             audioSource.PlayOneShot(pickupSound);
 
-        GetComponent<Renderer>().enabled = false;
-        GetComponent<Collider>().enabled = false;
 
-        Destroy(gameObject, pickupSound != null ? pickupSound.length : 0.1f);
+        Destroy(gameObject);
     }
 
     protected abstract void ApplyEffect(GameObject player);
