@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,6 +30,22 @@ public class DragonBoss : MonoBehaviour, IDamageable
     }
     public void TakeDamage(float damage)
     {
+        currentHealth -= damage;
+        Debug.Log("Danio hecho " + damage + ". vida restante " + currentHealth);
+        if (currentHealth < 0)
+        {
+            UIManager.Instance.DisableBossName();
+            BossDie();
+        }
+        else
+        {
+            UIManager.Instance.SetBossHealth(currentHealth);
+        }
+    }
+
+    private void BossDie()
+    {
+
     }
 
     public void Start()
@@ -41,6 +58,7 @@ public class DragonBoss : MonoBehaviour, IDamageable
         currentState = BossState.Entry;
         rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
 
+        currentHealth = maxHealth;
         projectilePoolManager = new PoolManager<Projectile>(projectilePrefab.GetComponent<Projectile>(), poolSize, transform);
     }
 
@@ -62,6 +80,8 @@ public class DragonBoss : MonoBehaviour, IDamageable
                 {
                     handleAnimations.ChangeAnimationState("Entry_Boss");
                     bossRenderer.gameObject.SetActive(true);
+                    UIManager.Instance.SetBossHealth(currentHealth);
+                    UIManager.Instance.SetBossName("Dragon Boss");
                     StartCoroutine(WaitForEntryAnimation());
                 }
                 break;
@@ -98,12 +118,13 @@ public class DragonBoss : MonoBehaviour, IDamageable
     private IEnumerator WaitForEntryAnimation()
     {
         yield return null; // Espera un frame para asegurar que la animación empezó
+
         float animLength = handleAnimations.GetCurrentAnimationLength();
-        Debug.Log("waiting for entry animation: " + animLength);
+
         yield return new WaitForSeconds(animLength);
-        Debug.Log("entry animation finished");
         currentState = BossState.Idle;
     }
+
 
     PoolManager<Projectile> projectilePoolManager;
     private int poolSize = 7;
@@ -117,6 +138,7 @@ public class DragonBoss : MonoBehaviour, IDamageable
     }
 
 
+
     private void HandlePhases()
     {
         float healthPercent = currentHealth / maxHealth;
@@ -126,6 +148,7 @@ public class DragonBoss : MonoBehaviour, IDamageable
         else if (healthPercent <= 0.5f && currentPhase < 2)
             currentPhase = 2;
     }
+
 
     private void OnDrawGizmos()
     {

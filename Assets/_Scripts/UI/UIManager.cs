@@ -20,6 +20,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Transform habilidadesPanel;
     [SerializeField] private GameObject habilityIconPrefab;
 
+    [SerializeField] private SliderPassValue bossHealth;
+    [SerializeField] private TextMeshProUGUI bossNameTxt;
+
     private Image PauseScreen;
     [SerializeField] private GameObject LoseScreen;
 
@@ -36,12 +39,32 @@ public class UIManager : MonoBehaviour
 
         Instance = this;
         ShowLoseScreenn(false);
+        DisableBossName();
     }
 
-    public void ChangeEnemyText(string text)
+    public void ChangeRemainingEnemiesText(string text)
     {
         enemiesRemainingTxt.text = text;
     }
+
+    public void SetBossName(string name)
+    {
+        bossNameTxt.gameObject.SetActive(true);
+        bossHealth.gameObject.SetActive(true);
+        bossNameTxt.text = name;
+    }
+
+    public void DisableBossName()
+    {
+        bossNameTxt.gameObject.SetActive(false);
+        bossHealth.gameObject.SetActive(false);
+    }
+
+    public void SetBossHealth(float health)
+    {
+        bossHealth.ChangeValue(health);
+    }
+
 
 
     public void RegisterHability(string id, Sprite sprite)
@@ -84,12 +107,12 @@ public class UIManager : MonoBehaviour
         //  healthText.text = playerContext.PlayerController.MaxHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
         PauseScreen = GameObject.FindGameObjectWithTag("PauseScreen")?.GetComponent<Image>();
         TogglePauseScreen(false);
-        
+
     }
 
-    public void UpdateEnemiesRemaining(bool show,int count)
+    public void UpdateEnemiesRemaining(bool show, int count)
     {
-        enemiesRemainingTxt.gameObject.SetActive(show); 
+        enemiesRemainingTxt.gameObject.SetActive(show);
 
         if (count == 0)
             enemiesRemainingTxt.text = "Door Open";

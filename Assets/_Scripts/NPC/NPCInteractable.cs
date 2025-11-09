@@ -151,7 +151,7 @@ public class NPCInteractable : MonoBehaviour
             if (promptCanvas) promptCanvas.gameObject.SetActive(false);
         }
 
-        UIManager.Instance.ChangeEnemyText("MOVE FORWARD");
+        UIManager.Instance.ChangeRemainingEnemiesText("MOVE FORWARD");
     }
 
     IEnumerator DissolveRoutine()
