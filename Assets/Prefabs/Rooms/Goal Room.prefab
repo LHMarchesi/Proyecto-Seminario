@@ -520,6 +520,124 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: 50
+--- !u!1 &4304562913275092605
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1738959827752095861}
+  - component: {fileID: 2828141336367896547}
+  - component: {fileID: 4058139893607105276}
+  - component: {fileID: 3220993414514786187}
+  - component: {fileID: 7882007762383732460}
+  m_Layer: 10
+  m_Name: Melee_Hitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1738959827752095861
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4304562913275092605}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.00000014901, y: -2.88, z: 7.73}
+  m_LocalScale: {x: 24.916597, y: 8.636829, z: 11.300945}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7353054022740986445}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &2828141336367896547
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4304562913275092605}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &4058139893607105276
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4304562913275092605}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 138ce4d2d972c9b4385b6e6ce44f0b25, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &3220993414514786187
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4304562913275092605}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7882007762383732460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4304562913275092605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e1d38ffdb87044a8689e9d5cf3c64b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5158821660869560994
 GameObject:
   m_ObjectHideFlags: 0
@@ -3948,8 +4066,40 @@ PrefabInstance:
       value: 92.4
       objectReference: {fileID: 0}
     - target: {fileID: 3253558994860114038, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
+      propertyPath: meleeAttack_Delay
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3253558994860114038, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
+      propertyPath: meleeAttack_Range
+      value: 15.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3253558994860114038, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
       propertyPath: rangeAttack_Range
       value: 75.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3253558994860114038, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
+      propertyPath: meleeAttack_Damage
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3253558994860114038, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
+      propertyPath: meleeAttack_HitBox
+      value: 
+      objectReference: {fileID: 7882007762383732460}
+    - target: {fileID: 3253558994860114038, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
+      propertyPath: meleeAttack_Cooldown
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3253558994860114038, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
+      propertyPath: meleeAttack_Duration
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3253558994860114038, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
+      propertyPath: meleeAttack_VerticalKnockback
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3253558994860114038, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
+      propertyPath: meleeAttack_HorizontalKnockback
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 3571849034215792600, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
       propertyPath: m_Layer
@@ -4717,7 +4867,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2196761633525483362, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1738959827752095861}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1528875031068548568, guid: 8b64a5544e2f1f24ca0b1427f60fff47, type: 3}
       insertIndex: -1

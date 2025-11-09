@@ -5,21 +5,39 @@ using UnityEngine;
 
 public class DragonBoss : MonoBehaviour, IDamageable
 {
-    private float currentHealth;
-    [SerializeField] private BossState currentState;
-    private int currentPhase = 1;
-    private HandleAnimations handleAnimations;
-    private Transform target;
+    [Header("Max Health & Entry scene range ammount")]
     [SerializeField] private float maxHealth;
-    [SerializeField] private Transform firePoint;
-    [SerializeField] private GameObject projectilePrefab;
-    [SerializeField] private float projectileSpeed;
     [SerializeField] private float entryScene_Range;
+
+
+    [Header("Range Attack Settings")]
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private float projectileSpeed;
+    [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float rangeAttack_Range;
     [SerializeField] private float rangeAttack_Cooldown;
     [SerializeField] private float rangeAttack_Damage;
-    [SerializeField] private float rangeAttack_CurrentCooldown;
-    SkinnedMeshRenderer bossRenderer;
+
+    [Header("Melee Attack Settings")]
+    [SerializeField] private float meleeAttack_Range;
+    [SerializeField] private BossHitbox meleeAttack_HitBox;
+    [SerializeField] private float meleeAttack_Damage;
+    [SerializeField] private float meleeAttack_Cooldown;
+    [SerializeField] private float meleeAttack_Duration;
+    [SerializeField] private float meleeAttack_Delay;
+    [SerializeField] private float meleeAttack_HorizontalKnockback;
+    [SerializeField] private float meleeAttack_VerticalKnockback;
+
+    private Transform target;
+    private HandleAnimations handleAnimations;
+    private BossState currentState;
+    private float currentHealth;
+    private int currentPhase = 1;
+    private float rangeAttack_CurrentCooldown;
+    private float meleeAttack_CurrentCooldown;
+    private SkinnedMeshRenderer bossRenderer;
+
+
 
     private enum BossState
     {
@@ -67,6 +85,9 @@ public class DragonBoss : MonoBehaviour, IDamageable
         if (rangeAttack_CurrentCooldown > 0f)
             rangeAttack_CurrentCooldown -= Time.deltaTime;
 
+        if (meleeAttack_CurrentCooldown > 0f)
+            meleeAttack_CurrentCooldown -= Time.deltaTime;
+
         if (target == null) return;
 
         HandlePhases();
@@ -93,14 +114,26 @@ public class DragonBoss : MonoBehaviour, IDamageable
                     currentState = BossState.Attacking;
                 break;
 
+
+
+
             case BossState.Attacking:
+                float dist = Vector3.Distance(transform.position, target.position);
+
                 if (distance > rangeAttack_Range)
                 {
                     currentState = BossState.Idle;
                 }
                 else
                 {
-                    if (rangeAttack_CurrentCooldown < 0f)
+                    if (dist < meleeAttack_Range && meleeAttack_CurrentCooldown <= 0f)
+                    {
+                      //  handleAnimations.ChangeAnimationState("MeleeAttack_Boss", true);
+                        Debug.Log("Dragon Boss performs melee attack");
+                        DoMeleeAttack();
+                        meleeAttack_CurrentCooldown = meleeAttack_Cooldown;
+                    }
+                    else if (rangeAttack_CurrentCooldown <= 0f)
                     {
                         handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
                         Debug.Log("Dragon Boss performs range attack");
@@ -155,9 +188,33 @@ public class DragonBoss : MonoBehaviour, IDamageable
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, rangeAttack_Range);
 
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, meleeAttack_Range);
+
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, entryScene_Range);
     }
 
+
+    public void DoMeleeAttack()
+    {
+        StartCoroutine(meleeHitboxRoutine(meleeAttack_Damage, meleeAttack_Delay, meleeAttack_Duration, meleeAttack_HorizontalKnockback, meleeAttack_VerticalKnockback));
+    }
+
+    private IEnumerator meleeHitboxRoutine(float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
+    {
+
+        meleeAttack_HitBox.SetDamage(dmg, knockbackHorizontal, knockbackVertical);  // Setea damage y knocback
+
+        if (delay > 0f)
+            yield return new WaitForSeconds(delay); // Espera por el delay, en base a la animacion
+
+        meleeAttack_HitBox.EnableHitbox();
+
+        if (duration > 0f)
+            yield return new WaitForSeconds(duration); // Espera por la duracion del ataque
+
+        meleeAttack_HitBox.DisableHitbox();
+    }
 }
