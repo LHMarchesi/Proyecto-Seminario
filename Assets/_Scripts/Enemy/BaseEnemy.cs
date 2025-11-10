@@ -5,9 +5,7 @@ using UnityEngine.Rendering.Universal;
 
 public abstract class BaseEnemy : MonoBehaviour, IDamageable
 {
-    [Header("Stats")]
     [SerializeField] protected EnemyStats stats;  //Scriptable Stats
-    [SerializeField] protected GameObject experienceOrb; 
 
     private float baseHealth;
     private float baseSpeed;

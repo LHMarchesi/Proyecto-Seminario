@@ -260,8 +260,8 @@ public class Mjolnir : MonoBehaviour
             damageable?.TakeDamage(damage);
             OnHitEnemy?.Invoke(collision.collider);
 
-            var enemy = collision.collider.GetComponent<BaseEnemy>();
-            if (enemy != null && enemy.IsDead())
+            var enemy = collision.collider.CompareTag("Enemy") ? collision.collider.gameObject : null;
+            if (enemy != null)
             {
                 playerContext.PlayerStateMachine.ChangeState(playerContext.PlayerStateMachine.catchingState);
                 isRetracting = true;

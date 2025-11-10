@@ -3,14 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DragonBoss : MonoBehaviour, IDamageable
+public class DragonBoss : BaseEnemy
 {
-    [Header("Max Health & Entry scene range ammount")]
-    [SerializeField] private float maxHealth;
+    [Header("-----------Basic Settings----------------")]
+    [Header("Entry scene range")]
     [SerializeField] private float entryScene_Range;
 
-
-    [Header("Range Attack Settings")]
+    [Header("Defense Settings")]
+    [SerializeField] private float baseArmor;           // Armadura inicial
+    [SerializeField] private float armorPhase2Bonus;   // Bonus de fase 2
+    [SerializeField] private float armorPhase3Bonus;   // Bonus de fase 3
+    [Header("")]
+    [Header("-----------Phase 1----------------")]
+    [Header("------Range Attack Settings")]
     [SerializeField] private Transform firePoint;
     [SerializeField] private float projectileSpeed;
     [SerializeField] private GameObject projectilePrefab;
@@ -18,7 +23,8 @@ public class DragonBoss : MonoBehaviour, IDamageable
     [SerializeField] private float rangeAttack_Cooldown;
     [SerializeField] private float rangeAttack_Damage;
 
-    [Header("Melee Attack Settings")]
+    [Header("")]
+    [Header("------Melee Attack Settings")]
     [SerializeField] private float meleeAttack_Range;
     [SerializeField] private BossHitbox meleeAttack_HitBox;
     [SerializeField] private float meleeAttack_Damage;
@@ -28,15 +34,24 @@ public class DragonBoss : MonoBehaviour, IDamageable
     [SerializeField] private float meleeAttack_HorizontalKnockback;
     [SerializeField] private float meleeAttack_VerticalKnockback;
 
-    private Transform target;
-    private HandleAnimations handleAnimations;
+    [Header("----------------------------------")]
+    [Header("")]
+    [Header("-----------Phase 3----------------")]
+    [Header("------Slam Attack")]
+    [SerializeField] private float slamAttack_Radius;
+    [SerializeField] private float slamAttack_Damage;
+    private bool fase3StartedEntry = false;
+    private bool fase3Active = false;
+
+
     private BossState currentState;
-    private float currentHealth;
+
     private int currentPhase = 1;
     private float rangeAttack_CurrentCooldown;
     private float meleeAttack_CurrentCooldown;
     private SkinnedMeshRenderer bossRenderer;
-
+    bool fase3startedEntry = false;
+    private float currentArmor;
 
 
     private enum BossState
@@ -46,14 +61,14 @@ public class DragonBoss : MonoBehaviour, IDamageable
         Attacking,
         Damaged
     }
-    public void TakeDamage(float damage)
+    protected override void OnDamage(float damage)
     {
-        currentHealth -= damage;
-        Debug.Log("Danio hecho " + damage + ". vida restante " + currentHealth);
+        float effectiveDamage = Mathf.Max(0, damage - currentArmor);
+        currentHealth -= effectiveDamage;
+
         if (currentHealth < 0)
         {
-            UIManager.Instance.DisableBossName();
-            BossDie();
+            Die(stats.expDrop);
         }
         else
         {
@@ -61,9 +76,10 @@ public class DragonBoss : MonoBehaviour, IDamageable
         }
     }
 
-    private void BossDie()
+    protected override void Die(float experience)
     {
-
+        base.Die();
+        UIManager.Instance.DisableBossName();
     }
 
     public void Start()
@@ -76,11 +92,11 @@ public class DragonBoss : MonoBehaviour, IDamageable
         currentState = BossState.Entry;
         rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
 
-        currentHealth = maxHealth;
+        currentHealth = stats.maxHealth;
         projectilePoolManager = new PoolManager<Projectile>(projectilePrefab.GetComponent<Projectile>(), poolSize, transform);
     }
 
-    private void Update()
+    protected override void Update()
     {
         if (rangeAttack_CurrentCooldown > 0f)
             rangeAttack_CurrentCooldown -= Time.deltaTime;
@@ -126,19 +142,7 @@ public class DragonBoss : MonoBehaviour, IDamageable
                 }
                 else
                 {
-                    if (dist < meleeAttack_Range && meleeAttack_CurrentCooldown <= 0f)
-                    {
-                      //  handleAnimations.ChangeAnimationState("MeleeAttack_Boss", true);
-                        Debug.Log("Dragon Boss performs melee attack");
-                        DoMeleeAttack();
-                        meleeAttack_CurrentCooldown = meleeAttack_Cooldown;
-                    }
-                    else if (rangeAttack_CurrentCooldown <= 0f)
-                    {
-                        handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
-                        Debug.Log("Dragon Boss performs range attack");
-                        rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
-                    }
+                    HandleAttackByPhase(distance);
                 }
                 break;
 
@@ -174,12 +178,113 @@ public class DragonBoss : MonoBehaviour, IDamageable
 
     private void HandlePhases()
     {
-        float healthPercent = currentHealth / maxHealth;
+        float healthPercent = currentHealth / stats.maxHealth;
 
-        if (healthPercent <= 0.2f && currentPhase < 3)
+        if (healthPercent <= 0.5f && currentPhase < 3)
             currentPhase = 3;
-        else if (healthPercent <= 0.5f && currentPhase < 2)
+        else if (healthPercent <= 0.8f && currentPhase < 2)
             currentPhase = 2;
+    }
+
+    private void HandleAttackByPhase(float distance)
+    {
+        switch (currentPhase)
+        {
+            case 1:
+                Phase1Attack(distance);
+                break;
+
+            case 2:
+                Phase2Attack(distance);
+                break;
+
+            case 3:
+                Phase3Attack(distance);
+                break;
+        }
+    }
+
+    // ------------------ FASE 1 ------------------
+    private void Phase1Attack(float distance)
+    {
+        if (distance < meleeAttack_Range && meleeAttack_CurrentCooldown <= 0f)
+        {
+            //  handleAnimations.ChangeAnimationState("MeleeAttack_Boss", true);
+            Debug.Log("Dragon Boss performs melee attack");
+            DoMeleeAttack();
+            meleeAttack_CurrentCooldown = meleeAttack_Cooldown;
+        }
+        else if (rangeAttack_CurrentCooldown <= 0f)
+        {
+            handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
+            Debug.Log("Dragon Boss performs range attack");
+            rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
+        }
+    }
+
+    // ------------------ FASE 2 ------------------
+    private void Phase2Attack(float distance)
+    {
+        if (distance < meleeAttack_Range && meleeAttack_CurrentCooldown <= 0f)
+        {
+            //  handleAnimations.ChangeAnimationState("MeleeAttack_Boss", true);
+            Debug.Log("Dragon Boss performs melee attack");
+            DoMeleeAttack();
+            meleeAttack_CurrentCooldown = meleeAttack_Cooldown;
+        }
+        else if (rangeAttack_CurrentCooldown <= 0f)
+        {
+            handleAnimations.ChangeAnimationState("DoubleRangeAttack_Boss", true);
+            Debug.Log("Phase 2: Double or faster ranged attack");
+
+            // Podés duplicar la velocidad o hacer dos disparos
+            StartCoroutine(MultipleShot());
+            rangeAttack_CurrentCooldown = rangeAttack_Cooldown; // más rápido
+        }
+    }
+
+    private IEnumerator MultipleShot()
+    {
+        PerformRangeAttack();
+        yield return new WaitForSeconds(0.3f);
+        PerformRangeAttack();
+        yield return new WaitForSeconds(0.3f);
+        PerformRangeAttack();
+        yield return new WaitForSeconds(0.3f);
+        PerformRangeAttack();
+        yield return new WaitForSeconds(0.3f);
+        PerformRangeAttack();
+    }
+
+    // ------------------ FASE 3 ------------------
+
+
+
+    private void Phase3Attack(float distance)
+    {
+        if (!fase3startedEntry)
+        {
+            fase3startedEntry = true;
+            handleAnimations.ChangeAnimationState("EntryFase3_Boss", true);
+            Debug.Log("Phase 3 started" + currentHealth);
+        }
+    }
+
+    public void PerformSlamAttack()
+    {
+        Debug.Log("Dragon performs Phase 3 Slam!");
+
+        // Detectar al jugador dentro del radio
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, slamAttack_Radius);
+        foreach (var hit in hitColliders)
+        {
+            if (hit == this.gameObject) return;
+            if (hit.TryGetComponent<IDamageable>(out IDamageable damageable))
+            {
+                damageable.TakeDamage(slamAttack_Damage);
+            }
+        }
+        // Instantiate(slamEffectPrefab, transform.position, Quaternion.identity);
     }
 
 
