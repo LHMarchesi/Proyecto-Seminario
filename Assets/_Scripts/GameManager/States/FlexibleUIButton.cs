@@ -41,7 +41,7 @@ public class FlexibleUIButton : MonoBehaviour
     private void PerformAction()
     {
         if (OnClickSfx != null)
-            SoundManager.Instance.PlaySFX(OnClickSfx);
+            //SoundManager.Instance.PlaySFX(OnClickSfx);
 
         StartCoroutine(DelayedAction());
     }

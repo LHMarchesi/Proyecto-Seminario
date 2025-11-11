@@ -20,6 +20,9 @@ public partial class EnemySpawner : MonoBehaviour
     [SerializeField] public float alignmentWeight = 1f;
     [SerializeField] public float neighborRadius = 3f;
 
+    [Header("Difficulty System")]
+    [SerializeField] public float currentDifficulty = 0f; // Nivel actual de dificultad
+
     private Queue<GameObject> pool = new Queue<GameObject>();
     private List<GameObject> activeEnemies = new List<GameObject>();
     private Coroutine spawnCoroutine;
@@ -65,7 +68,7 @@ public partial class EnemySpawner : MonoBehaviour
             for (int i = 0; i < enemiesPerWave; i++)
             {
                 SpawnEnemy();
-                yield return new WaitForSeconds(1f / spawnRate); // delay entre enemigos
+                yield return new WaitForSeconds(1f / spawnRate);
             }
 
             // Espera antes de la siguiente ola
@@ -81,6 +84,16 @@ public partial class EnemySpawner : MonoBehaviour
         BaseEnemy baseEnemy = enemy.GetComponent<BaseEnemy>();
         baseEnemy.Initialize(this);
         baseEnemy.Spawn(spawnPoints[Random.Range(0, spawnPoints.Length)]);
+
+        // 🔥 Escalado de estadísticas según dificultad actual
+        if (currentDifficulty > 0)
+        {
+            baseEnemy.AddMaxHealth(10f * currentDifficulty);
+            baseEnemy.AddMaxSpeed(0.2f * currentDifficulty);
+            baseEnemy.AddMaxAttackDamage(5f * currentDifficulty);
+            baseEnemy.AddAttackSpeed(0.1f * currentDifficulty);
+        }
+
         enemy.SetActive(true);
         activeEnemies.Add(enemy);
 
@@ -96,5 +109,27 @@ public partial class EnemySpawner : MonoBehaviour
         enemy.SetActive(false);
         activeEnemies.Remove(enemy);
         pool.Enqueue(enemy);
+    }
+
+    // 🔥 NUEVO: cuando este spawner muere, notifica a los demás
+    private void OnDestroy()
+    {
+        NotifyAllSpawnersDifficultyUp();
+    }
+
+    // 🔥 Sube la dificultad de todos los spawners activos en la escena
+    private void NotifyAllSpawnersDifficultyUp()
+    {
+        EnemySpawner[] allSpawners = FindObjectsOfType<EnemySpawner>();
+        foreach (EnemySpawner spawner in allSpawners)
+        {
+            spawner.IncreaseDifficulty(1f);
+        }
+        Debug.Log($"Spawner {name} murió. Todos los spawners aumentan dificultad +1");
+    }
+
+    public void IncreaseDifficulty(float amount)
+    {
+        currentDifficulty += amount;
     }
 }

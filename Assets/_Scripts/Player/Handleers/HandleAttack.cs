@@ -47,7 +47,7 @@ public class HandleAttack : MonoBehaviour
         readyToAttack = false;
         attacking = true;
 
-        SoundManager.Instance.PlaySFX(swordSwing);
+        //SoundManager.Instance.PlaySFX(swordSwing);
         
 
         playerSpeed = playerContext.PlayerController.currentSpeed;
@@ -76,7 +76,7 @@ public class HandleAttack : MonoBehaviour
 
     void HitTarget(Vector3 pos)
     {
-        SoundManager.Instance.PlaySFX(hitSound);
+        //SoundManager.Instance.PlaySFX(hitSound);
 
         GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
         Destroy(GO, 3);

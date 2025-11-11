@@ -154,6 +154,7 @@ public class MeleeEnemy : BaseEnemy
         base.Die(stats.expDrop);
         GameObject GO = Instantiate(DeathEffect, transform.position, Quaternion.identity); // Instantiate effect
         Destroy(GO, 3);
+        SoundManagerOcta.Instance.PlaySound("EnemyDeath");
 
     }
 }
