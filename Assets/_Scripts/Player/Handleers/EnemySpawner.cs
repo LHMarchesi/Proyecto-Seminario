@@ -9,9 +9,13 @@ public partial class EnemySpawner : MonoBehaviour
     [SerializeField] private int poolSize = 20;
 
     [Header("Spawn Control")]
-    [SerializeField] private float spawnRate = 1f; // enemigos por segundo
+    [SerializeField] private float spawnRate = 1f;
     [SerializeField] private int enemiesPerWave = 5;
     [SerializeField] private Transform[] spawnPoints;
+
+    [Header("Total Enemies To Spawn")]
+    [SerializeField] private int minEnemiesToSpawn = 10;
+    [SerializeField] private int maxEnemiesToSpawn = 20;
 
     [Header("Flocking")]
     [SerializeField] private bool enableFlocking = true;
@@ -21,16 +25,27 @@ public partial class EnemySpawner : MonoBehaviour
     [SerializeField] public float neighborRadius = 3f;
 
     [Header("Difficulty System")]
-    [SerializeField] public float currentDifficulty = 0f; // Nivel actual de dificultad
+    [SerializeField] public float currentDifficulty = 0f;
 
     private Queue<GameObject> pool = new Queue<GameObject>();
     private List<GameObject> activeEnemies = new List<GameObject>();
     private Coroutine spawnCoroutine;
     private bool isSpawning = false;
 
+    private int totalEnemiesToSpawn;
+    private int enemiesSpawned = 0;
+
+    private ObstacleDestructible destructible; // ← para controlar el daño
+
     void Start()
     {
         CreatePool();
+        totalEnemiesToSpawn = Random.Range(minEnemiesToSpawn, maxEnemiesToSpawn + 1);
+        destructible = GetComponent<ObstacleDestructible>();
+
+        // 🔒 Bloquear daño mientras spawnea
+        if (destructible != null)
+            destructible.SetCanTakeDamage(false);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -63,17 +78,21 @@ public partial class EnemySpawner : MonoBehaviour
 
     IEnumerator SpawnRoutine()
     {
-        while (true)
+        while (enemiesSpawned < totalEnemiesToSpawn)
         {
-            for (int i = 0; i < enemiesPerWave; i++)
+            for (int i = 0; i < enemiesPerWave && enemiesSpawned < totalEnemiesToSpawn; i++)
             {
                 SpawnEnemy();
                 yield return new WaitForSeconds(1f / spawnRate);
             }
-
-            // Espera antes de la siguiente ola
             yield return new WaitForSeconds(3f);
         }
+
+        // ✅ Cuando termina de spawnear todo:
+        if (destructible != null)
+            destructible.SetCanTakeDamage(true); // ahora puede recibir daño
+
+        isSpawning = false;
     }
 
     void SpawnEnemy()
@@ -85,7 +104,7 @@ public partial class EnemySpawner : MonoBehaviour
         baseEnemy.Initialize(this);
         baseEnemy.Spawn(spawnPoints[Random.Range(0, spawnPoints.Length)]);
 
-        // 🔥 Escalado de estadísticas según dificultad actual
+        // Dificultad
         if (currentDifficulty > 0)
         {
             baseEnemy.AddMaxHealth(10f * currentDifficulty);
@@ -96,6 +115,7 @@ public partial class EnemySpawner : MonoBehaviour
 
         enemy.SetActive(true);
         activeEnemies.Add(enemy);
+        enemiesSpawned++;
 
         var flock = enemy.GetComponent<FlockingBehavior>();
         if (flock != null && enableFlocking)
@@ -111,13 +131,11 @@ public partial class EnemySpawner : MonoBehaviour
         pool.Enqueue(enemy);
     }
 
-    // 🔥 NUEVO: cuando este spawner muere, notifica a los demás
     private void OnDestroy()
     {
         NotifyAllSpawnersDifficultyUp();
     }
 
-    // 🔥 Sube la dificultad de todos los spawners activos en la escena
     private void NotifyAllSpawnersDifficultyUp()
     {
         EnemySpawner[] allSpawners = FindObjectsOfType<EnemySpawner>();
