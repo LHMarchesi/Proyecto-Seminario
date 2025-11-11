@@ -25,6 +25,24 @@ public class DragonBoss : BaseEnemy
 
     [Header("")]
     [Header("------Melee Attack Settings")]
+    [SerializeField] private float meleeAreaAttack_Range;
+    [SerializeField] private BossHitbox meleeAreaAttack_HitBox;
+    [SerializeField] private float meleeAreaAttack_Damage;
+    [SerializeField] private float meleeAreaAttack_Cooldown;
+    [SerializeField] private float meleeAreaAttack_Duration;
+    [SerializeField] private float meleeAreaAttack_Delay;
+    [SerializeField] private float meleeAreaAttack_HorizontalKnockback;
+    [SerializeField] private float meleeAreaAttack_VerticalKnockback;
+
+    [Header("----------------------------------")]
+    [Header("")]
+    [Header("-----------Phase 3----------------")]
+    [Header("------Slam Attack")]
+    [SerializeField] private float slamAttack_Radius;
+    [SerializeField] private float slamAttack_Damage;
+
+    [Header("")]
+    [Header("------Melee Attack Settings")]
     [SerializeField] private float meleeAttack_Range;
     [SerializeField] private BossHitbox meleeAttack_HitBox;
     [SerializeField] private float meleeAttack_Damage;
@@ -34,23 +52,17 @@ public class DragonBoss : BaseEnemy
     [SerializeField] private float meleeAttack_HorizontalKnockback;
     [SerializeField] private float meleeAttack_VerticalKnockback;
 
-    [Header("----------------------------------")]
-    [Header("")]
-    [Header("-----------Phase 3----------------")]
-    [Header("------Slam Attack")]
-    [SerializeField] private float slamAttack_Radius;
-    [SerializeField] private float slamAttack_Damage;
-    private bool fase3StartedEntry = false;
-    private bool fase3Active = false;
 
 
     private BossState currentState;
 
     private int currentPhase = 1;
     private float rangeAttack_CurrentCooldown;
+    private float meleeAreaAttack_CurrentCooldown;
     private float meleeAttack_CurrentCooldown;
     private SkinnedMeshRenderer bossRenderer;
     bool fase3startedEntry = false;
+    private bool fase3Active = false;
     private float currentArmor;
 
 
@@ -100,6 +112,9 @@ public class DragonBoss : BaseEnemy
     {
         if (rangeAttack_CurrentCooldown > 0f)
             rangeAttack_CurrentCooldown -= Time.deltaTime;
+
+        if (meleeAreaAttack_CurrentCooldown > 0f)
+            meleeAreaAttack_CurrentCooldown -= Time.deltaTime;
 
         if (meleeAttack_CurrentCooldown > 0f)
             meleeAttack_CurrentCooldown -= Time.deltaTime;
@@ -207,17 +222,16 @@ public class DragonBoss : BaseEnemy
     // ------------------ FASE 1 ------------------
     private void Phase1Attack(float distance)
     {
-        if (distance < meleeAttack_Range && meleeAttack_CurrentCooldown <= 0f)
+        if (distance < meleeAttack_Range && meleeAreaAttack_CurrentCooldown <= 0f)
         {
-            //  handleAnimations.ChangeAnimationState("MeleeAttack_Boss", true);
-            Debug.Log("Dragon Boss performs melee attack");
-            DoMeleeAttack();
-            meleeAttack_CurrentCooldown = meleeAttack_Cooldown;
+            handleAnimations.ChangeAnimationState("MeleeAttack_Boss");
+            DoMeleeAttack(meleeAreaAttack_HitBox, meleeAreaAttack_Damage, meleeAreaAttack_Delay, meleeAreaAttack_Duration, meleeAreaAttack_HorizontalKnockback, meleeAreaAttack_VerticalKnockback);
+            meleeAreaAttack_CurrentCooldown = meleeAttack_Cooldown;
+            rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
         }
         else if (rangeAttack_CurrentCooldown <= 0f)
         {
             handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
-            Debug.Log("Dragon Boss performs range attack");
             rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
         }
     }
@@ -225,21 +239,18 @@ public class DragonBoss : BaseEnemy
     // ------------------ FASE 2 ------------------
     private void Phase2Attack(float distance)
     {
-        if (distance < meleeAttack_Range && meleeAttack_CurrentCooldown <= 0f)
+        if (distance < meleeAreaAttack_Range && meleeAreaAttack_CurrentCooldown <= 0f)
         {
-            //  handleAnimations.ChangeAnimationState("MeleeAttack_Boss", true);
-            Debug.Log("Dragon Boss performs melee attack");
-            DoMeleeAttack();
-            meleeAttack_CurrentCooldown = meleeAttack_Cooldown;
+            handleAnimations.ChangeAnimationState("MeleeAttack_Boss");
+            DoMeleeAttack(meleeAreaAttack_HitBox, meleeAreaAttack_Damage, meleeAreaAttack_Delay, meleeAreaAttack_Duration, meleeAreaAttack_HorizontalKnockback, meleeAreaAttack_VerticalKnockback);
+            meleeAreaAttack_CurrentCooldown = meleeAreaAttack_Cooldown;
+            rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
         }
         else if (rangeAttack_CurrentCooldown <= 0f)
         {
-            handleAnimations.ChangeAnimationState("DoubleRangeAttack_Boss", true);
-            Debug.Log("Phase 2: Double or faster ranged attack");
-
-            // Podés duplicar la velocidad o hacer dos disparos
+            handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
             StartCoroutine(MultipleShot());
-            rangeAttack_CurrentCooldown = rangeAttack_Cooldown; // más rápido
+            rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
         }
     }
 
@@ -266,19 +277,35 @@ public class DragonBoss : BaseEnemy
         {
             fase3startedEntry = true;
             handleAnimations.ChangeAnimationState("EntryFase3_Boss", true);
-            Debug.Log("Phase 3 started" + currentHealth);
+        
+            return;
         }
+        
+       
+            if (distance < meleeAttack_Range && meleeAttack_CurrentCooldown <= 0f)
+            {
+                FaceTarget();
+                handleAnimations.ChangeAnimationState("MeleeAttack2");
+                DoMeleeAttack(meleeAttack_HitBox, meleeAttack_Damage, meleeAttack_Delay, meleeAttack_Duration, meleeAttack_HorizontalKnockback, meleeAttack_VerticalKnockback);
+                meleeAttack_CurrentCooldown = meleeAttack_Cooldown;
+                rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
+            }
+            else if (rangeAttack_CurrentCooldown <= 0f)
+            {
+                handleAnimations.ChangeAnimationState("RangeAttack_Boss");
+                rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
+            }
+        
     }
+
+   
 
     public void PerformSlamAttack()
     {
-        Debug.Log("Dragon performs Phase 3 Slam!");
-
         // Detectar al jugador dentro del radio
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, slamAttack_Radius);
         foreach (var hit in hitColliders)
         {
-            if (hit == this.gameObject) return;
             if (hit.TryGetComponent<IDamageable>(out IDamageable damageable))
             {
                 damageable.TakeDamage(slamAttack_Damage);
@@ -294,6 +321,9 @@ public class DragonBoss : BaseEnemy
         Gizmos.DrawWireSphere(transform.position, rangeAttack_Range);
 
         Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, meleeAreaAttack_Range);
+
+        Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, meleeAttack_Range);
 
 
@@ -302,24 +332,24 @@ public class DragonBoss : BaseEnemy
     }
 
 
-    public void DoMeleeAttack()
+    public void DoMeleeAttack(BossHitbox hitbox, float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
     {
-        StartCoroutine(meleeHitboxRoutine(meleeAttack_Damage, meleeAttack_Delay, meleeAttack_Duration, meleeAttack_HorizontalKnockback, meleeAttack_VerticalKnockback));
+        StartCoroutine(meleeHitboxRoutine(hitbox, dmg, delay, duration, knockbackHorizontal, knockbackVertical));
     }
 
-    private IEnumerator meleeHitboxRoutine(float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
+    private IEnumerator meleeHitboxRoutine(BossHitbox hitbox, float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
     {
 
-        meleeAttack_HitBox.SetDamage(dmg, knockbackHorizontal, knockbackVertical);  // Setea damage y knocback
+        hitbox.SetDamage(dmg, knockbackHorizontal, knockbackVertical);  // Setea damage y knocback
 
         if (delay > 0f)
             yield return new WaitForSeconds(delay); // Espera por el delay, en base a la animacion
 
-        meleeAttack_HitBox.EnableHitbox();
+        hitbox.EnableHitbox();
 
         if (duration > 0f)
             yield return new WaitForSeconds(duration); // Espera por la duracion del ataque
 
-        meleeAttack_HitBox.DisableHitbox();
+        hitbox.DisableHitbox();
     }
 }

@@ -62,7 +62,7 @@ public class BossHitbox : MonoBehaviour
 
             // Aplica impulso
             Vector3 force = dir * knockbackHorizontal + Vector3.up * knockbackVertical;
-            rb.AddForce(force, ForceMode.VelocityChange);
+            rb.AddForce(force, ForceMode.Impulse);
         }
     }
 }

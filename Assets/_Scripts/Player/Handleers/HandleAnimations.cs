@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class HandleAnimations : MonoBehaviour
@@ -27,5 +28,12 @@ public class HandleAnimations : MonoBehaviour
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         return stateInfo.length;
+    }
+
+    public IEnumerator WaitForCurrentAnimationEnd()
+    {
+        yield return null;
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        yield return new WaitForSeconds(stateInfo.length);
     }
 }
