@@ -1,11 +1,17 @@
+using System;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.Rendering.Universal;
 
 public abstract class BaseEnemy : MonoBehaviour, IDamageable
 {
-    [Header("Stats")]
     [SerializeField] protected EnemyStats stats;  //Scriptable Stats
+
+    private float baseHealth;
+    private float baseSpeed;
+    private float baseDamage;
+    private float baseAttackSpeed;
+    private float baseExpDrop;
 
     private float damageCooldown = 0.2f; // medio segundo de invulnerabilidad
     private float lastDamageTime = -Mathf.Infinity;
@@ -16,30 +22,80 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     protected HandleAnimations handleAnimations;
     protected Rigidbody rb;
     protected ExperienceManager playerEXP;
+    public Action OnDeath;
+    private EnemySpawner spawner;
 
-    private IObjectPool<BaseEnemy> enemyPool;
+    public EnemyStats Stats { get => stats; set => stats = value; }
 
-    public void SetPool(IObjectPool<BaseEnemy> pool)
+
+    public void AddMaxHealth(float amount)
     {
-        enemyPool = pool;
+        stats.maxHealth += amount;
+        currentHealth += amount;
+        Debug.Log($"Enemy max health increased by {amount}. New max health: {stats.maxHealth}");
+    }
+    public void AddMaxSpeed(float amount)
+    {
+        stats.moveSpeed += amount;
+    }
+    public void AddMaxAttackDamage(float amount)
+    {
+        stats.attackDamage += amount;
+    }
+    public void AddAttackSpeed(float amount)
+    {
+        stats.attackSpeed += amount;
+    }
+    public void AddMaxExpDrop(float amount)
+    {
+        stats.expDrop += amount;
     }
 
     protected virtual void OnEnable()
     {
-        currentHealth = stats.maxHealth;
-        spawnPosition = transform.position;
-
         handleAnimations = GetComponent<HandleAnimations>();
         rb = GetComponent<Rigidbody>();
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         playerEXP = GameObject.Find("ExperienceManager").GetComponent<ExperienceManager>();
+
+        if (DifficultyManager.Instance != null)
+            DifficultyManager.Instance.RegisterEnemy(this);
+
         if (player != null)
             target = player.transform;
     }
 
+    public virtual void Initialize(EnemySpawner spawner = null)
+    {
+        this.spawner = spawner;
+        playerEXP = GameObject.Find("ExperienceManager").GetComponent<ExperienceManager>();
+
+
+        var flock = GetComponent<FlockingBehavior>();
+        if (flock != null && spawner != null)
+        {
+            flock.Initialize(spawner, spawner.cohesionWeight, spawner.separationWeight, spawner.alignmentWeight, spawner.neighborRadius);
+        }
+
+
+    }
+
+    public void ResetStatsToBase()
+    {
+        stats.maxHealth = baseHealth;
+        stats.moveSpeed = baseSpeed;
+        stats.attackDamage = baseDamage;
+        stats.attackSpeed = baseAttackSpeed;
+        stats.expDrop = baseExpDrop;
+    }
+
     protected virtual void Update()
     {
+    }
+    public bool IsDead()
+    {
+        return currentHealth <= 0;
     }
 
     public void TakeDamage(float damage)
@@ -61,15 +117,20 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     protected virtual void Die(float experienceDroped = 0)
     {
-        if (enemyPool != null) { enemyPool.Release(this); } else { Destroy(gameObject); }
+        if (spawner != null)
+            spawner.ReturnToPool(gameObject);
+        else
+            gameObject.SetActive(false);
 
+        OnDeath?.Invoke();
         playerEXP.AddExperience(experienceDroped);
+        GetComponent<EnemyDropManager>()?.DropItems();
     }
 
-    protected virtual void Spawn()
+    public virtual void Spawn(Transform spawnPos)
     {
         currentHealth = stats.maxHealth;
-        transform.position = spawnPosition;
+        transform.position = spawnPos.position;
         gameObject.SetActive(true); // Para pooling
     }
 

@@ -52,19 +52,25 @@ public class HandleInputs : MonoBehaviour
         }
     }
 
-    // --- Jump: carga en started, release en canceled ---
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (!IsRunning())
         {
-            isChargingJump = true;
+            isJumping = context.ReadValue<float>();
         }
-        else if (context.canceled)
+        else
         {
-            isChargingJump = false;
-            jumpReleased = true;
+            if (context.started)
+            {
+                isChargingJump = true;
+            }
+            else if (context.canceled)
+            {
+                isChargingJump = false;
+                jumpReleased = true;
+            }
         }
-        // (opcional) si querés detectar performed para salto inmediato, podés manejarlo aquí
+        // (opcional) si quer detectar performed para salto inmediato, pos manejarlo aqu
     }
 
 
@@ -85,7 +91,6 @@ public class HandleInputs : MonoBehaviour
     }
 
     public bool IsAttackHeld() => attackHeld;
-    public float GetHeldTime() => attackHeld ? Time.time - attackStartTime : 0f;
 
     public void ResetAttackFlags()
     {
@@ -98,7 +103,7 @@ public class HandleInputs : MonoBehaviour
     public bool IsChargingJump() => isChargingJump;
 
     // devuelve true una vez cuando se consumió el release del salto
-    public bool JumpReleased()
+    public bool JumpReleased()                          //////////
     {
         if (jumpReleased)
         {
@@ -106,6 +111,7 @@ public class HandleInputs : MonoBehaviour
         }
         return false;
     }
+
 
     // El estado que maneja el release debe llamar esto para consumir el flag
     public void ConsumeJumpReleased() => jumpReleased = false;
@@ -123,8 +129,8 @@ public class HandleInputs : MonoBehaviour
     public void SetPaused(bool paused)
     {
         if (paused)
-            playerInput.DeactivateInput();  
+            playerInput.DeactivateInput();
         else
-            playerInput.ActivateInput();   
+            playerInput.ActivateInput();
     }
 }

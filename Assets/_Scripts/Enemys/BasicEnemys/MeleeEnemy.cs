@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class MeleeEnemy : BaseEnemy
 {
+
     private enum MeleeEnemyState
     {
         Idle,
@@ -13,12 +15,19 @@ public class MeleeEnemy : BaseEnemy
 
     private MeleeEnemyState currentState;
     private float attackCooldown;
+    [SerializeField] private GameObject DeathEffect;
+
 
     protected override void OnEnable()
     {
         base.OnEnable();
         currentState = MeleeEnemyState.Idle;
         attackCooldown = 0f;
+    }
+
+    private void Start()
+    {
+        base.OnEnable();
     }
 
     protected override void Update()
@@ -80,8 +89,40 @@ public class MeleeEnemy : BaseEnemy
     private void ChaseTarget()
     {
         handleAnimations.ChangeAnimationState("Chasing_MeleeEnemy");
+
+        /* if (flockManager != null)
+         {
+             flockManager.Register(this);
+            Vector3 direction = GetFlockingDirection();
+             direction.y = 0f;
+
+             // Normalizar y mover
+             direction.Normalize();
+
+             rb.MovePosition(rb.position + direction * stats.moveSpeed * Time.fixedDeltaTime);
+             FaceDirection(direction);
+         }
+         else
+         {*/
         MoveTowardsTarget();
         FaceTarget();
+        //    }
+        // Mirar hacia la dirección de movimiento
+    }
+
+    private void FixedUpdate()
+    {
+        if (currentState == MeleeEnemyState.Chasing)
+            ChaseTarget();
+    }
+
+    private void FaceDirection(Vector3 direction)
+    {
+        if (direction.sqrMagnitude > 0.01f)
+        {
+            Quaternion lookRot = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5f);
+        }
     }
 
     protected override void Attack()
@@ -102,13 +143,18 @@ public class MeleeEnemy : BaseEnemy
             PlayerController player = target.GetComponent<PlayerController>();
             player.TakeDamage(stats.attackDamage);
         }
-        
+
     }
 
     protected override void Die(float xpDrop)
     {
+        // if (flockManager != null)
+        //     flockManager.Unregister(this);
+
         base.Die(stats.expDrop);
-     //   handleAnimations.ChangeAnimationState("Die_RangedEnemy");
-      //  Invoke(nameof(Spawn), 2f); // Respawn after 2 seconds
+        GameObject GO = Instantiate(DeathEffect, transform.position, Quaternion.identity); // Instantiate effect
+        Destroy(GO, 3);
+        SoundManagerOcta.Instance.PlaySound("EnemyDeath");
+
     }
 }

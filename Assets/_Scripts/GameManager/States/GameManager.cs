@@ -11,7 +11,6 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     private GameStateMachine stateMachine;
-
     private void Awake()
     {
         // Ensure there's only one instance of GameManager (Singleton pattern)

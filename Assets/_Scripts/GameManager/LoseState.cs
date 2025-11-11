@@ -2,12 +2,15 @@ using UnityEngine;
 
 public class LoseState : IGameState
 {
+    PlayerContext playerContext;
     public void Enter()
     {
+        playerContext = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerContext>();
+        playerContext.HandleInputs.SetPaused(true);
         UIManager.Instance.ShowLoseScreenn(true);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        Time.timeScale = 0f;
+       
     }
     public void Update()
     {
@@ -15,7 +18,7 @@ public class LoseState : IGameState
     }
     public void Exit()
     {
-        Time.timeScale = 1f;
+        playerContext.HandleInputs.SetPaused(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         UIManager.Instance.ShowLoseScreenn(false);

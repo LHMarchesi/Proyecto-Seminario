@@ -14,11 +14,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private PlayerContext playerContext;
     [SerializeField] private SliderPassValue powerSlider;
     [SerializeField] private SliderPassValue healthSlider;
-    [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private TextMeshProUGUI enemiesRemainingTxt;
     [SerializeField] private Image damagePanel;
 
     [SerializeField] private Transform habilidadesPanel;
     [SerializeField] private GameObject habilityIconPrefab;
+
+    [SerializeField] private SliderPassValue bossHealth;
+    [SerializeField] private TextMeshProUGUI bossNameTxt;
 
     private Image PauseScreen;
     [SerializeField] private GameObject LoseScreen;
@@ -36,9 +39,32 @@ public class UIManager : MonoBehaviour
 
         Instance = this;
         ShowLoseScreenn(false);
+        DisableBossName();
     }
 
-   
+    public void ChangeRemainingEnemiesText(string text)
+    {
+        enemiesRemainingTxt.text = text;
+    }
+
+    public void SetBossName(string name)
+    {
+        bossNameTxt.gameObject.SetActive(true);
+        bossHealth.gameObject.SetActive(true);
+        bossNameTxt.text = name;
+    }
+
+    public void DisableBossName()
+    {
+        bossNameTxt.gameObject.SetActive(false);
+        bossHealth.gameObject.SetActive(false);
+    }
+
+    public void SetBossHealth(float health)
+    {
+        bossHealth.ChangeValue(health);
+    }
+
 
 
     public void RegisterHability(string id, Sprite sprite)
@@ -78,9 +104,20 @@ public class UIManager : MonoBehaviour
     {
         PowerSlider.Disable();
         HealthSlider.ChangeValue(playerContext.PlayerController.MaxHealth);
-        healthText.text = playerContext.PlayerController.MaxHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
+        //  healthText.text = playerContext.PlayerController.MaxHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
         PauseScreen = GameObject.FindGameObjectWithTag("PauseScreen")?.GetComponent<Image>();
         TogglePauseScreen(false);
+
+    }
+
+    public void UpdateEnemiesRemaining(bool show, int count)
+    {
+        enemiesRemainingTxt.gameObject.SetActive(show);
+
+        if (count == 0)
+            enemiesRemainingTxt.text = "Door Open";
+        else
+            enemiesRemainingTxt.text = "Enemies remaining: " + count.ToString();
     }
     private void ShowDamageFlash()
     {
@@ -115,7 +152,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void  ShowLoseScreenn(bool value)
+    public void ShowLoseScreenn(bool value)
     {
         LoseScreen.SetActive(value);
     }
@@ -145,14 +182,14 @@ public class UIManager : MonoBehaviour
     public void OnPlayerTakeDamage()
     {
         HealthSlider.ChangeValue(playerContext.PlayerController.CurrentHealth);
-        healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
+        //healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
         ShowDamageFlash();
     }
 
     public void OnPlayerAddHealth()
     {
         HealthSlider.ChangeValue(playerContext.PlayerController.CurrentHealth);
-        healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
+        //    healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
         ShowHealthFlash();
     }
 }

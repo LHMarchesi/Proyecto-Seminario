@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class MainMenuState : IGameState
 {
-    public void Enter() {
+    public void Enter()
+    {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
     }
@@ -11,7 +12,10 @@ public class MainMenuState : IGameState
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
-    public void Update() { }
+    public void Update()
+    {
+        Cursor.visible = true;
+    }
 }
 
 

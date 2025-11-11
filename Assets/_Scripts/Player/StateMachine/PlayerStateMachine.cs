@@ -4,6 +4,7 @@ using UnityEngine;
 public class PlayerStateMachine : MonoBehaviour
 {
     public PlayerState currentState;
+    public PlayerState previousState;
     private PlayerContext playerContext;
 
     // PLAYER STATES
@@ -23,7 +24,8 @@ public class PlayerStateMachine : MonoBehaviour
     public RunningState runningState;
     public DashState dashState;
 
-    [SerializeField] private TextMeshProUGUI debugStatesText;
+
+     [SerializeField] private TextMeshProUGUI debugStatesText;
 
 
     void Awake()
@@ -61,7 +63,10 @@ public class PlayerStateMachine : MonoBehaviour
     public void ChangeState(PlayerState newState)
     {
         if (currentState != null)
+        {
+            previousState = currentState;   //  Guardamos el anterior
             currentState.Exit();
+        }
 
         currentState = newState;
         debugStatesText.text = "State: " + currentState.GetType().Name;

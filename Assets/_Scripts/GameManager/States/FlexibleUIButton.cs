@@ -41,7 +41,7 @@ public class FlexibleUIButton : MonoBehaviour
     private void PerformAction()
     {
         if (OnClickSfx != null)
-            SoundManager.Instance.PlaySFX(OnClickSfx);
+            //SoundManager.Instance.PlaySFX(OnClickSfx);
 
         StartCoroutine(DelayedAction());
     }
@@ -56,17 +56,17 @@ public class FlexibleUIButton : MonoBehaviour
                 switch (parameter)
                 {
                     case "MainMenu":
-                        SceneManager.LoadScene("MainMenu");
+                        TransitionManager.Instance.PlayTransitionAndLoadScene(TransitionType.FadeIn, 0);
                         GameManager.Instance.ChangeState(new MainMenuState());
                         break;
 
                     case "Game":
-                        SceneManager.LoadScene(1);
+                        TransitionManager.Instance.PlayTransitionAndLoadScene(TransitionType.FadeIn, 1);
                         GameManager.Instance.ChangeState(new GameplayState());
                         break;
 
                     case "Credits":
-                        SceneManager.LoadScene(2);
+                        TransitionManager.Instance.PlayTransitionAndLoadScene(TransitionType.FadeIn, 2);
                         break;
                 }
                 break;
@@ -81,7 +81,7 @@ public class FlexibleUIButton : MonoBehaviour
                 break;
 
             case ButtonAction.RestartGame:
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                TransitionManager.Instance.PlayTransitionAndLoadScene(TransitionType.FadeIn, SceneManager.GetActiveScene().buildIndex);
                 Time.timeScale = 1;
                 GameManager.Instance.ChangeState(new GameplayState());
                 break;

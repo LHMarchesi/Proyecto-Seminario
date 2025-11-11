@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     public float currentSpeed;
     private float lookRotation;
     private bool isDashing;
+    private bool canTakeDamage;
     private Vector3 dashDirection;
     private float dashSpeed;
     private float lastDashTime = -Mathf.Infinity;
@@ -29,7 +30,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody>();
         playerContext = GetComponent<PlayerContext>();
         currentHealth = playerStats.maxHealth;
-
+        canTakeDamage = true;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -126,18 +127,13 @@ public class PlayerController : MonoBehaviour, IDamageable
         isChargingJump = true;
         currentJumpCharge += playerStats.chargeSpeed * Time.fixedDeltaTime;
         currentJumpCharge = Mathf.Clamp(currentJumpCharge, playerStats.minJumpForce, playerStats.maxJumpForce);
-    }
-    public void DoJump()
-    {
-        if (!isChargingJump) return;
 
         float finalForce = Mathf.Max(currentJumpCharge, playerStats.minJumpForce);
-
+    }
+    public void DoJump(float force)
+    {
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // reset Y
-        rb.AddForce(Vector3.up * finalForce, ForceMode.Impulse);
-
-        currentJumpCharge = 0f;
-        isChargingJump = false;
+        rb.AddForce(Vector3.up * force, ForceMode.Impulse);
     }
     public bool IsFalling()
     {
@@ -159,7 +155,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public bool IsGrounded()
     {
-        Vector3 boxCenter = transform.position + Vector3.down * 1f;
+        Vector3 boxCenter = transform.position + Vector3.down * 2f;
         Vector3 boxHalfExtents = new Vector3(0.3f, 0.1f, 0.3f); // ajustalo según el tamaño de tu personaje
         bool hit = Physics.CheckBox(boxCenter, boxHalfExtents, Quaternion.identity, LayerMask.GetMask("Ground"));
 
@@ -170,6 +166,8 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public void TakeDamage(float damage)
     {
+        if (!canTakeDamage) return;
+
         currentHealth -= damage;
         UIManager.Instance.OnPlayerTakeDamage();
         if (currentHealth <= 0)
@@ -196,6 +194,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     protected virtual void Die()
     {
         Debug.Log("Lose");
+        canTakeDamage = false;
         GameManager.Instance.ChangeState(new LoseState());
     }
 }

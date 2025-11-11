@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 public class ChargingJumpState : PlayerState
 {
     public ChargingJumpState(PlayerStateMachine stateMachine, PlayerContext playerContext)
@@ -12,22 +14,44 @@ public class ChargingJumpState : PlayerState
     {
         playerContext.PlayerController.ChargingJump();
 
-        // Cuando suelta, cambiamos al estado de Jump
-        if (playerContext.HandleInputs.JumpReleased())
+        // --- Si deja de correr, cancelar carga o forzar salto ---
+        if (!playerContext.HandleInputs.IsRunning())
         {
-            if (playerContext.PlayerController.currentJumpCharge >= 20)
+            // Si ya tiene una buena carga, salta
+            if (playerContext.PlayerController.currentJumpCharge >= 30f)
             {
-                playerContext.HandleInputs.ConsumeJumpReleased();
+                playerContext.PlayerController.DoJump(playerContext.PlayerController.currentJumpCharge);
+                playerContext.PlayerController.currentJumpCharge = 0;
                 stateMachine.ChangeState(stateMachine.jumpState);
             }
             else
             {
-                playerContext.HandleInputs.ConsumeJumpReleased();
+                // Si no llegó al mínimo, cancelar la carga
                 playerContext.PlayerController.currentJumpCharge = 0;
                 stateMachine.ChangeState(stateMachine.idleState);
             }
 
+            // Consumimos la señal de jumpReleased si existía
+            playerContext.HandleInputs.ConsumeJumpReleased();
+            return; // importante: salimos del Update
         }
-        
+
+        // --- Normal: mientras carga ---
+        if (playerContext.HandleInputs.JumpReleased())
+        {
+            if (playerContext.PlayerController.currentJumpCharge >= 30f)
+            {
+                playerContext.PlayerController.DoJump(playerContext.PlayerController.currentJumpCharge);
+                playerContext.PlayerController.currentJumpCharge = 0;
+                stateMachine.ChangeState(stateMachine.jumpState);
+            }
+            else
+            {
+                playerContext.PlayerController.currentJumpCharge = 0;
+                stateMachine.ChangeState(stateMachine.idleState);
+            }
+
+            playerContext.HandleInputs.ConsumeJumpReleased();
+        }
     }
 }

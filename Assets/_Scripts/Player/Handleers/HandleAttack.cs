@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class HandleAttack : MonoBehaviour
 {
-    private AudioSource audioSource;
+    
     private PlayerContext playerContext;
 
     [Header("Attacking")]
@@ -27,7 +27,7 @@ public class HandleAttack : MonoBehaviour
 
     private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
+        
         playerContext = GetComponent<PlayerContext>();
     }
 
@@ -47,8 +47,8 @@ public class HandleAttack : MonoBehaviour
         readyToAttack = false;
         attacking = true;
 
-        audioSource.pitch = Random.Range(0.9f, 1.1f);
-        audioSource.PlayOneShot(swordSwing);
+        //SoundManager.Instance.PlaySFX(swordSwing);
+        
 
         playerSpeed = playerContext.PlayerController.currentSpeed;
         playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.currentSpeed - playerContext.PlayerController.playerStats.speedReductor);
@@ -76,8 +76,7 @@ public class HandleAttack : MonoBehaviour
 
     void HitTarget(Vector3 pos)
     {
-        audioSource.pitch = 1;
-        audioSource.PlayOneShot(hitSound);
+        SoundManagerOcta.Instance.PlaySound("PlayerAttack");
 
         GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
         Destroy(GO, 3);

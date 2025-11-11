@@ -37,26 +37,35 @@ public class Projectile : MonoBehaviour, IPoolable
         timer += Time.deltaTime;
         if (timer >= lifetime)
         {
-            poolManager?.Release(this);
+            Destroy(gameObject);
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent<IDamageable>(out var target))
+        if (!other.CompareTag("Player"))
+            return;
+
+        // Obtener el script del Player y aplicarle daño
+        if (other.TryGetComponent<PlayerController>(out var player))
         {
-            target.TakeDamage(damage);
-            poolManager?.Release(this);
+            player.TakeDamage(damage);
         }
-        gameObject.SetActive(false);
+        poolManager?.Release(this);
+    }
+
+    public void SetDamage(float damage)
+    {
+        this.damage = damage;
     }
 
     /// <summary>
     /// Initializes projectile velocity and damage.
     /// </summary>
-    public void Initialize(Vector3 velocity, float damageAmount, PoolManager<Projectile> pool)
+    public void Initialize(Vector3 velocity, float damageAmount, PoolManager<Projectile> pool, Transform transform)
     {
         gameObject.SetActive(true); // Activate the game object
+        this.transform.position = transform.position;    
         rb.velocity = velocity;
         damage = damageAmount;
         poolManager = pool;

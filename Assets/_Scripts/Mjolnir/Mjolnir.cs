@@ -27,6 +27,7 @@ public class Mjolnir : MonoBehaviour
 
     public Action<Collider> OnHitEnemy;
     public Action OnMjolnirThrow;
+    public Action OnMjolnirRetract;
     public Action OnChrgingThrow;
 
     private bool isHeld;
@@ -40,6 +41,11 @@ public class Mjolnir : MonoBehaviour
     private bool wasThrowing = false;
     private Vector3 originalSize;
 
+    // --- VFX on hit (add-only) ---
+    [Header("VFX")]
+    [SerializeField] private GameObject hitVFXPrefab;   // Prefab with ParticleSystem or VFX Graph
+    [SerializeField] private float hitVFXLifetime = 2f; // Safety destroy time
+    [SerializeField] private bool parentVFXToHit = false; // Stick effect to the hit object
 
     private readonly List<IMjolnirRetractBehavior> retractBehaviors = new();
     public void RegisterRetractBehavior(IMjolnirRetractBehavior behavior)
@@ -75,7 +81,7 @@ public class Mjolnir : MonoBehaviour
             if (!isChargingThrow)
                 isChargingThrow = true;  // Start charging the throw
 
-            throwChargeTime += Time.deltaTime *2;  // Increment time charge
+            throwChargeTime += Time.deltaTime * 2;  // Increment time charge
             throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
 
 
@@ -115,9 +121,61 @@ public class Mjolnir : MonoBehaviour
         transform.parent = null;
 
         // Apply force and torque
-        rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
+        rb.AddForce(SearchForCloseEnemies() * finalThrowPower, ForceMode.VelocityChange);
         rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
     }
+
+    public Vector3 SearchForCloseEnemies()
+    {
+        float searchRadius = 40f;
+        float maxAngle = 15f; // Ángulo del cono de visión, en grados
+        LayerMask enemyMask = LayerMask.GetMask("HammerTarget");
+
+        // Obtener enemigos en un radio general
+        Collider[] hits = Physics.OverlapSphere(transform.position, searchRadius, enemyMask);
+
+        Transform bestTarget = null;
+        float bestScore = -1f;
+
+        Vector3 cameraForward = Camera.main.transform.forward;
+        Vector3 cameraPosition = Camera.main.transform.position;
+
+        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hitWAim, 60f, enemyMask))
+        {
+            return (hitWAim.transform.position - transform.position).normalized;
+        }
+
+        foreach (var hit in hits)
+        {
+            Vector3 toEnemy = (hit.transform.position - cameraPosition).normalized;
+            float angle = Vector3.Angle(cameraForward, toEnemy);
+
+            // Ignorar enemigos fuera del cono frontal
+            if (angle > maxAngle) continue;
+
+            // Calcular una "puntuación" de prioridad: más cerca y más centrado
+            float distance = Vector3.Distance(cameraPosition, hit.transform.position);
+            float score = Mathf.Lerp(1f, 0f, angle / maxAngle) / distance;
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestTarget = hit.transform;
+            }
+        }
+
+        if (bestTarget != null)
+        {
+            // Direccion hacia el objetivo elegido
+            Vector3 directionToTarget = (bestTarget.position - transform.position).normalized;
+            return directionToTarget;
+        }
+
+        // Si no hay enemigos válidos, lanzar hacia adelante
+        return cameraForward;
+    }
+
 
     public void ThrowWithPower(float powerMultiplier = 1f)
     {
@@ -142,24 +200,18 @@ public class Mjolnir : MonoBehaviour
     {
         if (isHeld) return;     // Avoid running if already held
 
+        OnMjolnirRetract?.Invoke();
+
         foreach (var behavior in retractBehaviors)
         {
             behavior.OnRetract(this);
         }
 
-
-        // if (teleport == true)
-        // {
-        //      audio.PlayOneShot((AudioClip)Resources.Load("teleportVFX"));
-        //      playerContext.PlayerController.transform.position = this.transform.position;
-        //      Catch();
-        //  }
-
         Vector3 directionToHand = hand.position - transform.position;
         Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
-        rb.isKinematic = true; // Detenemos la f�sica
+        rb.isKinematic = true; // Detenemos la f�sica
         transform.position = Vector3.MoveTowards(transform.position, hand.position, maxRetractPower * Time.deltaTime);
 
 
@@ -175,16 +227,15 @@ public class Mjolnir : MonoBehaviour
             isRetracting = false;
             bool isCurrentlyThrowing = playerContext.HandleInputs.IsThrowing();
             rb.AddForce(cameraForward.normalized * finalThrowPower * 5f, ForceMode.VelocityChange);
-            //  audio.PlayOneShot((AudioClip)Resources.Load("parryVFX"));
-
         }
         this.transform.localScale = originalSize;
 
         transform.localScale = Vector3.Lerp(transform.localScale, originalSize, Time.deltaTime * 10f);
     }
 
-    void Catch()
+    public void Catch()
     {
+
         isHeld = true;
         rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
@@ -208,6 +259,27 @@ public class Mjolnir : MonoBehaviour
         {
             damageable?.TakeDamage(damage);
             OnHitEnemy?.Invoke(collision.collider);
+
+            var enemy = collision.collider.CompareTag("Enemy") ? collision.collider.gameObject : null;
+            if (enemy != null)
+            {
+                playerContext.PlayerStateMachine.ChangeState(playerContext.PlayerStateMachine.catchingState);
+                isRetracting = true;
+            }
+
+            // --- spawn VFX on hit (add-only) ---
+            if (hitVFXPrefab != null && collision.contactCount > 0)
+            {
+                var contact = collision.GetContact(0);
+                Vector3 spawnPos = contact.point;
+                Quaternion spawnRot = Quaternion.LookRotation(contact.normal);
+                GameObject vfx = Instantiate(hitVFXPrefab, spawnPos, spawnRot);
+
+                if (parentVFXToHit)
+                    vfx.transform.SetParent(collision.collider.transform, true);
+
+                Destroy(vfx, hitVFXLifetime);
+            }
         }
     }
 

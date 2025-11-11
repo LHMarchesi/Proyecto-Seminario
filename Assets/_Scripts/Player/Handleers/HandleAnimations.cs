@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class HandleAnimations : MonoBehaviour
@@ -9,14 +10,30 @@ public class HandleAnimations : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
     }
- 
-    public void ChangeAnimationState(string newState)
+
+    public void ChangeAnimationState(string newState, bool canInterrup = false)
     {
         // STOP THE SAME ANIMATION FROM INTERRUPTING WITH ITSELF //
-        if (currentAnimation == newState) return;
+        if (!canInterrup)
+        {
+            if (currentAnimation == newState) return;
+        }
 
         // PLAY THE ANIMATION //
         currentAnimation = newState;
         animator.CrossFadeInFixedTime(currentAnimation, 0.2f);
+    }
+
+    public float GetCurrentAnimationLength()
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        return stateInfo.length;
+    }
+
+    public IEnumerator WaitForCurrentAnimationEnd()
+    {
+        yield return null;
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        yield return new WaitForSeconds(stateInfo.length);
     }
 }

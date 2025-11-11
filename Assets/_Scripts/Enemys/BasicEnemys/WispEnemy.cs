@@ -56,7 +56,7 @@ public class WispEnemy : BaseEnemy
             case WispState.Chasing:
                 FaceTarget();
                 MoveTowardsTarget(distance);
-                handleAnimations.ChangeAnimationState("Chasing_Wisp");
+                handleAnimations.ChangeAnimationState("Idle_Wisp");
 
                 if (distance > stats.detectionRange)
                     currentState = WispState.Floating;
@@ -66,7 +66,7 @@ public class WispEnemy : BaseEnemy
 
             case WispState.Attacking:
                 FaceTarget();
-                handleAnimations.ChangeAnimationState("Attack_Wisp");
+                handleAnimations.ChangeAnimationState("Idle_Wisp");
 
                 if (distance > stats.attackRange)
                     currentState = WispState.Chasing;
@@ -111,8 +111,7 @@ public class WispEnemy : BaseEnemy
 
         Vector3 directionToTarget = (target.position - firePoint.position).normalized;
 
-        proj.Initialize(directionToTarget * projectileSpeed, stats.attackDamage, projectilePool);
-        proj.transform.position = firePoint.position;
+        proj.Initialize(directionToTarget * projectileSpeed, stats.attackDamage, projectilePool, transform);
         proj.transform.rotation = Quaternion.LookRotation(directionToTarget);
     }
 

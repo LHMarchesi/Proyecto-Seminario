@@ -9,12 +9,12 @@ public class BossHitbox : MonoBehaviour
     private float knockbackVertical;
 
     private Collider hitboxCollider;
-    private MeshRenderer renderer;
+    private MeshRenderer rend;
 
     private void Awake()
     {
         hitboxCollider = GetComponent<Collider>();
-        renderer = GetComponent<MeshRenderer>();
+        rend = GetComponent<MeshRenderer>();
         hitboxCollider.isTrigger = true;
         DisableHitbox();
     }
@@ -26,8 +26,8 @@ public class BossHitbox : MonoBehaviour
         this.knockbackVertical = knockbackVertical;
     }
 
-    public void EnableHitbox() { hitboxCollider.enabled = true; renderer.enabled = true; }
-    public void DisableHitbox() { hitboxCollider.enabled = false; renderer.enabled = false; }
+    public void EnableHitbox() { hitboxCollider.enabled = true; rend.enabled = true; }
+    public void DisableHitbox() { hitboxCollider.enabled = false; rend.enabled = false; }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -62,7 +62,7 @@ public class BossHitbox : MonoBehaviour
 
             // Aplica impulso
             Vector3 force = dir * knockbackHorizontal + Vector3.up * knockbackVertical;
-            rb.AddForce(force, ForceMode.VelocityChange);
+            rb.AddForce(force, ForceMode.Impulse);
         }
     }
 }
