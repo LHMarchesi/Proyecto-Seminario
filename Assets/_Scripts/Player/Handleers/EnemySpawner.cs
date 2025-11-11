@@ -43,7 +43,7 @@ public partial class EnemySpawner : MonoBehaviour
         totalEnemiesToSpawn = Random.Range(minEnemiesToSpawn, maxEnemiesToSpawn + 1);
         destructible = GetComponent<ObstacleDestructible>();
 
-        // 🔒 Bloquear daño mientras spawnea
+        // Bloquear daño mientras spawnea
         if (destructible != null)
             destructible.SetCanTakeDamage(false);
     }

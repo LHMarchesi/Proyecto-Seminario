@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DragonBoss : BaseEnemy
@@ -90,7 +91,7 @@ public class DragonBoss : BaseEnemy
 
     protected override void Die(float experience)
     {
-        base.Die();
+
         UIManager.Instance.DisableBossName();
     }
 
@@ -145,9 +146,6 @@ public class DragonBoss : BaseEnemy
                     currentState = BossState.Attacking;
                 break;
 
-
-
-
             case BossState.Attacking:
                 float dist = Vector3.Distance(transform.position, target.position);
 
@@ -172,8 +170,8 @@ public class DragonBoss : BaseEnemy
         yield return null; // Espera un frame para asegurar que la animación empezó
 
         float animLength = handleAnimations.GetCurrentAnimationLength();
-
-        yield return new WaitForSeconds(animLength);
+        Debug.Log(animLength);
+        yield return new WaitForSecondsRealtime(animLength);
         currentState = BossState.Idle;
     }
 
@@ -224,7 +222,7 @@ public class DragonBoss : BaseEnemy
     {
         if (distance < meleeAttack_Range && meleeAreaAttack_CurrentCooldown <= 0f)
         {
-            handleAnimations.ChangeAnimationState("MeleeAttack_Boss");
+            handleAnimations.ChangeAnimationState("MeleeAttack_Boss", true);
             DoMeleeAttack(meleeAreaAttack_HitBox, meleeAreaAttack_Damage, meleeAreaAttack_Delay, meleeAreaAttack_Duration, meleeAreaAttack_HorizontalKnockback, meleeAreaAttack_VerticalKnockback);
             meleeAreaAttack_CurrentCooldown = meleeAttack_Cooldown;
             rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
@@ -276,12 +274,12 @@ public class DragonBoss : BaseEnemy
         if (!fase3startedEntry)
         {
             fase3startedEntry = true;
-            handleAnimations.ChangeAnimationState("EntryFase3_Boss", true);
-        
-            return;
+            StartCoroutine(Phase3EntryRoutine());
+            return; // ✅ evitás seguir ejecutando ataques
         }
-        
-       
+
+        if (fase3Active)
+        {
             if (distance < meleeAttack_Range && meleeAttack_CurrentCooldown <= 0f)
             {
                 FaceTarget();
@@ -295,10 +293,25 @@ public class DragonBoss : BaseEnemy
                 handleAnimations.ChangeAnimationState("RangeAttack_Boss");
                 rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
             }
-        
+        }
     }
 
-   
+    private IEnumerator Phase3EntryRoutine()
+    {
+        handleAnimations.ChangeAnimationState("EntryFase3_Boss", true);
+
+        // Espera un frame para asegurar que la animación empezó
+        yield return null;
+
+        float animLength = handleAnimations.GetCurrentAnimationLength();
+        Debug.Log($"Duración EntryFase3_Boss: {animLength}");
+
+        yield return new WaitForSecondsRealtime(animLength);
+
+        fase3Active = true; // ✅ Ahora sí puede atacar
+        currentState = BossState.Idle;
+    }
+
 
     public void PerformSlamAttack()
     {

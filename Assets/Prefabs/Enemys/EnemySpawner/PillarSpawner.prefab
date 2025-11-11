@@ -267,11 +267,14 @@ MonoBehaviour:
   - {fileID: 3429379989852505447}
   - {fileID: 8300573212502633127}
   - {fileID: 1397225480379134834}
+  minEnemiesToSpawn: 10
+  maxEnemiesToSpawn: 20
   enableFlocking: 1
   cohesionWeight: 3
   separationWeight: 8
   alignmentWeight: 5
   neighborRadius: 8
+  currentDifficulty: 0
 --- !u!135 &5358588307595188432
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -322,7 +325,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.7, y: 0, z: 2.66}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7286463159496770305}
