@@ -88,7 +88,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
         maxHealthText.text = $"Max Health: {currentPlayerStats.maxHealth:F1}";
         walkingSpeedText.text = $"Walking Speed: {currentPlayerStats.walkingSpeed:F1}";
         runningSpeedText.text = $"Running Speed: {currentPlayerStats.runningSpeed:F1}";
-        statPointsText.text = $"Stat Points: {experienceManager.GetAvailableStatPoints()}";
+        statPointsText.text = $"Upgrade Points: {experienceManager.GetAvailableStatPoints()}";
     }
 
     void IncreaseHealth()
