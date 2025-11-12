@@ -53,8 +53,6 @@ public class DragonBoss : BaseEnemy
     [SerializeField] private float meleeAttack_HorizontalKnockback;
     [SerializeField] private float meleeAttack_VerticalKnockback;
 
-
-
     private BossState currentState;
 
     private int currentPhase = 1;
@@ -135,6 +133,7 @@ public class DragonBoss : BaseEnemy
                     bossRenderer.gameObject.SetActive(true);
                     UIManager.Instance.SetBossHealth(currentHealth);
                     UIManager.Instance.SetBossName("Dragon Boss");
+
                     StartCoroutine(WaitForEntryAnimation());
                 }
                 break;
@@ -170,7 +169,6 @@ public class DragonBoss : BaseEnemy
         yield return null; // Espera un frame para asegurar que la animación empezó
 
         float animLength = handleAnimations.GetCurrentAnimationLength();
-        Debug.Log(animLength);
         yield return new WaitForSecondsRealtime(animLength);
         currentState = BossState.Idle;
     }
@@ -275,7 +273,7 @@ public class DragonBoss : BaseEnemy
         {
             fase3startedEntry = true;
             StartCoroutine(Phase3EntryRoutine());
-            return; // ✅ evitás seguir ejecutando ataques
+            return; // evitar seguir ejecutando ataques
         }
 
         if (fase3Active)
@@ -295,18 +293,20 @@ public class DragonBoss : BaseEnemy
             }
         }
     }
-
+    [SerializeField] Transform thirdFaseSpawnPoint;
     private IEnumerator Phase3EntryRoutine()
     {
         handleAnimations.ChangeAnimationState("EntryFase3_Boss", true);
 
-        // Espera un frame para asegurar que la animación empezó
-        yield return null;
-
         float animLength = handleAnimations.GetCurrentAnimationLength();
-        Debug.Log($"Duración EntryFase3_Boss: {animLength}");
-
         yield return new WaitForSecondsRealtime(animLength);
+
+        transform.position = thirdFaseSpawnPoint.position;
+        FaceTarget();
+        handleAnimations.ChangeAnimationState("Entry_Boss", true);
+        rangeAttack_Cooldown = 1f; 
+        float animmLength = handleAnimations.GetCurrentAnimationLength();
+        yield return new WaitForSecondsRealtime(animmLength);
 
         fase3Active = true; // ✅ Ahora sí puede atacar
         currentState = BossState.Idle;
