@@ -288,8 +288,11 @@ public class DragonBoss : BaseEnemy
             }
             else if (rangeAttack_CurrentCooldown <= 0f)
             {
-                handleAnimations.ChangeAnimationState("RangeAttack_Boss");
+
+                FaceTarget();
+                handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
                 rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
+
             }
         }
     }
@@ -304,7 +307,7 @@ public class DragonBoss : BaseEnemy
         transform.position = thirdFaseSpawnPoint.position;
         FaceTarget();
         handleAnimations.ChangeAnimationState("Entry_Boss", true);
-        rangeAttack_Cooldown = 1f; 
+        rangeAttack_Cooldown = 2f;
         float animmLength = handleAnimations.GetCurrentAnimationLength();
         yield return new WaitForSecondsRealtime(animmLength);
 
