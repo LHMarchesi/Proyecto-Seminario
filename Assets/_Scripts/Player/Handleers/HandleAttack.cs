@@ -76,7 +76,7 @@ public class HandleAttack : MonoBehaviour
 
     void HitTarget(Vector3 pos)
     {
-        SoundManagerOcta.Instance.PlaySound("PlayerAttack");
+        //SoundManagerOcta.Instance.PlaySound("PlayerAttack");
 
         GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
         Destroy(GO, 3);
