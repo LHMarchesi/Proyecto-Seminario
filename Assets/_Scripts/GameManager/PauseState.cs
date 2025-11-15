@@ -8,6 +8,7 @@ public class PauseState : IGameState
         UIManager.Instance.TogglePauseScreen(true); // Muestra la pantalla de pausa
         playerContext = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerContext>();
         playerContext.HandleInputs.SetPaused(true);
+        GameManager.Instance.currentState = GameStates.Pause;
     }
     public void Update()
     {

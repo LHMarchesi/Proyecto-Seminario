@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     private GameStateMachine stateMachine;
+    public GameStates currentState;
+
     private void Awake()
     {
         // Ensure there's only one instance of GameManager (Singleton pattern)
@@ -46,6 +48,7 @@ public class GameManager : MonoBehaviour
     {
         stateMachine.ChangeState(newState);
     }
+
     public IGameState GetCurrentState() => stateMachine.CurrentState;
 }
 

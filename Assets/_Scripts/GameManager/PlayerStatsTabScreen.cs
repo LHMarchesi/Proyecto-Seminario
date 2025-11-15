@@ -45,7 +45,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
         // Mostrar el panel solo mientras se mantenga TAB
         if (Keyboard.current.tabKey.isPressed)
         {
-            if (!isOpen)
+            if (!isOpen  && GameManager.Instance.currentState == GameStates.Game)
                 OpenPanel();
         }
         else if (isOpen)
@@ -114,9 +114,15 @@ public class PlayerStatsTabScreen : MonoBehaviour
 
     private void SetStatsToDefault()
     {
-        Debug.Log("Stats set to default."); 
         currentPlayerStats.maxHealth = defaultPlayerStats.maxHealth;
         currentPlayerStats.walkingSpeed = defaultPlayerStats.walkingSpeed;
         currentPlayerStats.runningSpeed = defaultPlayerStats.runningSpeed;
+        currentPlayerStats.maxSpeed = defaultPlayerStats.maxSpeed;
+        currentPlayerStats.dashCooldown = defaultPlayerStats.dashCooldown;
+        currentPlayerStats.minJumpForce = defaultPlayerStats.minJumpForce;
+        currentPlayerStats.maxJumpForce = defaultPlayerStats.maxJumpForce;
+        currentPlayerStats.chargeSpeed = defaultPlayerStats.chargeSpeed;
+        currentPlayerStats.chargeSlowMultiplier = defaultPlayerStats.chargeSlowMultiplier;
+        currentPlayerStats.basicMaxDamage = defaultPlayerStats.basicMaxDamage;
     }
 }

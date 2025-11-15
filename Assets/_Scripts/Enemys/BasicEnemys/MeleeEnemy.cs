@@ -77,8 +77,8 @@ public class MeleeEnemy : BaseEnemy
 
         currentState = MeleeEnemyState.Damaged;
         handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
-        GetKnockback(stats.knockbackAmmount);
-        Invoke(nameof(EndDamageState), 0.5f);
+        GetKnockback(stats.knockbackAmmount * 2);
+        Invoke(nameof(EndDamageState), handleAnimations.GetCurrentAnimationLength());
     }
 
     private void EndDamageState()
@@ -154,7 +154,7 @@ public class MeleeEnemy : BaseEnemy
         base.Die(stats.expDrop);
         GameObject GO = Instantiate(DeathEffect, transform.position, Quaternion.identity); // Instantiate effect
         Destroy(GO, 3);
-       // SoundManagerOcta.Instance.PlaySound("EnemyDeath");
+        // SoundManagerOcta.Instance.PlaySound("EnemyDeath");
 
     }
 }

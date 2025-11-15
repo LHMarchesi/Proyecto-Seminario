@@ -1,7 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Pool;
-using UnityEngine.Rendering.Universal;
 
 public abstract class BaseEnemy : MonoBehaviour, IDamageable
 {

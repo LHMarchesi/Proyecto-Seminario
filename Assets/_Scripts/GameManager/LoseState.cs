@@ -10,7 +10,8 @@ public class LoseState : IGameState
         UIManager.Instance.ShowLoseScreenn(true);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-       
+
+        GameManager.Instance.currentState = GameStates.Lose;
     }
     public void Update()
     {

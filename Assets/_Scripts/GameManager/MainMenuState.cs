@@ -6,6 +6,7 @@ public class MainMenuState : IGameState
     {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+        GameManager.Instance.currentState = GameStates.MainMenu;
     }
     public void Exit()
     {
