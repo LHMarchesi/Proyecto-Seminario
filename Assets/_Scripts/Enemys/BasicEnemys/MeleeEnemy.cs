@@ -16,7 +16,8 @@ public class MeleeEnemy : BaseEnemy
     private MeleeEnemyState currentState;
     private float attackCooldown;
     [SerializeField] private GameObject DeathEffect;
-
+    FlockingBehave flockingBehavior;
+    private bool useFlocking;
 
     protected override void OnEnable()
     {
@@ -28,6 +29,16 @@ public class MeleeEnemy : BaseEnemy
     private void Start()
     {
         base.OnEnable();
+        
+        flockingBehavior = GetComponent<FlockingBehave>();
+        if (flockingBehavior != null)
+        {
+            flockingBehavior.SetPlayer(target);
+            useFlocking = true;
+        }
+
+        EnemySpawner enemySpawner = GetComponentInParent<EnemySpawner>();
+        if (enemySpawner != null) { Initialize(enemySpawner); }
     }
 
     protected override void Update()
@@ -56,8 +67,6 @@ public class MeleeEnemy : BaseEnemy
                 {
                     currentState = MeleeEnemyState.Attacking;
                 }
-                else
-                    ChaseTarget();
                 break;
 
             case MeleeEnemyState.Attacking:
@@ -85,28 +94,26 @@ public class MeleeEnemy : BaseEnemy
     {
         currentState = MeleeEnemyState.Chasing;
     }
-
     private void ChaseTarget()
     {
         handleAnimations.ChangeAnimationState("Chasing_MeleeEnemy");
 
-        /* if (flockManager != null)
-         {
-             flockManager.Register(this);
-            Vector3 direction = GetFlockingDirection();
-             direction.y = 0f;
+        if (useFlocking)
+        {
+            Vector3 direction = flockingBehavior.GetFlockingDirection();
+            direction.y = 0f;
 
-             // Normalizar y mover
-             direction.Normalize();
+            // Normalizar y mover
+            direction.Normalize();
 
-             rb.MovePosition(rb.position + direction * stats.moveSpeed * Time.fixedDeltaTime);
-             FaceDirection(direction);
-         }
-         else
-         {*/
-        MoveTowardsTarget();
-        FaceTarget();
-        //    }
+            rb.MovePosition(rb.position + direction * stats.moveSpeed * Time.fixedDeltaTime);
+            FaceTarget();
+        }
+        else
+        {
+            MoveTowardsTarget();
+            FaceTarget();
+        }
         // Mirar hacia la dirección de movimiento
     }
 

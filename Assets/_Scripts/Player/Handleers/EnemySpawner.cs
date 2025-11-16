@@ -19,10 +19,10 @@ public partial class EnemySpawner : MonoBehaviour
 
     [Header("Flocking")]
     [SerializeField] private bool enableFlocking = true;
-    [SerializeField] public float cohesionWeight = 1f;
-    [SerializeField] public float separationWeight = 1.5f;
-    [SerializeField] public float alignmentWeight = 1f;
-    [SerializeField] public float neighborRadius = 3f;
+    [SerializeField] public float cohesionWeight;
+    [SerializeField] public float separationWeight;
+    [SerializeField] public float alignmentWeight;
+    [SerializeField] public float neighborRadius;
 
     [Header("Difficulty System")]
     [SerializeField] public float currentDifficulty = 0f;
@@ -88,7 +88,7 @@ public partial class EnemySpawner : MonoBehaviour
             yield return new WaitForSeconds(3f);
         }
 
-        // ✅ Cuando termina de spawnear todo:
+        // Cuando termina de spawnear todo:
         if (destructible != null)
             destructible.SetCanTakeDamage(true); // ahora puede recibir daño
 
@@ -117,7 +117,7 @@ public partial class EnemySpawner : MonoBehaviour
         activeEnemies.Add(enemy);
         enemiesSpawned++;
 
-        var flock = enemy.GetComponent<FlockingBehavior>();
+        var flock = enemy.GetComponent<FlockingBehave>();
         if (flock != null && enableFlocking)
             flock.Initialize(this, cohesionWeight, separationWeight, alignmentWeight, neighborRadius);
     }

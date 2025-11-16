@@ -83,7 +83,7 @@ public class RangedEnemy : BaseEnemy
     {
         Invoke(nameof(EndDamageState), 0.1f);
         base.OnDamage(damage);
-        handleAnimations.ChangeAnimationState("TakeDamage_RangedEnemy");
+        //  handleAnimations.ChangeAnimationState("TakeDamage_RangedEnemy");
         GetKnockback(stats.knockbackAmmount);
     }
 

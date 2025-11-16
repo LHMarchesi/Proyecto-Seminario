@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class FlockingBehavior : MonoBehaviour
+public class FlockingBehave : MonoBehaviour
 {
     private EnemySpawner spawner;
     private float cohesionWeight, separationWeight, alignmentWeight, neighborRadius;
-
-    private Rigidbody rb;
-
+    private Transform player;
+    [SerializeField] private float targetWeight = 2f;
     public void Initialize(EnemySpawner spawner, float cohesion, float separation, float alignment, float radius)
     {
         this.spawner = spawner;
@@ -16,15 +15,14 @@ public class FlockingBehavior : MonoBehaviour
         this.alignmentWeight = alignment;
         this.neighborRadius = radius;
     }
-
-    void Awake()
+    public void SetPlayer(Transform target)
     {
-        rb = GetComponent<Rigidbody>();
+        player = target;
     }
 
-    void FixedUpdate()
+    public Vector3 GetFlockingDirection()
     {
-        if (spawner == null) return;
+        if (spawner == null) return Vector3.zero;
 
         List<GameObject> neighbors = spawner.GetActiveEnemies();
         Vector3 cohesion = Vector3.zero;
@@ -52,7 +50,12 @@ public class FlockingBehavior : MonoBehaviour
             separation = separation.normalized * separationWeight;
         }
 
-        Vector3 flockForce = cohesion + alignment + separation;
-        rb.AddForce(flockForce);
+        //fuerza hacia el jugador
+        Vector3 targetDirection = Vector3.zero;
+        if (player != null)
+            targetDirection = (player.position - transform.position).normalized * targetWeight;
+
+        return cohesion + alignment + separation + targetDirection;
     }
+
 }

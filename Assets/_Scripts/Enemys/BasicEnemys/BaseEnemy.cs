@@ -70,7 +70,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         playerEXP = GameObject.Find("ExperienceManager").GetComponent<ExperienceManager>();
 
 
-        var flock = GetComponent<FlockingBehavior>();
+        var flock = GetComponent<FlockingBehave>();
         if (flock != null && spawner != null)
         {
             flock.Initialize(spawner, spawner.cohesionWeight, spawner.separationWeight, spawner.alignmentWeight, spawner.neighborRadius);
