@@ -48,6 +48,7 @@ public class HandleAttack : MonoBehaviour
         attacking = true;
 
         //SoundManager.Instance.PlaySFX(swordSwing);
+        SoundManagerOcta.Instance.PlaySound("PlayerAttack");
         
 
         playerSpeed = playerContext.PlayerController.currentSpeed;

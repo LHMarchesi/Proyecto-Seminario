@@ -159,12 +159,15 @@ MonoBehaviour:
     clip: {fileID: 0}
     volume: 0
   - name: PlayerAttack
-    clip: {fileID: 0}
-    volume: 0
+    clip: {fileID: 8300000, guid: f072e0527f2de3b4e956b15fdc4df3b4, type: 3}
+    volume: 1
   - name: MainTheme
     clip: {fileID: 0}
     volume: 0
   - name: BossTheme
+    clip: {fileID: 0}
+    volume: 0
+  - name: ClickEffect
     clip: {fileID: 0}
     volume: 0
 --- !u!4 &1212068
@@ -308,6 +311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 382bfa8f7b890fc4b993f3eaa81e702c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentState: 0
 --- !u!1 &217681284
 GameObject:
   m_ObjectHideFlags: 0
