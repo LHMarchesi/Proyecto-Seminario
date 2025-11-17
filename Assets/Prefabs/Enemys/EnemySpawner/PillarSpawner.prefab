@@ -28,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071067}
   m_LocalPosition: {x: -1.7002, y: -0.18185604, z: -2.6599}
-  m_LocalScale: {x: 500, y: 500, z: 500}
+  m_LocalScale: {x: 373.31, y: 373.31, z: 373.31}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 6238730642195011558}
@@ -270,10 +270,10 @@ MonoBehaviour:
   minEnemiesToSpawn: 10
   maxEnemiesToSpawn: 20
   enableFlocking: 1
-  cohesionWeight: 3
-  separationWeight: 8
-  alignmentWeight: 5
-  neighborRadius: 8
+  cohesionWeight: 0.38
+  separationWeight: 0.015
+  alignmentWeight: 0.75
+  neighborRadius: -0
   currentDifficulty: 0
 --- !u!135 &5358588307595188432
 SphereCollider:
@@ -366,8 +366,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3.3900304, y: 8.764035, z: 3.575605}
-  m_Center: {x: -1.6814816, y: 4.178128, z: -2.6202967}
+  m_Size: {x: 3.3900306, y: 6.4815636, z: 3.575605}
+  m_Center: {x: -1.6814816, y: 3.0368915, z: -2.6202967}
 --- !u!114 &-4446743598810789806
 MonoBehaviour:
   m_ObjectHideFlags: 0
