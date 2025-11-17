@@ -121,7 +121,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
             gameObject.SetActive(false);
 
         OnDeath?.Invoke();
-        playerEXP.AddExperience(experienceDroped);
+        //playerEXP.AddExperience(experienceDroped);
         GetComponent<EnemyDropManager>()?.DropItems();
     }
 

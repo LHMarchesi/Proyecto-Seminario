@@ -25,7 +25,7 @@ public class ExplodeStrikePowerUp : BasePowerUp
         Vector3 effectPosition = enemyCollider.bounds.center; // Lo posiciona en el centro
         Quaternion effectRotation = Quaternion.identity;
 
-        // if (EffectPrefab != null) Instantiate(EffectPrefab, effectPosition, effectRotation);
+        Instantiate(stats.EffectPrefab, effectPosition, effectRotation);
 
         Collider[] enemies = Physics.OverlapSphere(effectPosition, stats.explosionRange, stats.enemyLayer);
         for (int i = 0; i < enemies.Length; i++)
