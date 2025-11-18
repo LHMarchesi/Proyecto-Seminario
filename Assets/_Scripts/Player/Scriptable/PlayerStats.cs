@@ -5,7 +5,7 @@
 public class PlayerStats : ScriptableObject
 {
     [Header("Basic Settings")]
-    public float maxHealth;
+    public int maxHealth;
     public float walkingSpeed;
     public float runningSpeed;
     public float maxSpeed;

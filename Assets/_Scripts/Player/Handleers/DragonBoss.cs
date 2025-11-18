@@ -41,6 +41,7 @@ public class DragonBoss : BaseEnemy
     [Header("------Slam Attack")]
     [SerializeField] private float slamAttack_Radius;
     [SerializeField] private float slamAttack_Damage;
+    [SerializeField] private GameObject slamEffectPrefab;
 
     [Header("")]
     [Header("------Melee Attack Settings")]
@@ -327,7 +328,7 @@ public class DragonBoss : BaseEnemy
                 damageable.TakeDamage(slamAttack_Damage);
             }
         }
-        // Instantiate(slamEffectPrefab, transform.position, Quaternion.identity);
+         Instantiate(slamEffectPrefab, transform.position, Quaternion.identity);
     }
 
 

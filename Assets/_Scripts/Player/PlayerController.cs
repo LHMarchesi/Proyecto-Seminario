@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     private float lastDashTime = -Mathf.Infinity;
 
     public float CurrentHealth { get => currentHealth; private set { } }
-    public float MaxHealth { get => playerStats.maxHealth; private set { } }
+    public int MaxHealth { get => playerStats.maxHealth; private set { } }
     public float RunningSpeed { get => playerStats.runningSpeed; private set { } }
     public float WalkingSpeed { get => playerStats.walkingSpeed; private set { } }
 
@@ -177,7 +177,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         currentSpeed = newSpeed;
     }
-    public void AddHealth(float health)
+    public void AddHealth(int health)
     {
         currentHealth += health;
         playerStats.maxHealth += health;

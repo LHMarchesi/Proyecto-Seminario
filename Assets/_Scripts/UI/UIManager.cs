@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private SliderPassValue powerSlider;
     [SerializeField] private SliderPassValue healthSlider;
     [SerializeField] private TextMeshProUGUI enemiesRemainingTxt;
+    [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private Image damagePanel;
 
     [SerializeField] private Transform habilidadesPanel;
@@ -104,7 +105,7 @@ public class UIManager : MonoBehaviour
     {
         PowerSlider.Disable();
         HealthSlider.ChangeValue(playerContext.PlayerController.MaxHealth);
-        //  healthText.text = playerContext.PlayerController.MaxHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
+        healthText.text = playerContext.PlayerController.MaxHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
         PauseScreen = GameObject.FindGameObjectWithTag("PauseScreen")?.GetComponent<Image>();
         TogglePauseScreen(false);
 
@@ -182,14 +183,14 @@ public class UIManager : MonoBehaviour
     public void OnPlayerTakeDamage()
     {
         HealthSlider.ChangeValue(playerContext.PlayerController.CurrentHealth);
-        //healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
+        healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
         ShowDamageFlash();
     }
 
     public void OnPlayerAddHealth()
     {
         HealthSlider.ChangeValue(playerContext.PlayerController.CurrentHealth);
-        //    healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
+        healthText.text = playerContext.PlayerController.CurrentHealth.ToString() + "/" + playerContext.PlayerController.MaxHealth.ToString();
         ShowHealthFlash();
     }
 }

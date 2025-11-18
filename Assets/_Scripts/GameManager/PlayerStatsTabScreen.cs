@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class PlayerStatsTabScreen : MonoBehaviour
 {
     [Header("Aumento de estadisitcas por StatPoint")]
-    public float maxHealthIncrease;
+    public int maxHealthIncrease;
     public float maxWalkSpeedIncrease;
     public float maxRunSpeedIncrease;
 

@@ -4,5 +4,5 @@
 
 public class MaxHealthStats : ScriptableObject
 {
-    public float newMaxHealth;
+    public int newMaxHealth;
 }
