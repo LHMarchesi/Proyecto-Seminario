@@ -90,7 +90,7 @@ public class DragonBoss : BaseEnemy
 
     protected override void Die(float experience)
     {
-
+        Destroy(gameObject);
         UIManager.Instance.DisableBossName();
     }
 

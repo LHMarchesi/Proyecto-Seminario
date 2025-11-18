@@ -20,6 +20,11 @@ public class SliderPassValue : MonoBehaviour
 
     }
 
+    public void SetMax(float value)
+    {
+        slider.maxValue = value;
+    }
+
     public void Disable()
     {
         slider.value = 0;

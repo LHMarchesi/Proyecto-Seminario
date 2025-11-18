@@ -12,22 +12,21 @@ public class ExperienceManager : MonoBehaviour
     [Header("Habilidades")]
     public List<AbilityEntry> availableAbilities = new List<AbilityEntry>();
 
-    [Header("Experience")]
-    [SerializeField] public AnimationCurve experienceCurve;
+    [Header("Tabla de Experiencia")]
+    [SerializeField] private ExperienceTable experienceTable;
 
-    float currentLevel, totalExperience;
+    int currentLevel;
+    float totalExperience;
+
     float previousLevelsExperience, nextLevelsExperience;
 
     [Header("Stat Points")]
-    [Tooltip("Puntos de mejora disponibles para gastar al subir de nivel")]
     public int availableStatPoints = 3;
-
-    [Tooltip("Cantidad de puntos de mejora otorgados por nivel")]
     public int statPointsPerLevel = 3;
 
     [Header("Interface")]
     [SerializeField] TextMeshProUGUI levelText;
-    [SerializeField] Image experienceFill;
+    [SerializeField] private SliderPassValue sliderPass;
 
     [Header("Panel de Elección de Habilidades")]
     [SerializeField] GameObject panel;
@@ -49,14 +48,13 @@ public class ExperienceManager : MonoBehaviour
 
     void CheckForLevelUp()
     {
-        if (totalExperience >= nextLevelsExperience)
+        while (currentLevel < experienceTable.xpNeededPerLevel.Length &&
+               totalExperience >= experienceTable.xpNeededPerLevel[currentLevel])
         {
             currentLevel++;
-            UpdateLevel();
             LevelUp();
         }
     }
-
     void LevelUp()
     {
         // Otorgar puntos de mejora
@@ -68,6 +66,7 @@ public class ExperienceManager : MonoBehaviour
         // Lógica de elección de habilidades
         panel.SetActive(true);
         StartCoroutine(pauseWDelay());
+        
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         playerContext.HandleInputs.SetPaused(true);
@@ -82,6 +81,27 @@ public class ExperienceManager : MonoBehaviour
             AbilityButtonUI buttonUI = buttonGO.GetComponent<AbilityButtonUI>();
             buttonUI.Setup(ability, this);
         }
+        UpdateInterface();
+    }
+
+    void UpdateInterface()
+    {
+        if (currentLevel <= 1)
+            previousLevelsExperience = 0;
+        else
+            previousLevelsExperience = experienceTable.xpNeededPerLevel[currentLevel - 1];
+
+        nextLevelsExperience = experienceTable.xpNeededPerLevel[currentLevel];
+
+        float currentXP = totalExperience - previousLevelsExperience;
+        float neededXP = nextLevelsExperience - previousLevelsExperience;
+
+        //  XP Slider
+        sliderPass.SetMax(neededXP);
+        sliderPass.ChangeValue(currentXP);
+
+        if (levelText != null)
+            levelText.text = $"Nivel {currentLevel}";
     }
 
     public void ApplySelectedAbility(AbilityEntry selectedAbility)
@@ -105,25 +125,6 @@ public class ExperienceManager : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1;
-    }
-
-    void UpdateLevel()
-    {
-        float curveValue = experienceCurve.Evaluate(currentLevel);
-        previousLevelsExperience = 100 * Mathf.Pow(currentLevel, 1.5f) * curveValue;
-        nextLevelsExperience = 100 * Mathf.Pow(currentLevel + 1, 1.5f) * experienceCurve.Evaluate(currentLevel + 1);
-        UpdateInterface();
-    }
-
-    void UpdateInterface()
-    {
-        float start = totalExperience - previousLevelsExperience;
-        float end = nextLevelsExperience - previousLevelsExperience;
-
-        experienceFill.fillAmount = (float)start / (float)end;
-
-        if (levelText != null)
-            levelText.text = $"Nivel {currentLevel}";
     }
 
     List<AbilityEntry> GetRandomAbilityOptions(int count)

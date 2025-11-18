@@ -26,6 +26,7 @@ public class UIManager : MonoBehaviour
 
     private Image PauseScreen;
     [SerializeField] private GameObject LoseScreen;
+    [SerializeField] private GameObject WinScreen;
 
 
     private Dictionary<string, HabilityIcon> habilityIcons = new();
@@ -40,6 +41,7 @@ public class UIManager : MonoBehaviour
 
         Instance = this;
         ShowLoseScreenn(false);
+        ShowWinScreenn(false);
         DisableBossName();
     }
 
@@ -156,6 +158,10 @@ public class UIManager : MonoBehaviour
     public void ShowLoseScreenn(bool value)
     {
         LoseScreen.SetActive(value);
+    }
+    public void ShowWinScreenn(bool value)
+    {
+        WinScreen.SetActive(value);
     }
 
     private IEnumerator PanelFlashCoroutine(Color color)
