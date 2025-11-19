@@ -5,11 +5,11 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 {
     [SerializeField] protected EnemyStats stats;  //Scriptable Stats
 
-    private float baseHealth;
-    private float baseSpeed;
-    private float baseDamage;
-    private float baseAttackSpeed;
-    private float baseExpDrop;
+    public float baseHealth;
+    public float baseSpeed;
+    public float baseDamage;
+    public float baseAttackSpeed;
+    public float baseExpDrop;
 
     private float damageCooldown = 0.2f; // medio segundo de invulnerabilidad
     private float lastDamageTime = -Mathf.Infinity;
