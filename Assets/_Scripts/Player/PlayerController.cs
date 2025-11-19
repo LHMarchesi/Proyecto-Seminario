@@ -134,6 +134,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // reset Y
         rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+        SoundManagerOcta.Instance.PlaySound("PlayerJump");
     }
     public bool IsFalling()
     {

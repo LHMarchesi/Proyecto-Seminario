@@ -16,10 +16,7 @@ public abstract class OrbBase : MonoBehaviour
     [Tooltip("Altura opcional para mantener el orbe a cierta distancia vertical.")]
     [SerializeField] protected float hoverHeight = 0.5f;
 
-    [Header("Sonido")]
-    [Tooltip("Sonido que se reproducirá al recoger el orbe.")]
-    [SerializeField] protected AudioClip pickupSound;
-    protected AudioSource audioSource;
+  
 
     protected Transform player;
     protected bool collected = false;
@@ -31,15 +28,7 @@ public abstract class OrbBase : MonoBehaviour
         SphereCollider col = GetComponent<SphereCollider>();
         col.isTrigger = true;
 
-        if (TryGetComponent(out AudioSource existingSource))
-        {
-            audioSource = existingSource;
-        }
-        else
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.playOnAwake = false;
-        }
+      
     }
 
     protected virtual void Update()
@@ -62,9 +51,8 @@ public abstract class OrbBase : MonoBehaviour
         collected = true;
         ApplyEffect(other.gameObject);
 
-        if (pickupSound != null)
-            audioSource.PlayOneShot(pickupSound);
 
+        SoundManagerOcta.Instance.PlaySound("HealthOrbPickUp");
 
         Destroy(gameObject);
     }

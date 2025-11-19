@@ -30,7 +30,7 @@ public class LightningStrikePowerUp : BasePowerUp
         Quaternion effectRotation = Quaternion.identity;
         Instantiate(stats.lightningEffectPrefab, effectPosition, effectRotation); // Lo instancia
 
-        //Play Sound
+        SoundManagerOcta.Instance.PlaySound("LightningStrike");
 
         UIManager.Instance.TriggerHabilityCooldown("Lightning", stats.cooldown);    //Triiger Cooldown
     }
