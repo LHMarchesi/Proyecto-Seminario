@@ -298,17 +298,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5983337694075447040, guid: 1893a64a84a61d747af1f7ccf0277ebf, type: 3}
   m_PrefabInstance: {fileID: 55671659}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &55671661 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1890809554592032429, guid: 1893a64a84a61d747af1f7ccf0277ebf, type: 3}
-  m_PrefabInstance: {fileID: 55671659}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &56444233 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1110758906051662, guid: 8cf2af787635d7d40b1d72ecdceac179, type: 3}
@@ -2785,6 +2774,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentHealth: 50
+  destroyEffect: {fileID: 0}
+  effectSpawnPos: {fileID: 0}
 --- !u!1001 &634632006
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4064,10 +4055,14 @@ MonoBehaviour:
   powerSlider: {fileID: 490215962}
   healthSlider: {fileID: 1929653140}
   enemiesRemainingTxt: {fileID: 0}
+  healthText: {fileID: 0}
   damagePanel: {fileID: 427941777}
   habilidadesPanel: {fileID: 823965356}
   habilityIconPrefab: {fileID: 4524143533689275375, guid: 38db22624185e984a9b1f43ee6d8d5b6, type: 3}
+  bossHealth: {fileID: 0}
+  bossNameTxt: {fileID: 0}
   LoseScreen: {fileID: 1807778233}
+  WinScreen: {fileID: 0}
 --- !u!114 &851005572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6915,43 +6910,11 @@ MonoBehaviour:
     abilityPrefab: {fileID: 3024337285511993676, guid: 37d59c6c0bd03b5418ec3fdd8cf40a14, type: 3}
     icon: {fileID: 21300000, guid: 8669499b0f9d54a4a9f0112080c8ae66, type: 3}
     dropChance: 0
-  experienceCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.6524013
-      value: 0.43412006
-      inSlope: 1.4496562
-      outSlope: 1.4496562
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0.050833456
-      outSlope: 0.050833456
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 1
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  experienceTable: {fileID: 0}
   availableStatPoints: 3
   statPointsPerLevel: 3
   levelText: {fileID: 79418272}
-  experienceFill: {fileID: 55671661}
+  sliderPass: {fileID: 0}
   panel: {fileID: 918585759}
   abilityButtonContainer: {fileID: 918585757}
   abilityButtonPrefab: {fileID: 8407598785988740686, guid: a78bb2d338067ae4f81508dc39a0bcf5, type: 3}
@@ -9135,11 +9098,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c73254588c28d5442905a84423ca0321, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  musicSource: {fileID: 1989369763}
-  sfxSource: {fileID: 881188616}
-  volumeSlider: {fileID: 0}
-  mainMenuMusic: {fileID: 0}
-  levelMusic: {fileID: 0}
 --- !u!4 &1915929566
 Transform:
   m_ObjectHideFlags: 0
@@ -10114,6 +10072,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 382bfa8f7b890fc4b993f3eaa81e702c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentState: 0
 --- !u!4 &2000498644
 Transform:
   m_ObjectHideFlags: 0
@@ -10640,6 +10599,63 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 973766949119939189, guid: 154bac96ebd29024a900e6a1a6c5c0f3, type: 3}
   m_PrefabInstance: {fileID: 2123208318}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1895464377678005180
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 119.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058627901217605758, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4517925565482886722, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
+      propertyPath: m_Name
+      value: Dragon Fire Tornado
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f46040197c5f1e44884edd5a1e4c7b3f, type: 3}
 --- !u!1001 &6259908440784997057
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10771,3 +10787,4 @@ SceneRoots:
   - {fileID: 1837414960}
   - {fileID: 2097364721}
   - {fileID: 6259908440784997057}
+  - {fileID: 1895464377678005180}

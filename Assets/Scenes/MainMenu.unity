@@ -169,7 +169,7 @@ MonoBehaviour:
     volume: 0
   - name: ClickEffect
     clip: {fileID: 0}
-    volume: 0
+    volume: 0.265
 --- !u!4 &1212068
 Transform:
   m_ObjectHideFlags: 0
@@ -6905,7 +6905,19 @@ MonoBehaviour:
   m_Value: 0.5
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1212067}
+        m_TargetAssemblyTypeName: SoundManagerOcta, Assembly-CSharp
+        m_MethodName: SetSFXVolume
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1796610680
 GameObject:
   m_ObjectHideFlags: 0

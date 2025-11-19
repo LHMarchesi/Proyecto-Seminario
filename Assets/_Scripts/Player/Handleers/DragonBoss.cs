@@ -23,6 +23,9 @@ public class DragonBoss : BaseEnemy
     [SerializeField] private float rangeAttack_Range;
     [SerializeField] private float rangeAttack_Cooldown;
     [SerializeField] private float rangeAttack_Damage;
+    [SerializeField] private int shotgunPellets = 3;
+    [SerializeField] private float shotgunSpreadAngle = 25f;
+    [SerializeField] private float shotgunProjectileSpeed = 20f;
 
     [Header("")]
     [Header("------Melee Attack Settings")]
@@ -42,6 +45,11 @@ public class DragonBoss : BaseEnemy
     [SerializeField] private float slamAttack_Radius;
     [SerializeField] private float slamAttack_Damage;
     [SerializeField] private GameObject slamEffectPrefab;
+    [SerializeField] private GameObject rotatingBurstProjectilePrefab;
+    [SerializeField] private Transform specialFirePoint;
+    [SerializeField] private float specialAttack_Cooldown = 10f;
+
+    private float specialAttack_CurrentCooldown = 0f;
 
     [Header("")]
     [Header("------Melee Attack Settings")]
@@ -119,6 +127,9 @@ public class DragonBoss : BaseEnemy
         if (meleeAttack_CurrentCooldown > 0f)
             meleeAttack_CurrentCooldown -= Time.deltaTime;
 
+        if (specialAttack_CurrentCooldown > 0f)
+            specialAttack_CurrentCooldown -= Time.deltaTime;
+
         if (target == null) return;
 
         HandlePhases();
@@ -186,7 +197,38 @@ public class DragonBoss : BaseEnemy
         projectileScript.Initialize(directionToTarget * projectileSpeed, rangeAttack_Damage, projectilePoolManager, firePoint.transform);
     }
 
+    private void PerformShotgunAttack()
+    {
+        Vector3 forward = firePoint.forward;
 
+        for (int i = 0; i < shotgunPellets; i++)
+        {
+            float angle = UnityEngine.Random.Range(-shotgunSpreadAngle, shotgunSpreadAngle);
+            Vector3 dir = Quaternion.Euler(0, angle, 0) * forward;
+
+            GameObject projectile = projectilePoolManager.Get().gameObject;
+            Projectile projScript = projectile.GetComponent<Projectile>();
+
+            projectile.transform.position = firePoint.position;
+            projectile.transform.rotation = Quaternion.LookRotation(dir);
+
+            projScript.Initialize(
+                dir.normalized * shotgunProjectileSpeed,
+                rangeAttack_Damage,
+                projectilePoolManager,
+                firePoint
+            );
+        }
+    }
+
+    private IEnumerator PerformPhase3SpecialAttack()
+    {
+        // Esperar al timing correcto de la animación
+        yield return new WaitForSeconds(0.5f);
+
+        GameObject obj = Instantiate(rotatingBurstProjectilePrefab, specialFirePoint.position, specialFirePoint.rotation);
+
+    }
 
     private void HandlePhases()
     {
@@ -219,18 +261,40 @@ public class DragonBoss : BaseEnemy
     // ------------------ FASE 1 ------------------
     private void Phase1Attack(float distance)
     {
-        if (distance < meleeAttack_Range && meleeAreaAttack_CurrentCooldown <= 0f)
+        // MELEE
+        if (distance < meleeAreaAttack_Range && meleeAreaAttack_CurrentCooldown <= 0f)
         {
             handleAnimations.ChangeAnimationState("MeleeAttack_Boss", true);
             DoMeleeAttack(meleeAreaAttack_HitBox, meleeAreaAttack_Damage, meleeAreaAttack_Delay, meleeAreaAttack_Duration, meleeAreaAttack_HorizontalKnockback, meleeAreaAttack_VerticalKnockback);
-            meleeAreaAttack_CurrentCooldown = meleeAttack_Cooldown;
+
+            meleeAreaAttack_CurrentCooldown = meleeAreaAttack_Cooldown;
             rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
         }
         else if (rangeAttack_CurrentCooldown <= 0f)
         {
-            handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
+            // RANDOMLY CHOOSE BETWEEN NORMAL SHOT OR SHOTGUN
+            int r = UnityEngine.Random.Range(0, 2);
+
+            if (r == 0)
+            {
+                // NORMAL RANGE ATTACK
+                handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
+            }
+            else
+            {
+                // SHOTGUN ATTACK
+                handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
+                StartCoroutine(DelayedShotgun());
+            }
+
             rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
         }
+    }
+
+    private IEnumerator DelayedShotgun()
+    {
+        yield return new WaitForSeconds(0.25f); // delay opcional, ajustable
+        PerformShotgunAttack();
     }
 
     // ------------------ FASE 2 ------------------
@@ -295,7 +359,15 @@ public class DragonBoss : BaseEnemy
                 rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
 
             }
+            if (specialAttack_CurrentCooldown <= 0f)
+            {
+                FaceTarget();
+                handleAnimations.ChangeAnimationState("SpecialAttack_Boss", true);
+                StartCoroutine(PerformPhase3SpecialAttack());
+                specialAttack_CurrentCooldown = specialAttack_Cooldown;
+            }
         }
+
     }
     [SerializeField] Transform thirdFaseSpawnPoint;
     private IEnumerator Phase3EntryRoutine()
