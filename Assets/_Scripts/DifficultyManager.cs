@@ -47,7 +47,7 @@ public class DifficultyManager : MonoBehaviour
 
         foreach (var enemy in activeEnemies)
         {
-            enemy.ResetStatsToBase();
+          //  enemy.ResetStatsToBase();
         }
 
         Debug.Log("Dificultad y estadísticas de enemigos reiniciadas al empezar una nueva partida.");

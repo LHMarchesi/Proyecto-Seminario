@@ -107,10 +107,10 @@ public partial class EnemySpawner : MonoBehaviour
         // Dificultad
         if (currentDifficulty > 0)
         {
-            baseEnemy.baseHealth = baseEnemy.baseHealth + (currentDifficulty * 5f);
-            baseEnemy.baseAttackSpeed = baseEnemy.baseAttackSpeed + (currentDifficulty * 0.5f);
-            baseEnemy.baseDamage = baseEnemy.baseDamage + (currentDifficulty * 2.5f);
-            baseEnemy.baseSpeed = baseEnemy.baseSpeed + (currentDifficulty * 0.05f);
+            baseEnemy.AddMaxHealth(10f * currentDifficulty);
+            baseEnemy.AddMaxSpeed(0.2f * currentDifficulty);
+            baseEnemy.AddMaxAttackDamage(5f * currentDifficulty);
+            baseEnemy.AddAttackSpeed(0.1f * currentDifficulty);
         }
 
         enemy.SetActive(true);
