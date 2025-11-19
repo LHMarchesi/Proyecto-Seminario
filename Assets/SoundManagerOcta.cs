@@ -30,7 +30,6 @@ public class SoundManagerOcta : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
 
         // Inicializa el diccionario de sonidos
         foreach (var sound in sounds)
