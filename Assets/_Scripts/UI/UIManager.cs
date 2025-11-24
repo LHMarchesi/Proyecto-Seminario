@@ -43,6 +43,8 @@ public class UIManager : MonoBehaviour
         ShowLoseScreenn(false);
         ShowWinScreenn(false);
         DisableBossName();
+
+        SoundManagerOcta.Instance.PlayMusic("GameTheme");
     }
 
     public void ChangeRemainingEnemiesText(string text)

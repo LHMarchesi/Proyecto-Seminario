@@ -18,6 +18,8 @@ public class MeleeEnemy : BaseEnemy
     [SerializeField] private GameObject DeathEffect;
     FlockingBehave flockingBehavior;
     private bool useFlocking;
+    public GameObject FloatingTextPrefab;
+
 
     protected override void OnEnable()
     {
@@ -88,7 +90,14 @@ public class MeleeEnemy : BaseEnemy
         handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
         GetKnockback(stats.knockbackAmmount * 2);
         Invoke(nameof(EndDamageState), handleAnimations.GetCurrentAnimationLength());
+
+        if (FloatingTextPrefab != null)
+        {
+            var go = Instantiate(FloatingTextPrefab, transform.position, Quaternion.identity, transform);
+            go.GetComponent<TextMesh>().text = damage.ToString();
+        }
     }
+
 
     private void EndDamageState()
     {
