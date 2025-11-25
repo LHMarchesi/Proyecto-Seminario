@@ -11,7 +11,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
     [Header("Aumento de estadisitcas por StatPoint")]
     public int maxHealthIncrease;
     public float maxWalkSpeedIncrease;
-    public float maxRunSpeedIncrease;
+    public float damageIncrease;
 
     [Header("References")]
     [SerializeField] private PlayerStats defaultPlayerStats;
@@ -108,7 +108,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
     void IncreaseRunSpeed()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        currentPlayerStats.walkingSpeed += maxRunSpeedIncrease;
+        currentPlayerStats.basicMaxDamage += damageIncrease;
         UpdateUI();
     }
 

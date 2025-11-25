@@ -39,6 +39,15 @@ public class ExperienceManager : MonoBehaviour
     public delegate void OnLevelUpEvent();
     public event OnLevelUpEvent OnLevelUp;
 
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LevelUp();
+        }
+    }
+
     public void AddExperience(float amount)
     {
         totalExperience += amount;
