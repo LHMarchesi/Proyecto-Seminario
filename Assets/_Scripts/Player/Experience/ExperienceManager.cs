@@ -36,7 +36,11 @@ public class ExperienceManager : MonoBehaviour
 
     private List<GameObject> spawnedButtons = new List<GameObject>();
 
-    //  Evento para que otros scripts (como la UI) se actualicen
+    // Cola de niveles pendientes
+    private int pendingLevelUps = 0;
+    private bool selectionInProgress = false;
+
+    // Evento OnLevelUp
     public delegate void OnLevelUpEvent();
     public event OnLevelUpEvent OnLevelUp;
 
@@ -44,13 +48,9 @@ public class ExperienceManager : MonoBehaviour
     private void Update()
     {
         if (availableStatPoints >= 1)
-        {
             textPopUp.SetActive(true);
-        }
-        else if (availableStatPoints <= 0)
-        {
+        else
             textPopUp.SetActive(false);
-        }
     }
 
     public void AddExperience(float amount)
@@ -66,25 +66,48 @@ public class ExperienceManager : MonoBehaviour
                totalExperience >= experienceTable.xpNeededPerLevel[currentLevel])
         {
             currentLevel++;
-            LevelUp();
+            pendingLevelUps++;  // Guarda LevelUps extra
         }
+
+        // Si no hay una UI abierta, comenzá el proceso
+        if (!selectionInProgress && pendingLevelUps > 0)
+            StartCoroutine(ProcessNextLevelUp());
     }
-    void LevelUp()
+
+    IEnumerator ProcessNextLevelUp()
     {
-        // Otorgar puntos de mejora
+        selectionInProgress = true;
+
+        while (pendingLevelUps > 0)
+        {
+            yield return StartCoroutine(OpenLevelUpPanel());
+            pendingLevelUps--;
+
+            // Esperar 1 segundo antes de abrir otro panel
+            if (pendingLevelUps > 0)
+                yield return new WaitForSecondsRealtime(.8f);
+        }
+
+        selectionInProgress = false;
+    }
+
+    IEnumerator OpenLevelUpPanel()
+    {
+        // Otorgar stat points
         availableStatPoints += statPointsPerLevel;
 
-        // Disparar evento
+        // Evento
         OnLevelUp?.Invoke();
 
-        // Lógica de elección de habilidades
+        // Mostrar panel
+        yield return StartCoroutine(pauseWDelay());
         panel.SetActive(true);
-        StartCoroutine(pauseWDelay());
-        
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         playerContext.HandleInputs.SetPaused(true);
 
+        // Elegir habilidades
         List<AbilityEntry> options = GetRandomAbilityOptions(2);
 
         foreach (var ability in options)
@@ -95,7 +118,12 @@ public class ExperienceManager : MonoBehaviour
             AbilityButtonUI buttonUI = buttonGO.GetComponent<AbilityButtonUI>();
             buttonUI.Setup(ability, this);
         }
+
         UpdateInterface();
+
+        // Esperar a que el jugador elija una habilidad
+        while (panel.activeSelf)
+            yield return null;
     }
 
     void UpdateInterface()
@@ -110,7 +138,6 @@ public class ExperienceManager : MonoBehaviour
         float currentXP = totalExperience - previousLevelsExperience;
         float neededXP = nextLevelsExperience - previousLevelsExperience;
 
-        //  XP Slider
         sliderPass.SetMax(neededXP);
         sliderPass.ChangeValue(currentXP);
 
@@ -130,7 +157,7 @@ public class ExperienceManager : MonoBehaviour
             powerUp.PickUp();
         }
 
-        // 🔹 Limpiar botones UI
+        // Limpiar UI
         foreach (var go in spawnedButtons)
             Destroy(go);
         spawnedButtons.Clear();
@@ -159,14 +186,12 @@ public class ExperienceManager : MonoBehaviour
 
     public int GetAvailableStatPoints() => availableStatPoints;
 
-
     IEnumerator pauseWDelay()
     {
-        yield return new WaitForSecondsRealtime(.3f);
+        yield return new WaitForSecondsRealtime(1f);
         Time.timeScale = 0;
     }
 }
-
 
 
 [System.Serializable]
@@ -174,11 +199,10 @@ public class AbilityEntry
 {
     public string abilityName;
     public string abilityDescription;
-    public GameObject abilityPrefab; // Prefab que contiene el PowerUp (LightningStrike, Explode, etc.)
+    public GameObject abilityPrefab;
     public Sprite icon;
     [Range(1, 100)]
     public float dropChance;
-
 }
 
 public static class ListExtensions
@@ -193,5 +217,4 @@ public static class ListExtensions
             (list[n], list[k]) = (list[k], list[n]);
         }
     }
-
 }

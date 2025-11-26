@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     public float CurrentHealth { get => currentHealth; private set { } }
     public int MaxHealth { get => playerStats.maxHealth; private set { } }
     public float RunningSpeed { get => playerStats.runningSpeed; private set { } }
-    public float WalkingSpeed { get => playerStats.walkingSpeed; private set { } }
+    public float WalkingSpeed { get => playerStats.runningSpeed; private set { } }
 
     public float currentJumpCharge = 0f;
 

@@ -19,8 +19,8 @@ public class PlayerStatsTabScreen : MonoBehaviour
     [SerializeField] private GameObject tabPanel;
     [SerializeField] private ExperienceManager experienceManager;
     [SerializeField] private TextMeshProUGUI maxHealthText;
-    [SerializeField] private TextMeshProUGUI walkingSpeedText;
     [SerializeField] private TextMeshProUGUI runningSpeedText;
+    [SerializeField] private TextMeshProUGUI damageText;
     [SerializeField] private TextMeshProUGUI statPointsText;
     [SerializeField] private Button increaseHealthButton;
     [SerializeField] private Button increaseWalkSpeedButton;
@@ -85,9 +85,9 @@ public class PlayerStatsTabScreen : MonoBehaviour
 
     public void UpdateUI()
     {
-        maxHealthText.text = $"Max Health: {currentPlayerStats.maxHealth:F1}";
-        walkingSpeedText.text = $"Walking Speed: {currentPlayerStats.walkingSpeed:F1}";
-        runningSpeedText.text = $"Damage: {currentPlayerStats.basicMaxDamage:F1}";
+        maxHealthText.text = $"Health: {currentPlayerStats.maxHealth:F1}";
+        runningSpeedText.text = $"Running Speed: {currentPlayerStats.runningSpeed:F1}";
+        damageText.text = $"Damage: {currentPlayerStats.basicMaxDamage:F1}";
         statPointsText.text = $"Upgrade Points: {experienceManager.GetAvailableStatPoints()}";
     }
 
@@ -101,7 +101,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
     void IncreaseWalkSpeed()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        currentPlayerStats.walkingSpeed += maxWalkSpeedIncrease;
+        currentPlayerStats.runningSpeed += maxWalkSpeedIncrease;
         UpdateUI();
     }
 
@@ -115,7 +115,6 @@ public class PlayerStatsTabScreen : MonoBehaviour
     private void SetStatsToDefault()
     {
         currentPlayerStats.maxHealth = defaultPlayerStats.maxHealth;
-        currentPlayerStats.walkingSpeed = defaultPlayerStats.walkingSpeed;
         currentPlayerStats.runningSpeed = defaultPlayerStats.runningSpeed;
         currentPlayerStats.maxSpeed = defaultPlayerStats.maxSpeed;
         currentPlayerStats.dashCooldown = defaultPlayerStats.dashCooldown;
