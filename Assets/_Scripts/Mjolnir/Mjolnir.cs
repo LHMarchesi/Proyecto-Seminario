@@ -274,6 +274,7 @@ public class Mjolnir : MonoBehaviour
                 Vector3 spawnPos = contact.point;
                 Quaternion spawnRot = Quaternion.LookRotation(contact.normal);
                 GameObject vfx = Instantiate(hitVFXPrefab, spawnPos, spawnRot);
+                SoundManagerOcta.Instance.PlaySound("MjolnirThrowHit");
 
                 if (parentVFXToHit)
                     vfx.transform.SetParent(collision.collider.transform, true);

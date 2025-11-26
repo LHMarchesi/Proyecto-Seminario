@@ -124,7 +124,9 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         if (!IsGrounded()) return;
 
+        
         isChargingJump = true;
+        SoundManagerOcta.Instance.PlaySound("ChargeJump");
         currentJumpCharge += playerStats.chargeSpeed * Time.fixedDeltaTime;
         currentJumpCharge = Mathf.Clamp(currentJumpCharge, playerStats.minJumpForce, playerStats.maxJumpForce);
 

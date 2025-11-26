@@ -540,7 +540,7 @@ GameObject:
   - component: {fileID: 55799311}
   - component: {fileID: 55799313}
   m_Layer: 5
-  m_Name: MaxWalkSpeedValue
+  m_Name: MaxSpeedValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -562,7 +562,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05241137, y: 0.5811762}
   m_AnchorMax: {x: 0.25739717, y: 0.675}
-  m_AnchoredPosition: {x: 53, y: -36.74997}
+  m_AnchoredPosition: {x: 53, y: -131}
   m_SizeDelta: {x: -4.4515076, y: -5.5033035}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &55799311
@@ -612,12 +612,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 71.25
+  m_fontSize: 71
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 71
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -1035,7 +1035,7 @@ MonoBehaviour:
   - name: ClickEffect
     clip: {fileID: 0}
     volume: 0
-  - name: LightingStrike
+  - name: LightningStrike
     clip: {fileID: 8300000, guid: 017fdb8869166fd4c8fa830fb4bc95c8, type: 3}
     volume: 0.5
   - name: HealthOrbPickUp
@@ -1074,6 +1074,12 @@ MonoBehaviour:
   - name: PilarDestroy
     clip: {fileID: 8300000, guid: 17e9ae78be477d640b8d7b4a8a0c1e93, type: 3}
     volume: 0.35
+  - name: MjolnirThrowHit
+    clip: {fileID: 8300000, guid: 313b6e93073a79b4cae445329943ef8e, type: 3}
+    volume: 0.35
+  - name: ChargeJump
+    clip: {fileID: 8300000, guid: ed5656a66c4385a45bb3d76965233a8c, type: 3}
+    volume: 0.2
 --- !u!4 &78671670
 Transform:
   m_ObjectHideFlags: 0
@@ -3552,7 +3558,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.29358864, y: 0.4424144}
   m_AnchorMax: {x: 0.3422057, y: 0.52829534}
-  m_AnchoredPosition: {x: 23.404541, y: -29.75}
+  m_AnchoredPosition: {x: 23, y: -231}
   m_SizeDelta: {x: 942, y: 951}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &707043787
@@ -5067,7 +5073,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -511, y: 42}
+  m_AnchoredPosition: {x: -511, y: 45}
   m_SizeDelta: {x: 186.0694, y: 74.496704}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &913078114
@@ -7097,7 +7103,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.022395834, y: 0.7876577}
   m_AnchorMax: {x: 0.25385422, y: 0.8951045}
-  m_AnchoredPosition: {x: -1.3999023, y: 0}
+  m_AnchoredPosition: {x: 1395, y: -797}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &1096211186
@@ -7141,7 +7147,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: You have remaining Exp. points!
+  m_text: Hold tab to level up
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a6dba9a7a1f50324a91d5453647582ad, type: 2}
   m_sharedMaterial: {fileID: -3837595338949493348, guid: a6dba9a7a1f50324a91d5453647582ad, type: 2}
@@ -7168,7 +7174,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50.8
+  m_fontSize: 53.75
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -9996,7 +10002,7 @@ GameObject:
   - component: {fileID: 1484231724}
   - component: {fileID: 1484231726}
   m_Layer: 5
-  m_Name: MaxRunSpeedValue
+  m_Name: MaxDamageValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10018,7 +10024,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.056, y: 0.4424144}
   m_AnchorMax: {x: 0.25739717, y: 0.5198809}
-  m_AnchoredPosition: {x: 51, y: -27.75}
+  m_AnchoredPosition: {x: 50.59546, y: -229}
   m_SizeDelta: {x: 1.5484924, y: 8.496696}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1484231724
@@ -10068,12 +10074,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 71.35
+  m_fontSize: 71
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 71
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -11351,12 +11357,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 71.3
+  m_fontSize: 71
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 71
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -12087,7 +12093,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.29358864, y: 0.5811762}
   m_AnchorMax: {x: 0.3422057, y: 0.675}
-  m_AnchoredPosition: {x: 23.404541, y: -31.75}
+  m_AnchoredPosition: {x: 23.404541, y: -126.00003}
   m_SizeDelta: {x: 942, y: 944}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &2035750575
