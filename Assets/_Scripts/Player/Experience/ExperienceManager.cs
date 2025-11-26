@@ -23,6 +23,7 @@ public class ExperienceManager : MonoBehaviour
     [Header("Stat Points")]
     public int availableStatPoints = 3;
     public int statPointsPerLevel = 3;
+    public GameObject textPopUp;
 
     [Header("Interface")]
     [SerializeField] TextMeshProUGUI levelText;
@@ -42,9 +43,13 @@ public class ExperienceManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.L))
+        if (availableStatPoints >= 1)
         {
-            LevelUp();
+            textPopUp.SetActive(true);
+        }
+        else if (availableStatPoints <= 0)
+        {
+            textPopUp.SetActive(false);
         }
     }
 
