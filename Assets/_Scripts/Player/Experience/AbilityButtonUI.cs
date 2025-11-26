@@ -38,7 +38,7 @@ public class AbilityButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
 
 
-    public void OnSelect()
+    private void OnSelect()
     {
         manager.ApplySelectedAbility(ability);
     }
