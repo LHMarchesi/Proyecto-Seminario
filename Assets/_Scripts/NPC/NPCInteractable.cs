@@ -63,6 +63,7 @@ public class NPCInteractable : MonoBehaviour
             if (doorMat.HasProperty(dissolvePropID))
                 doorMat.SetFloat(dissolvePropID, 0f);
         }
+        SoundManagerOcta.Instance.PlayMusic("MainTheme");
     }
 
     void OnTriggerEnter(Collider other)

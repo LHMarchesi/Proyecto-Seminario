@@ -96,6 +96,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
         if (!experienceManager.SpendStatPoint()) return;
         currentPlayerStats.maxHealth += maxHealthIncrease;
         UpdateUI();
+        SoundManagerOcta.Instance.PlaySound("SpendPoint");
     }
 
     void IncreaseWalkSpeed()
@@ -103,6 +104,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
         if (!experienceManager.SpendStatPoint()) return;
         currentPlayerStats.runningSpeed += maxWalkSpeedIncrease;
         UpdateUI();
+        SoundManagerOcta.Instance.PlaySound("SpendPoint");
     }
 
     void IncreaseRunSpeed()
@@ -110,6 +112,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
         if (!experienceManager.SpendStatPoint()) return;
         currentPlayerStats.basicMaxDamage += damageIncrease;
         UpdateUI();
+        SoundManagerOcta.Instance.PlaySound("SpendPoint");
     }
 
     private void SetStatsToDefault()
