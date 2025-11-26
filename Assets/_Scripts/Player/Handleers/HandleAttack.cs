@@ -44,23 +44,24 @@ public class HandleAttack : MonoBehaviour
         StartCoroutine(DoAttack(damage, radius, shakeDuration, shakeMagnitude));
     }
 
+    public void PlayHitAttackSound()
+    {
+        // Lista de nombres de sonidos disponibles
+        string[] attackSounds = {"AttackHit2", "AttackHit3" };
+
+        // Elegir un sonido aleatorio
+        int index = Random.Range(0, attackSounds.Length);
+
+        // Reproducir el sonido elegido
+        SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
+    }
+
     public void PlayAttackSound()
     {
         string[] attackSounds = { "Attack2", "Attack3" };
 
-        int index;
+        int index = Random.Range(0, attackSounds.Length);
 
-        // Elegir un nuevo índice diferente al último
-        do
-        {
-            index = Random.Range(0, attackSounds.Length);
-        }
-        while (index == ultimoIndex);
-
-        // Guardar el índice elegido
-        ultimoIndex = index;
-
-        // Reproducir el sonido
         SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
     }
 
@@ -98,10 +99,9 @@ public class HandleAttack : MonoBehaviour
 
     void HitTarget(Vector3 pos)
     {
-        //SoundManagerOcta.Instance.PlaySound("PlayerAttack");
-
         GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity); // Instantiate effect
         Destroy(GO, 3);
+        PlayHitAttackSound();
     }
 
     private IEnumerator HitStop(float duration, GameObject enemy)

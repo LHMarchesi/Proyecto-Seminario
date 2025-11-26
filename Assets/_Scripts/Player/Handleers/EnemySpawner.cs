@@ -134,6 +134,7 @@ public partial class EnemySpawner : MonoBehaviour
     private void OnDestroy()
     {
         NotifyAllSpawnersDifficultyUp();
+        SoundManagerOcta.Instance.PlaySound("PilarDestroy");
     }
 
     private void NotifyAllSpawnersDifficultyUp()

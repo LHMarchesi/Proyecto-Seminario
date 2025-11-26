@@ -20,6 +20,9 @@ public class MeleeEnemy : BaseEnemy
     private bool useFlocking;
     public GameObject FloatingTextPrefab;
 
+    public bool Goblin;
+    public bool Skeleton;
+
 
     protected override void OnEnable()
     {
@@ -90,6 +93,7 @@ public class MeleeEnemy : BaseEnemy
         handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
         GetKnockback(stats.knockbackAmmount * 2);
         Invoke(nameof(EndDamageState), handleAnimations.GetCurrentAnimationLength());
+        PlayHurtEffect();
 
         if (FloatingTextPrefab != null)
         {
@@ -161,6 +165,39 @@ public class MeleeEnemy : BaseEnemy
         }
 
     }
+    public void PlayHurtEffect()
+    {
+        if(Goblin == true)
+        {
+            string[] attackSounds = { "GoblinDeath1", "GoblinDeath2", "GoblinDeath3" };
+
+            int index = UnityEngine.Random.Range(0, attackSounds.Length);
+
+            SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
+        }
+        else if(Skeleton == true)
+        {
+
+            string[] attackSounds = { "SkeletonDeath1", "SkeletonDeath2", "SkeletonDeath3" };
+
+            int index = UnityEngine.Random.Range(0, attackSounds.Length);
+
+            SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
+        }
+    }
+
+    public void PlayDeathEffect()
+    {
+        if (Skeleton == true)
+        {
+
+            string[] attackSounds = { "SkeletonDeath1", "SkeletonDeath2" };
+
+            int index = UnityEngine.Random.Range(0, attackSounds.Length);
+
+            SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
+        }
+    }
 
     protected override void Die(float xpDrop)
     {
@@ -170,7 +207,7 @@ public class MeleeEnemy : BaseEnemy
         base.Die(stats.expDrop);
         GameObject GO = Instantiate(DeathEffect, transform.position, Quaternion.identity); // Instantiate effect
         Destroy(GO, 3);
-        // SoundManagerOcta.Instance.PlaySound("EnemyDeath");
+        PlayDeathEffect();
 
     }
 }
