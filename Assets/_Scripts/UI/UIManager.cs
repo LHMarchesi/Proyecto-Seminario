@@ -161,6 +161,7 @@ public class UIManager : MonoBehaviour
     {
         LoseScreen.SetActive(value);
     }
+
     public void ShowWinScreenn(bool value)
     {
         WinScreen.SetActive(value);
