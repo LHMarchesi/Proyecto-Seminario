@@ -23,7 +23,9 @@ public class HandleAttack : MonoBehaviour
     private bool attacking = false;
     private bool readyToAttack = true;
     private int attackCount;
-    private float playerSpeed; 
+    private float playerSpeed;
+
+    private int ultimoIndex = -1;
 
     private void Awake()
     {
@@ -42,14 +44,33 @@ public class HandleAttack : MonoBehaviour
         StartCoroutine(DoAttack(damage, radius, shakeDuration, shakeMagnitude));
     }
 
+    public void PlayAttackSound()
+    {
+        string[] attackSounds = { "Attack2", "Attack3" };
+
+        int index;
+
+        // Elegir un nuevo índice diferente al último
+        do
+        {
+            index = Random.Range(0, attackSounds.Length);
+        }
+        while (index == ultimoIndex);
+
+        // Guardar el índice elegido
+        ultimoIndex = index;
+
+        // Reproducir el sonido
+        SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
+    }
+
     private IEnumerator DoAttack(float damage, float radius, float shakeDuration, float shakeMagnitude)
     {
         readyToAttack = false;
         attacking = true;
 
-        //SoundManager.Instance.PlaySFX(swordSwing);
-        SoundManagerOcta.Instance.PlaySound("PlayerAttack");
-        
+        PlayAttackSound();
+
 
         playerSpeed = playerContext.PlayerController.currentSpeed;
         playerContext.PlayerController.ChangeSpeed(playerContext.PlayerController.currentSpeed - playerContext.PlayerController.playerStats.speedReductor);

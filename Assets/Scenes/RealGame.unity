@@ -1029,9 +1029,6 @@ MonoBehaviour:
   - name: EnemyDeath
     clip: {fileID: 0}
     volume: 0
-  - name: PlayerAttack
-    clip: {fileID: 8300000, guid: f072e0527f2de3b4e956b15fdc4df3b4, type: 3}
-    volume: 1
   - name: MainTheme
     clip: {fileID: 0}
     volume: 0
@@ -1050,6 +1047,12 @@ MonoBehaviour:
   - name: PlayerJump
     clip: {fileID: 8300000, guid: 9b2b32216697ad24d91ac8319a4967b6, type: 3}
     volume: 0.8
+  - name: Attack2
+    clip: {fileID: 8300000, guid: 8cdd3130d39ce9f49833f16ba9167332, type: 3}
+    volume: 0.5
+  - name: Attack3
+    clip: {fileID: 8300000, guid: a1d4b57452fbeac46884c0c64e4ed63a, type: 3}
+    volume: 1
 --- !u!4 &78671670
 Transform:
   m_ObjectHideFlags: 0
@@ -7144,7 +7147,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 52.7
+  m_fontSize: 50.8
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
