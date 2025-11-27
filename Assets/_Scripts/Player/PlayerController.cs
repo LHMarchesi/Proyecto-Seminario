@@ -126,7 +126,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         
         isChargingJump = true;
-        SoundManagerOcta.Instance.PlaySound("ChargeJump");
+        //SoundManagerOcta.Instance.PlaySound("ChargeJump");
         currentJumpCharge += playerStats.chargeSpeed * Time.fixedDeltaTime;
         currentJumpCharge = Mathf.Clamp(currentJumpCharge, playerStats.minJumpForce, playerStats.maxJumpForce);
 
@@ -195,6 +195,12 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     protected virtual void Die()
     {
+        EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>();
+
+        foreach (EnemySpawner spawner in spawners)
+        {
+            spawner.RestartDifficulty();
+        }
         Debug.Log("Lose");
         canTakeDamage = false;
         GameManager.Instance.ChangeState(new LoseState());

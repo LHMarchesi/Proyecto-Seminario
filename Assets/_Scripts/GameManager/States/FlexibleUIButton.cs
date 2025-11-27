@@ -85,6 +85,11 @@ public class FlexibleUIButton : MonoBehaviour
                 TransitionManager.Instance.PlayTransitionAndLoadScene(TransitionType.FadeIn, SceneManager.GetActiveScene().buildIndex);
                 Time.timeScale = 1;
                 GameManager.Instance.ChangeState(new GameplayState());
+                EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>();
+                foreach (EnemySpawner spawner in spawners)
+                {
+                    spawner.RestartDifficulty();
+                }
                 break;
         }
 

@@ -31,8 +31,33 @@ public class RoomTrigger : MonoBehaviour
     private bool activated = false;
     private bool alreadyCounted;
 
+    [Header("Emergency Override")]
+    public List<Transform> emergencyPanel = new List<Transform>();  // soporta múltiples paneles
+    private Transform player;
+
+    private void Update()
+    {
+        if (player == null || emergencyPanel == null || emergencyPanel.Count == 0)
+            return;
+
+        foreach (Transform panel in emergencyPanel)
+        {
+            if (panel == null) continue;
+
+            if (Vector3.Distance(panel.position, player.position) <= 2f)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    ForceOpenDoors();
+                    return; // ya no hace falta seguir revisando
+                }
+            }
+        }
+    }
+
     private void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
         // Close room at start
         foreach (GameObject obj in activeDoors) obj.SetActive(false);
         if (finalDoor != null) finalDoor.SetActive(false);
@@ -40,6 +65,18 @@ public class RoomTrigger : MonoBehaviour
         // Spawn configured enemies
         if (spawnOnStart && spawnBatches != null)
             SpawnConfiguredEnemies();
+    }
+
+    public void ForceOpenDoors()
+    {
+        foreach (GameObject obj in activeDoors)
+            obj.SetActive(false);
+
+        if (isFinalRoom && finalDoor != null)
+            finalDoor.SetActive(true);
+
+        activated = false;
+        alreadyCounted = true;
     }
 
     private void SpawnConfiguredEnemies()
@@ -80,12 +117,16 @@ public class RoomTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (activated) return;
         if (other.CompareTag("Player"))
         {
-            activated = true;
-            StartCoroutine(ActivateDoorsWithDelay());
-            UIManager.Instance.UpdateEnemiesRemaining(true, enemies.Count);
+            player = other.transform;
+
+            if (!activated)
+            {
+                activated = true;
+                StartCoroutine(ActivateDoorsWithDelay());
+                UIManager.Instance.UpdateEnemiesRemaining(true, enemies.Count);
+            }
         }
     }
 
@@ -98,13 +139,18 @@ public class RoomTrigger : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
+        {
+            if (player == other.transform)
+                player = null;
+
             UIManager.Instance.UpdateEnemiesRemaining(false, 0);
+        }
     }
 
     IEnumerator ActivateDoorsWithDelay()
     {
-        yield return new WaitForSeconds(1.5f);
-        foreach (GameObject obj in activeDoors) obj.SetActive(true);
+            yield return new WaitForSeconds(1.5f);
+            foreach (GameObject obj in activeDoors) obj.SetActive(true);
     }
 
     void DetectEnemiesInRoom()

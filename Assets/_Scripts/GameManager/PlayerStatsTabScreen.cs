@@ -52,6 +52,19 @@ public class PlayerStatsTabScreen : MonoBehaviour
         {
             ClosePanel();
         }
+
+        if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+        {
+            Cursor.lockState = CursorLockMode.None;  // Libera el cursor
+            Cursor.visible = true;                   // Lo hace visible
+        }
+
+        // Cuando suelta Alt
+        if (Input.GetKeyUp(KeyCode.LeftAlt) || Input.GetKeyUp(KeyCode.RightAlt))
+        {
+            Cursor.lockState = CursorLockMode.Locked; // Bloquea el cursor
+            Cursor.visible = false;                   // Lo oculta
+        }
     }
 
     void AddButtonListeners()
@@ -85,16 +98,16 @@ public class PlayerStatsTabScreen : MonoBehaviour
 
     public void UpdateUI()
     {
-        maxHealthText.text = $"Health: {currentPlayerStats.maxHealth:F1}";
-        runningSpeedText.text = $"Running Speed: {currentPlayerStats.runningSpeed:F1}";
-        damageText.text = $"Damage: {currentPlayerStats.basicMaxDamage:F1}";
+        maxHealthText.text = $"Health: {defaultPlayerStats.maxHealth:F1}";
+        runningSpeedText.text = $"Running Speed: {defaultPlayerStats.runningSpeed:F1}";
+        damageText.text = $"Damage: {defaultPlayerStats.basicMaxDamage:F1}";
         statPointsText.text = $"Upgrade Points: {experienceManager.GetAvailableStatPoints()}";
     }
 
     void IncreaseHealth()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        currentPlayerStats.maxHealth += maxHealthIncrease;
+        defaultPlayerStats.maxHealth += maxHealthIncrease;
         UpdateUI();
         SoundManagerOcta.Instance.PlaySound("SpendPoint");
     }
@@ -102,7 +115,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
     void IncreaseWalkSpeed()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        currentPlayerStats.runningSpeed += maxWalkSpeedIncrease;
+        defaultPlayerStats.runningSpeed += maxWalkSpeedIncrease;
         UpdateUI();
         SoundManagerOcta.Instance.PlaySound("SpendPoint");
     }
@@ -110,7 +123,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
     void IncreaseRunSpeed()
     {
         if (!experienceManager.SpendStatPoint()) return;
-        currentPlayerStats.basicMaxDamage += damageIncrease;
+        defaultPlayerStats.basicMaxDamage += damageIncrease;
         UpdateUI();
         SoundManagerOcta.Instance.PlaySound("SpendPoint");
     }

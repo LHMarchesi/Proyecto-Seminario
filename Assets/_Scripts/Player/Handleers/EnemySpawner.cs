@@ -151,4 +151,9 @@ public partial class EnemySpawner : MonoBehaviour
     {
         currentDifficulty += amount;
     }
+
+    public void RestartDifficulty()
+    {
+        currentDifficulty = 0;
+    }
 }
