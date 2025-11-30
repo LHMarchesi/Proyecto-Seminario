@@ -176,33 +176,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccaf866cda6f5a74abb228a213eb7e93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyTag: Enemy
   activeDoors:
   - {fileID: 2388439805514490297}
   - {fileID: 5585510130908640809}
-  isFinalRoom: 0
-  finalDoor: {fileID: 0}
-  spawnOnStart: 1
-  spawnBatches:
-  - spawnPoint: {fileID: 3466986368355916429}
-    enemyPrefab: {fileID: 8087632599547195162, guid: 55a2f693e5d3dac4d94d3b338fea3124, type: 3}
-    count: 3
-    spreadRadius: 2
-  - spawnPoint: {fileID: 8342387349967844159}
-    enemyPrefab: {fileID: 488732150065989839, guid: 154bac96ebd29024a900e6a1a6c5c0f3, type: 3}
-    count: 2
-    spreadRadius: 1
-  - spawnPoint: {fileID: 641931254016830624}
-    enemyPrefab: {fileID: 5560765500954406363, guid: 3f09c779fb38e554fbfbc3e277114477, type: 3}
-    count: 1
-    spreadRadius: 0
-  - spawnPoint: {fileID: 641931254016830624}
-    enemyPrefab: {fileID: 5560765500954406363, guid: 3f09c779fb38e554fbfbc3e277114477, type: 3}
-    count: 1
-    spreadRadius: 0
-  emergencyPanel:
-  - {fileID: 4219560638427748235}
-  - {fileID: 3937167687149182532}
+  activePillars: []
 --- !u!1 &863759958631124624
 GameObject:
   m_ObjectHideFlags: 0
@@ -3681,6 +3658,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PillarSpawner (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 9020160763774116252, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
+      propertyPath: m_TagString
+      value: Pillar
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5443,6 +5424,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PillarSpawner (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 9020160763774116252, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
+      propertyPath: m_TagString
+      value: Pillar
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6398,6 +6383,10 @@ PrefabInstance:
     - target: {fileID: 9020160763774116252, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
       propertyPath: m_Name
       value: PillarSpawner
+      objectReference: {fileID: 0}
+    - target: {fileID: 9020160763774116252, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
+      propertyPath: m_TagString
+      value: Pillar
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

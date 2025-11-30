@@ -4,67 +4,24 @@ using System.Collections.Generic;
 using UnityEngine;
 public class RoomTrigger : MonoBehaviour
 {
-    [Header("Enemy detection")]
-    public string enemyTag = "Enemy";
-
     [Header("Doors")]
     public List<GameObject> activeDoors;
-    public bool isFinalRoom;
-    public GameObject finalDoor;
-
-    [Header("Spawning")]
-    public bool spawnOnStart = true;
 
     private bool roomCleared = false;
-    [Serializable]
-    public class SpawnBatch
-    {
-        public Transform spawnPoint;          // where to spawn
-        public GameObject enemyPrefab;        // what to spawn
-        public int count = 1;                 // how many at this point
-        public float spreadRadius = 1.0f;     // small radius to avoid overlap
-    }
-    public List<SpawnBatch> spawnBatches = new List<SpawnBatch>();
 
-    private readonly List<BaseEnemy> enemies = new List<BaseEnemy>();
-    private readonly Dictionary<BaseEnemy, Action> deathHandlers = new Dictionary<BaseEnemy, Action>();
+    public List<ObstacleDestructible> activePillars = new List<ObstacleDestructible>();
+    private Dictionary<ObstacleDestructible, Action> deathHandlers = new Dictionary<ObstacleDestructible, Action>();
     private bool activated = false;
     private bool alreadyCounted;
 
-    [Header("Emergency Override")]
-    public List<Transform> emergencyPanel = new List<Transform>();  // soporta múltiples paneles
-    private Transform player;
 
-    private void Update()
-    {
-        if (player == null || emergencyPanel == null || emergencyPanel.Count == 0)
-            return;
 
-        foreach (Transform panel in emergencyPanel)
-        {
-            if (panel == null) continue;
-
-            if (Vector3.Distance(panel.position, player.position) <= 2f)
-            {
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    ForceOpenDoors();
-                    return; // ya no hace falta seguir revisando
-                }
-            }
-        }
-    }
 
     private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        // Close room at start
-        foreach (GameObject obj in activeDoors) obj.SetActive(false);
-        if (finalDoor != null) finalDoor.SetActive(false);
 
-        // Spawn configured enemies
-        if (spawnOnStart && spawnBatches != null)
-            SpawnConfiguredEnemies();
+        foreach (GameObject obj in activeDoors) obj.SetActive(false); // Open doors at start
+
     }
 
     public void ForceOpenDoors()
@@ -72,60 +29,21 @@ public class RoomTrigger : MonoBehaviour
         foreach (GameObject obj in activeDoors)
             obj.SetActive(false);
 
-        if (isFinalRoom && finalDoor != null)
-            finalDoor.SetActive(true);
 
         activated = false;
         alreadyCounted = true;
     }
 
-    private void SpawnConfiguredEnemies()
-    {
-        roomCleared = false;
-        alreadyCounted = false;
-
-        foreach (var batch in spawnBatches)
-        {
-            if (batch == null || batch.spawnPoint == null || batch.enemyPrefab == null || batch.count <= 0)
-                continue;
-
-            int adjustedCount = Mathf.RoundToInt(batch.count * DifficultyManager.EnemyMultiplier);
-
-            for (int i = 0; i < adjustedCount; i++)
-            {
-                Vector3 offset2D = (batch.spreadRadius > 0f)
-                    ? UnityEngine.Random.insideUnitCircle * batch.spreadRadius
-                    : Vector2.zero;
-
-                Vector3 spawnPos = batch.spawnPoint.position + new Vector3(offset2D.x, 0f, offset2D.y);
-                Quaternion spawnRot = batch.spawnPoint.rotation;
-
-                GameObject go = Instantiate(batch.enemyPrefab, spawnPos, spawnRot);
-
-                if (!string.IsNullOrEmpty(enemyTag)) go.tag = enemyTag;
-
-                var enemy = go.GetComponent<BaseEnemy>();
-                if (enemy != null)
-                {
-                    enemies.Add(enemy);
-                    SafeSubscribe(enemy);
-
-                }
-            }
-        }
-    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            player = other.transform;
-
             if (!activated)
             {
                 activated = true;
                 StartCoroutine(ActivateDoorsWithDelay());
-                UIManager.Instance.UpdateEnemiesRemaining(true, enemies.Count);
+                UIManager.Instance.UpdateEnemiesRemaining(true, activePillars.Count);
             }
         }
     }
@@ -140,22 +58,19 @@ public class RoomTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            if (player == other.transform)
-                player = null;
-
             UIManager.Instance.UpdateEnemiesRemaining(false, 0);
         }
     }
 
     IEnumerator ActivateDoorsWithDelay()
     {
-            yield return new WaitForSeconds(1.5f);
-            foreach (GameObject obj in activeDoors) obj.SetActive(true);
+        yield return new WaitForSeconds(1f);
+        foreach (GameObject obj in activeDoors) obj.SetActive(true);
     }
 
     void DetectEnemiesInRoom()
     {
-        enemies.Clear();
+        activePillars.Clear();
 
         BoxCollider box = GetComponent<BoxCollider>();
         Vector3 worldCenter = box.transform.TransformPoint(box.center);
@@ -165,48 +80,48 @@ public class RoomTrigger : MonoBehaviour
 
         foreach (var col in colliders)
         {
-            if (col.CompareTag(enemyTag))
+            if (col.CompareTag("Pillar"))
             {
-                var enemy = col.GetComponent<BaseEnemy>();
-                if (enemy != null)
+                var píllar = col.GetComponent<ObstacleDestructible>();
+                if (píllar != null)
                 {
-                    enemies.Add(enemy);
+                    activePillars.Add(píllar);
                     // Subscribe once per enemy instance
-                    if (!deathHandlers.ContainsKey(enemy))
-                        SafeSubscribe(enemy);
+                    if (!deathHandlers.ContainsKey(píllar))
+                        SafeSubscribe(píllar);
                 }
             }
         }
 
-        UIManager.Instance.UpdateEnemiesRemaining(true, enemies.Count);
+        UIManager.Instance.UpdateEnemiesRemaining(true, activePillars.Count);
         CheckIfAllDead();
     }
 
-    void SafeSubscribe(BaseEnemy enemy)
+    void SafeSubscribe(ObstacleDestructible pillar)
     {
         // Cache handler so we can unsubscribe correctly later
         Action handler = null;
-        handler = () => OnEnemyDie(enemy);
-        deathHandlers[enemy] = handler;
-        enemy.OnDeath += handler;
+        handler = () => OnPillarDestroy(pillar);
+        deathHandlers[pillar] = handler;
+        pillar.OnDestroy += handler;
     }
 
-    void OnEnemyDie(BaseEnemy e)
+    void OnPillarDestroy(ObstacleDestructible pillar)
     {
-        if (deathHandlers.TryGetValue(e, out var handler))
+        if (deathHandlers.TryGetValue(pillar, out var handler))
         {
-            e.OnDeath -= handler;
-            deathHandlers.Remove(e);
+            pillar.OnDestroy -= handler;
+            deathHandlers.Remove(pillar);
         }
 
-        enemies.Remove(e);
+        activePillars.Remove(pillar);
         CheckIfAllDead();
-        UIManager.Instance.UpdateEnemiesRemaining(true, enemies.Count);
+        UIManager.Instance.UpdateEnemiesRemaining(true, activePillars.Count);
     }
 
     void CheckIfAllDead()
     {
-        if (enemies.Count == 0 && !alreadyCounted && activated)
+        if (activePillars.Count == 0 && !alreadyCounted && activated)
         {
             alreadyCounted = true; // Evita repetir el conteo
 
@@ -216,10 +131,7 @@ public class RoomTrigger : MonoBehaviour
             activated = false;
 
             // Subir dificultad
-       //     DifficultyManager.Instance.IncreaseDifficulty();
-
-            if (isFinalRoom && finalDoor != null)
-                finalDoor.SetActive(true);
+            //     DifficultyManager.Instance.IncreaseDifficulty();
         }
     }
 

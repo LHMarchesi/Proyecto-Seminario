@@ -8,7 +8,7 @@ public class ObstacleDestructible : MonoBehaviour, IDamageable
     private float lastDamageTime = -Mathf.Infinity;
     [SerializeField] private GameObject destroyEffect;
     [SerializeField] private Transform effectSpawnPos;
-
+    public Action OnDestroy;
     private bool canTakeDamage = true; // ← NUEVO
 
     public void TakeDamage(float damage)
@@ -29,12 +29,12 @@ public class ObstacleDestructible : MonoBehaviour, IDamageable
 
     private void DestroyObject()
     {
+        OnDestroy?.Invoke();    
         GetComponent<EnemyDropManager>()?.DropItems();
         Instantiate(destroyEffect, effectSpawnPos.position, Quaternion.identity);
         Destroy(gameObject);
     }
 
-    // 🔥 NUEVO: control del daño
     public void SetCanTakeDamage(bool state)
     {
         canTakeDamage = state;

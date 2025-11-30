@@ -122,7 +122,7 @@ public class UIManager : MonoBehaviour
         if (count == 0)
             enemiesRemainingTxt.text = "Door Open";
         else
-            enemiesRemainingTxt.text = "Enemies remaining: " + count.ToString();
+            enemiesRemainingTxt.text = "Pillars remaining: " + count.ToString();
     }
     private void ShowDamageFlash()
     {
