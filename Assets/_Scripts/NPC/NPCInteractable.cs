@@ -34,6 +34,20 @@ public class NPCInteractable : MonoBehaviour
     bool mustExitOnce;
     float nextAllowedTime;
 
+    // ============================
+    //  INFO POPUPS AFTER DIALOGUE
+    // ============================
+    [Header("Info Popups After Dialogue")]
+    [Tooltip("Popups shown after this NPC finishes its dialogue, in order.")]
+    [SerializeField] private GameObject[] infoPopups;
+
+    [Tooltip("If true, popups will only be shown the first time the dialogue finishes.")]
+    [SerializeField] private bool showPopupsOnlyOnce = true;
+
+    private int currentPopupIndex = -1;
+    private bool isShowingPopups = false;
+    private bool popupsAlreadyShown = false;
+
     void Reset()
     {
         blipSource = GetComponent<AudioSource>();
@@ -63,6 +77,17 @@ public class NPCInteractable : MonoBehaviour
             if (doorMat.HasProperty(dissolvePropID))
                 doorMat.SetFloat(dissolvePropID, 0f);
         }
+
+        // Make sure all popups start hidden
+        if (infoPopups != null)
+        {
+            for (int i = 0; i < infoPopups.Length; i++)
+            {
+                if (infoPopups[i])
+                    infoPopups[i].SetActive(false);
+            }
+        }
+
         SoundManagerOcta.Instance.PlayMusic("MainTheme");
     }
 
@@ -76,7 +101,11 @@ public class NPCInteractable : MonoBehaviour
         {
             if (!dialogueActive && promptCanvas) promptCanvas.gameObject.SetActive(true);
         }
+        playerContext = other.GetComponent<PlayerContext>();
     }
+
+    PlayerContext playerContext;
+
 
     void OnTriggerExit(Collider other)
     {
@@ -91,6 +120,9 @@ public class NPCInteractable : MonoBehaviour
             DialogueController.Instance.EndIfCurrent(this);
 
         dialogueActive = false;
+
+        // If the player leaves, make sure any popups are closed
+        EndPopupsSequence();
     }
 
     void OnDisable()
@@ -98,6 +130,9 @@ public class NPCInteractable : MonoBehaviour
         if (DialogueController.Instance)
             DialogueController.Instance.EndIfCurrent(this);
         dialogueActive = false;
+
+        // Clean up popups if this NPC is disabled
+        EndPopupsSequence();
     }
 
     void Update()
@@ -153,6 +188,9 @@ public class NPCInteractable : MonoBehaviour
         }
 
         UIManager.Instance.ChangeRemainingEnemiesText("MOVE FORWARD");
+
+        // Start info popups sequence (if configured)
+        StartPopupsSequence();
     }
 
     IEnumerator DissolveRoutine()
@@ -176,5 +214,105 @@ public class NPCInteractable : MonoBehaviour
         doorMat.SetFloat(dissolvePropID, 1f);
         door.SetActive(false);
         dissolveCo = null;
+    }
+
+    // ============================
+    //      POPUP SEQUENCE LOGIC
+    // ============================
+
+    private void StartPopupsSequence()
+    {
+        if (infoPopups == null || infoPopups.Length == 0) return;
+
+        if (showPopupsOnlyOnce && popupsAlreadyShown) return;
+        popupsAlreadyShown = true;
+
+        isShowingPopups = true;
+
+        // Hide all first
+        for (int i = 0; i < infoPopups.Length; i++)
+        {
+            if (infoPopups[i])
+                infoPopups[i].SetActive(false);
+        }
+
+        currentPopupIndex = 0;
+        ShowCurrentPopup();
+    }
+
+    private void ShowCurrentPopup()
+    {
+        if (!isShowingPopups) return;
+        playerContext.HandleInputs.SetPaused(true);
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
+        if (currentPopupIndex < 0 || currentPopupIndex >= infoPopups.Length)
+        {
+            EndPopupsSequence();
+            return;
+        }
+
+        // Hide all and show only the current one
+        for (int i = 0; i < infoPopups.Length; i++)
+        {
+            if (infoPopups[i])
+                infoPopups[i].SetActive(i == currentPopupIndex);
+        }
+    }
+
+    // Call this from the "Next" button on each popup
+    public void ShowNextPopup()
+    {
+        if (!isShowingPopups) return;
+
+        // Hide current popup
+        if (currentPopupIndex >= 0 && currentPopupIndex < infoPopups.Length)
+        {
+            if (infoPopups[currentPopupIndex])
+                infoPopups[currentPopupIndex].SetActive(false);
+        }
+
+        currentPopupIndex++;
+
+        if (currentPopupIndex >= infoPopups.Length)
+        {
+            EndPopupsSequence();
+        }
+        else
+        {
+            ShowCurrentPopup();
+        }
+    }
+
+    private void EndPopupsSequence()
+    {
+        if (infoPopups != null)
+
+        
+        {
+            for (int i = 0; i < infoPopups.Length; i++)
+            {
+                 if (infoPopups[i])
+                    
+                {
+                    infoPopups[i].SetActive(false);
+                    
+                }
+               
+            }
+        }
+
+        isShowingPopups = false;
+        currentPopupIndex = -1;
+
+        // If you need to re-enable player controls or other systems after popups,
+        // you can do it here.
+    }
+
+    public void ClosePopUp()
+    {
+        playerContext.HandleInputs.SetPaused(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }
