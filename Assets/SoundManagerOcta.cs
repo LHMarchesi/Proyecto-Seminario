@@ -18,6 +18,20 @@ public class SoundManagerOcta : MonoBehaviour
     [Header("Sound Library")]
     [SerializeField] private List<SoundData> sounds = new List<SoundData>();
 
+    [Header("Optional UI Sliders")]
+    [SerializeField] private UnityEngine.UI.Slider musicSlider;
+    [SerializeField] private UnityEngine.UI.Slider sfxSlider;
+
+    private const string MusicPrefKey = "musicVolume";
+    private const string SfxPrefKey = "sfxVolume";
+
+    // current user-controlled multipliers (0..1)
+    private float currentMusicVolume = 1f;
+    private float currentSfxVolume = 1f;
+
+    // last base volume used for the currently playing music track (from SoundData.volume)
+    private float lastMusicBaseVolume = 1f;
+
     private Dictionary<string, SoundData> soundDictionary = new Dictionary<string, SoundData>();
 
     private void Awake()
@@ -30,6 +44,50 @@ public class SoundManagerOcta : MonoBehaviour
         }
 
         Instance = this;
+
+        // Load saved volumes and apply to internal multipliers (do not overwrite per-sound base volumes)
+        float m = PlayerPrefs.GetFloat(MusicPrefKey, 1f);
+        float s = PlayerPrefs.GetFloat(SfxPrefKey, 1f);
+
+        currentMusicVolume = Mathf.Clamp01(m);
+        currentSfxVolume = Mathf.Clamp01(s);
+
+        // Apply to mixer or sources so UI reflects initial state
+        if (mainMixer != null)
+        {
+            mainMixer.SetFloat("MusicVolume", Mathf.Log10(Mathf.Clamp(currentMusicVolume, 0.0001f, 1f)) * 20);
+            mainMixer.SetFloat("SFXVolume", Mathf.Log10(Mathf.Clamp(currentSfxVolume, 0.0001f, 1f)) * 20);
+        }
+        else
+        {
+            // If there's already a clip assigned, capture its base volume and apply multiplier
+            lastMusicBaseVolume = musicSource.clip ? musicSource.volume : 1f;
+            musicSource.volume = lastMusicBaseVolume * currentMusicVolume;
+            // Keep SFX source volume at 1 and control SFX loudness via PlayOneShot scale parameter
+            sfxSource.volume = 1f;
+        }
+
+        // Initialize sliders if assigned
+        if (musicSlider != null)
+        {
+            musicSlider.SetValueWithoutNotify(m);
+            musicSlider.onValueChanged.AddListener((v) => {
+                // update multiplier and persist
+                SetMusicVolume(v);
+                PlayerPrefs.SetFloat(MusicPrefKey, Mathf.Clamp01(v));
+                PlayerPrefs.Save();
+            });
+        }
+
+        if (sfxSlider != null)
+        {
+            sfxSlider.SetValueWithoutNotify(s);
+            sfxSlider.onValueChanged.AddListener((v) => {
+                SetSFXVolume(v);
+                PlayerPrefs.SetFloat(SfxPrefKey, Mathf.Clamp01(v));
+                PlayerPrefs.Save();
+            });
+        }
 
         // Inicializa el diccionario de sonidos
         foreach (var sound in sounds)
@@ -51,7 +109,9 @@ public class SoundManagerOcta : MonoBehaviour
         }
 
         SoundData data = soundDictionary[name];
-        sfxSource.PlayOneShot(data.clip, data.volume);
+        // Multiply per-sound base volume by user-controlled SFX multiplier so slider affects playback
+        float vol = data.volume * currentSfxVolume;
+        sfxSource.PlayOneShot(data.clip, vol);
     }
 
     /// <summary>
@@ -68,10 +128,12 @@ public class SoundManagerOcta : MonoBehaviour
 
         SoundData data = soundDictionary[name];
         if (musicSource.clip == data.clip && musicSource.isPlaying)
-            return; // ya está sonando
+            return; // already playing
 
         musicSource.clip = data.clip;
-        musicSource.volume = data.volume;
+        // remember base volume for this track and apply user multiplier
+        lastMusicBaseVolume = data.volume;
+        musicSource.volume = lastMusicBaseVolume * currentMusicVolume;
         musicSource.loop = true;
         musicSource.Play();
     }
@@ -103,7 +165,17 @@ public class SoundManagerOcta : MonoBehaviour
     /// </summary>
     public void SetSFXVolume(float volume)
     {
-        sfxSource.volume = volume;
+        currentSfxVolume = Mathf.Clamp01(volume);
+
+        if (mainMixer != null)
+        {
+            mainMixer.SetFloat("SFXVolume", Mathf.Log10(Mathf.Clamp(currentSfxVolume, 0.0001f, 1f)) * 20);
+        }
+        else
+        {
+            // update source volume baseline; future PlayOneShot calls are multiplied by this value
+            sfxSource.volume = currentSfxVolume;
+        }
     }
 
     /// <summary>
@@ -111,7 +183,17 @@ public class SoundManagerOcta : MonoBehaviour
     /// </summary>
     public void SetMusicVolume(float volume)
     {
-        musicSource.volume = volume;
+        currentMusicVolume = Mathf.Clamp01(volume);
+
+        if (mainMixer != null)
+        {
+            mainMixer.SetFloat("MusicVolume", Mathf.Log10(Mathf.Clamp(currentMusicVolume, 0.0001f, 1f)) * 20);
+        }
+        else
+        {
+            // apply multiplier to currently playing track base volume
+            musicSource.volume = lastMusicBaseVolume * currentMusicVolume;
+        }
     }
 }
 

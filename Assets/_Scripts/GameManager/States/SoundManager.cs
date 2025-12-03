@@ -1,121 +1,103 @@
 using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
 using UnityEngine.UI;
 
 public class SoundManager : MonoBehaviour
 {
-    //public static SoundManager Instance;
+    // This component is not used in the project. The implementation has been
+    // commented out to avoid accidental usage. Keep the file for compatibility.
 
-    //[Header("Audio Sources")]
-    //[SerializeField] private AudioSource musicSource;
-    //[SerializeField] private AudioSource sfxSource;
+    /*
+    // Minimal compatibility layer used by UI sliders in the Main Menu.
+    // Forwards volume changes to SoundManagerOcta and persists them with PlayerPrefs.
 
-    //[Header("UI (optional)")]
-    //[SerializeField] private Slider volumeSlider; // assign your pause slider here if you want
+    public static SoundManager Instance { get; private set; }
 
-    //public AudioClip mainMenuMusic;
-    //public AudioClip levelMusic;
+    [Header("Optional UI Sliders")]
+    [SerializeField] private Slider musicSlider;
+    [SerializeField] private Slider sfxSlider;
 
-    //private void Awake()
-    //{
-    //    if (Instance != null && Instance != this)
-    //    {
-    //        Destroy(gameObject);
-    //        return;
-    //    }
+    private const string MusicPrefKey = "musicVolume";
+    private const string SfxPrefKey = "sfxVolume";
 
-    //    Instance = this;
-    //    DontDestroyOnLoad(gameObject);
-    //}
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
-    //private void Start()
-    //{
-    //    // Load saved volume (defaults to 1.0 if key doesn't exist)
-    //    float saved = PlayerPrefs.GetFloat("musicVolume", 1f);
-    //    musicSource.volume = saved;
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
-    //    if (volumeSlider != null)
-    //    {
-    //        // set without triggering events
-    //        volumeSlider.SetValueWithoutNotify(saved);
-    //        volumeSlider.onValueChanged.AddListener(OnSliderChanged);
-    //    }
-    //}
+    private void OnEnable()
+    {
+        // Load saved values and hook sliders if assigned
+        float m = PlayerPrefs.GetFloat(MusicPrefKey, 1f);
+        float s = PlayerPrefs.GetFloat(SfxPrefKey, 1f);
 
-    //private void OnDestroy()
-    //{
-    //    if (volumeSlider != null)
-    //        volumeSlider.onValueChanged.RemoveListener(OnSliderChanged);
-    //}
+        // Apply to runtime SoundManagerOcta if available
+        if (SoundManagerOcta.Instance != null)
+        {
+            SoundManagerOcta.Instance.SetMusicVolume(m);
+            SoundManagerOcta.Instance.SetSFXVolume(s);
+        }
 
-    //// ----- Música -----
-    //public void PlayMusic(AudioClip clip, bool loop = true)
-    //{
-    //    if (musicSource.clip == clip && musicSource.isPlaying)
-    //        return;
+        if (musicSlider != null)
+        {
+            musicSlider.SetValueWithoutNotify(m);
+            musicSlider.onValueChanged.AddListener(OnMusicSliderChanged);
+        }
 
-    //    musicSource.clip = clip;
-    //    musicSource.loop = loop;
-    //    musicSource.Play();
-    //}
+        if (sfxSlider != null)
+        {
+            sfxSlider.SetValueWithoutNotify(s);
+            sfxSlider.onValueChanged.AddListener(OnSFXSliderChanged);
+        }
+    }
 
-    //public void StopMusic()
-    //{
-    //    musicSource.Stop();
-    //}
+    private void OnDisable()
+    {
+        if (musicSlider != null)
+            musicSlider.onValueChanged.RemoveListener(OnMusicSliderChanged);
 
-    //public void SetMusicVolume(float volume)
-    //{
-    //    musicSource.volume = Mathf.Clamp01(volume);
-    //}
+        if (sfxSlider != null)
+            sfxSlider.onValueChanged.RemoveListener(OnSFXSliderChanged);
+    }
 
-    //// ----- SFX -----
-    //public void PlaySFX(AudioClip clip)
-    //{
-    //    if (sfxSource.clip == clip && sfxSource.isPlaying)
-    //        return;
+    // Public API expected by UI: call these from Slider.OnValueChanged
+    public void OnMusicSliderChanged(float value)
+    {
+        SetMusicVolume(value);
+    }
 
-    //    sfxSource.PlayOneShot(clip);
-    //}
+    public void OnSFXSliderChanged(float value)
+    {
+        SetSFXVolume(value);
+    }
 
-    //public void SetSFXVolume(float volume)
-    //{
-    //    sfxSource.volume = Mathf.Clamp01(volume);
-    //}
+    // Keep method names that other scripts or inspector may reference
+    public void SetMusicVolume(float volume)
+    {
+        float v = Mathf.Clamp01(volume);
+        if (SoundManagerOcta.Instance != null)
+            SoundManagerOcta.Instance.SetMusicVolume(v);
 
-    //public bool IsPlaying(AudioClip clip)
-    //{
-    //    return musicSource.clip == clip && musicSource.isPlaying;
-    //}
+        PlayerPrefs.SetFloat(MusicPrefKey, v);
+        PlayerPrefs.Save();
+    }
 
-    //// Hook this in code (already done in Start) OR from the Slider's OnValueChanged in the Inspector
-    //public void OnSliderChanged(float value)
-    //{
-    //    SetMusicVolume(value);
-    //    PlayerPrefs.SetFloat("musicVolume", value);
-    //    PlayerPrefs.Save();
-    //}
+    public void SetSFXVolume(float volume)
+    {
+        float v = Mathf.Clamp01(volume);
+        if (SoundManagerOcta.Instance != null)
+            SoundManagerOcta.Instance.SetSFXVolume(v);
 
-    //// Keep your existing API working:
-    //public void ChangeVolume()
-    //{
-    //    if (volumeSlider == null) return;
-    //    SetMusicVolume(volumeSlider.value);
-    //    Save();
-    //}
+        PlayerPrefs.SetFloat(SfxPrefKey, v);
+        PlayerPrefs.Save();
+    }
+    */
 
-    //private void Load()
-    //{
-    //    float v = PlayerPrefs.GetFloat("musicVolume", 1f);
-    //    if (volumeSlider != null) volumeSlider.SetValueWithoutNotify(v);
-    //    musicSource.volume = v;
-    //}
-
-    //private void Save()
-    //{
-    //    if (volumeSlider == null) return;
-    //    PlayerPrefs.SetFloat("musicVolume", volumeSlider.value);
-    //    PlayerPrefs.Save();
-    //}
+    // Intentionally left empty.
 }
