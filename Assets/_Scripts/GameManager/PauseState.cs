@@ -5,6 +5,7 @@ public class PauseState : IGameState
     PlayerContext playerContext;
     public void Enter()
     {
+        CameraManager.Instance.StopScreenShake();
         UIManager.Instance.TogglePauseScreen(true); // Muestra la pantalla de pausa
         playerContext = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerContext>();
         playerContext.HandleInputs.SetPaused(true);

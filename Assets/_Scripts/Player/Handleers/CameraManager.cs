@@ -4,6 +4,7 @@ using UnityEngine;
 public class CameraManager : MonoBehaviour
 {
     public static CameraManager Instance { get; private set; }
+    private Coroutine shakeRoutine;
 
     private void Awake()
     {
@@ -19,8 +20,27 @@ public class CameraManager : MonoBehaviour
 
     public void DoScreenShake(float duration, float magnitude)
     {
-        StartCoroutine(ScreenShake(duration, magnitude));
+        if (shakeRoutine != null)
+        {
+            StopCoroutine(shakeRoutine);
+            Camera.main.transform.localPosition = Vector3.zero;
+        }
+
+        shakeRoutine = StartCoroutine(ScreenShake(duration, magnitude));
     }
+
+    public void StopScreenShake()
+    {
+        if (shakeRoutine != null)
+        {
+            StopCoroutine(shakeRoutine);
+            shakeRoutine = null;
+
+            // restaurar posición original
+            Camera.main.transform.localPosition = Vector3.zero;
+        }
+    }
+
 
     private IEnumerator ScreenShake(float duration, float magnitude)
     {
@@ -39,5 +59,6 @@ public class CameraManager : MonoBehaviour
         }
 
         Camera.main.transform.localPosition = originalPos;
+        shakeRoutine = null;
     }
 }

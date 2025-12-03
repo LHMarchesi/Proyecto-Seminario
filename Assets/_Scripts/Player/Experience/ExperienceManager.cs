@@ -100,7 +100,8 @@ public class ExperienceManager : MonoBehaviour
         OnLevelUp?.Invoke();
 
         // Mostrar panel
-        yield return StartCoroutine(pauseWDelay());
+        CameraManager.Instance.StopScreenShake();
+        Time.timeScale = 0;
         panel.SetActive(true);
 
         Cursor.visible = true;
@@ -188,7 +189,7 @@ public class ExperienceManager : MonoBehaviour
 
     IEnumerator pauseWDelay()
     {
-        yield return new WaitForSecondsRealtime(1f);
+        yield return new WaitForSecondsRealtime(.2f);
         Time.timeScale = 0;
     }
 }
