@@ -26,13 +26,27 @@ public class DamageFloor : MonoBehaviour
                 }
             }
         }
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            var enemy = collision.gameObject.GetComponent<BaseEnemy>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(damage);
+                Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+                    rb.AddForce(Vector3.up * launchForce, ForceMode.Impulse);
+                }
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            var player = other.GetComponent<PlayerController>(); // Cambia PlayerController por tu script real
+            var player = other.GetComponent<PlayerController>();
             if (player != null)
             {
                 player.TakeDamage(damage);
@@ -45,7 +59,7 @@ public class DamageFloor : MonoBehaviour
                 }
             }
         }
-        else if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy"))
         {
             var enemy = other.GetComponent<BaseEnemy>();
             if(enemy != null)
