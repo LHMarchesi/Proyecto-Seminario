@@ -3,45 +3,30 @@ using UnityEngine;
 
 public abstract class BaseEnemy : MonoBehaviour, IDamageable
 {
-    [SerializeField] protected EnemyStats stats;  //Scriptable Stats
+
+    [SerializeField] public EnemyStats baseStats;
+    [SerializeField] public EnemyStats currentStats;
+
+    [Header("Runtime Stats (copiados del template)")]
+    public float maxHealth;
+    public float moveSpeed;
+    public float attackDamage;
+    public float attackSpeed;
+    public float expDrop;
 
     private float damageCooldown = 0.2f; // medio segundo de invulnerabilidad
     private float lastDamageTime = -Mathf.Infinity;
 
     [SerializeField] protected float currentHealth;
+
     protected Transform target;
     protected Vector3 spawnPosition;
     protected HandleAnimations handleAnimations;
     protected Rigidbody rb;
     protected ExperienceManager playerEXP;
+
     public Action OnDeath;
     private EnemySpawner spawner;
-
-    public EnemyStats Stats { get => stats; set => stats = value; }
-
-
-    public void AddMaxHealth(float amount)
-    {
-        stats.maxHealth += amount;
-        currentHealth += amount;
-        Debug.Log($"Enemy max health increased by {amount}. New max health: {stats.maxHealth}");
-    }
-    public void AddMaxSpeed(float amount)
-    {
-        stats.moveSpeed += amount;
-    }
-    public void AddMaxAttackDamage(float amount)
-    {
-        stats.attackDamage += amount;
-    }
-    public void AddAttackSpeed(float amount)
-    {
-        stats.attackSpeed += amount;
-    }
-    public void AddMaxExpDrop(float amount)
-    {
-        stats.expDrop += amount;
-    }
 
     protected virtual void OnEnable()
     {
@@ -51,17 +36,25 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         playerEXP = GameObject.Find("ExperienceManager").GetComponent<ExperienceManager>();
 
-        if (DifficultyManager.Instance != null)
-            DifficultyManager.Instance.RegisterEnemy(this);
-
         if (player != null)
             target = player.transform;
     }
 
     public virtual void Initialize(EnemySpawner spawner = null)
     {
+        currentStats = ScriptableObject.Instantiate(baseStats); 
+
         this.spawner = spawner;
         playerEXP = GameObject.Find("ExperienceManager").GetComponent<ExperienceManager>();
+
+
+        //maxHealth = currentStats.maxHealth;
+        //moveSpeed = currentStats.moveSpeed;
+        //attackDamage = currentStats.attackDamage;
+        //attackSpeed = currentStats.attackSpeed;
+        //expDrop = currentStats.expDrop;
+
+        currentHealth = maxHealth;
 
 
         var flock = GetComponent<FlockingBehave>();
@@ -73,14 +66,15 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     }
 
-    public void ResetStatsToBase()
+    public void ApplyDifficulty(float difficulty)
     {
-        /* stats.maxHealth = baseHealth;
-         stats.moveSpeed = baseSpeed;
-         stats.attackDamage = baseDamage;
-         stats.attackSpeed = baseAttackSpeed;
-         stats.expDrop = baseExpDrop;
-        +7/ */
+        Debug.Log("Se Aplico dificultad");
+
+        attackDamage += 2f * difficulty;
+        maxHealth += 5f * difficulty;
+        moveSpeed += 0.05f * difficulty;
+
+        currentHealth = maxHealth;
     }
 
     protected virtual void Update()
@@ -122,7 +116,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     public virtual void Spawn(Transform spawnPos)
     {
-        currentHealth = stats.maxHealth;
+        currentHealth = baseStats.maxHealth;
         transform.position = spawnPos.position;
         gameObject.SetActive(true); // Para pooling
     }
@@ -141,7 +135,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         if (target == null) return;
 
         Vector3 direction = (target.position - transform.position).normalized;
-        transform.Translate(direction * stats.moveSpeed * Time.deltaTime, Space.World);
+        transform.Translate(direction * baseStats.moveSpeed * Time.deltaTime, Space.World);
     }
 
     protected void GetKnockback(float knockbackAmount)

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class    BossEnemy : BaseEnemy, IDamageable
+public class BossEnemy : BaseEnemy, IDamageable
 {
     private enum BossState
     {
@@ -48,12 +48,12 @@ public class    BossEnemy : BaseEnemy, IDamageable
         {
             case BossState.Idle:
                 handleAnimations.ChangeAnimationState("Idle_Boss");
-                if (distance < stats.detectionRange)
+                if (distance < baseStats.detectionRange)
                     currentState = BossState.Chasing;
                 break;
 
             case BossState.Chasing:
-                if (distance > stats.detectionRange)
+                if (distance > baseStats.detectionRange)
                     currentState = BossState.Idle;
                 else if (distance <= GetCurrentAttackRange())
                     currentState = BossState.Attacking;
@@ -73,14 +73,14 @@ public class    BossEnemy : BaseEnemy, IDamageable
                 break;
 
             case BossState.Damaged:
-                GetKnockback(stats.knockbackAmmount);
+                GetKnockback(baseStats.knockbackAmmount);
                 break;
         }
     }
 
     private void HandlePhases()
     {
-        float healthPercent = currentHealth / stats.maxHealth;
+        float healthPercent = currentHealth / baseStats.maxHealth;
 
         if (healthPercent <= 0.2f && currentPhase < 3)
             currentPhase = 3;

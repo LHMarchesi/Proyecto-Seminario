@@ -222,7 +222,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1.6452, y: 1.6452, z: 1.6452}
+  m_LocalScale: {x: 2.2142136, y: 2.2142136, z: 2.2142136}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1171324123391565948}
@@ -292,11 +292,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 539687faca6397d48be941547c00df8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: 230ceb26813eec042bbb0285263b5249, type: 2}
+  baseStats: {fileID: 11400000, guid: cca60d9fcd6806e46ac088b25fa88af2, type: 2}
+  currentStats: {fileID: 0}
+  maxHealth: 70
+  moveSpeed: 9
+  attackDamage: 25
+  attackSpeed: 1.5
+  expDrop: 0
   currentHealth: 0
   projectilePrefab: {fileID: 3521136703259344462, guid: a9bddeb62a7811e49936db5b19dd0a84, type: 3}
   firePoint: {fileID: 1171324123391565948}
-  projectileSpeed: 20
+  projectileSpeed: 25
 --- !u!114 &8813208972098258607
 MonoBehaviour:
   m_ObjectHideFlags: 0

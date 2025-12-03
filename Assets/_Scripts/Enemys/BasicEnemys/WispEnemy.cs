@@ -49,7 +49,7 @@ public class WispEnemy : BaseEnemy
                 Hover();
                 handleAnimations.ChangeAnimationState("Idle_Wisp");
 
-                if (distance < stats.detectionRange)
+                if (distance < baseStats.detectionRange)
                     currentState = WispState.Chasing;
                 break;
 
@@ -58,9 +58,9 @@ public class WispEnemy : BaseEnemy
                 MoveTowardsTarget(distance);
                 handleAnimations.ChangeAnimationState("Idle_Wisp");
 
-                if (distance > stats.detectionRange)
+                if (distance > baseStats.detectionRange)
                     currentState = WispState.Floating;
-                else if (distance <= stats.attackRange)
+                else if (distance <= baseStats.attackRange)
                     currentState = WispState.Attacking;
                 break;
 
@@ -68,7 +68,7 @@ public class WispEnemy : BaseEnemy
                 FaceTarget();
                 handleAnimations.ChangeAnimationState("Idle_Wisp");
 
-                if (distance > stats.attackRange)
+                if (distance > baseStats.attackRange)
                     currentState = WispState.Chasing;
                 else
                     Attack();
@@ -92,7 +92,7 @@ public class WispEnemy : BaseEnemy
     private void MoveTowardsTarget(float distance)
     {
         Vector3 direction = (target.position - transform.position).normalized;
-        Vector3 move = new Vector3(direction.x, 0f, direction.z) * stats.moveSpeed * Time.deltaTime;
+        Vector3 move = new Vector3(direction.x, 0f, direction.z) * baseStats.moveSpeed * Time.deltaTime;
         rb.MovePosition(transform.position + move);
     }
 
@@ -101,7 +101,7 @@ public class WispEnemy : BaseEnemy
         if (attackCooldown > 0f) return;
 
         ShootProjectile();
-        attackCooldown = 1f / stats.attackSpeed;
+        attackCooldown = 1f / baseStats.attackSpeed;
     }
 
     private void ShootProjectile()
@@ -111,14 +111,14 @@ public class WispEnemy : BaseEnemy
 
         Vector3 directionToTarget = (target.position - firePoint.position).normalized;
 
-        proj.Initialize(directionToTarget * projectileSpeed, stats.attackDamage, projectilePool, transform);
+        proj.Initialize(directionToTarget * projectileSpeed, baseStats.attackDamage, projectilePool, transform);
         proj.transform.rotation = Quaternion.LookRotation(directionToTarget);
     }
 
     protected override void OnDamage(float damage)
     {
         base.OnDamage(damage);
-        GetKnockback(stats.knockbackAmmount);
+        GetKnockback(baseStats.knockbackAmmount);
         rb.isKinematic = true;
         handleAnimations.ChangeAnimationState("Damage_Wisp");
         Invoke(nameof(RecoverFromDamage), 0.2f);
@@ -132,7 +132,7 @@ public class WispEnemy : BaseEnemy
 
     protected override void Die(float xpDrop)
     {
-        base.Die(stats.expDrop);
+        base.Die(baseStats.expDrop);
         handleAnimations.ChangeAnimationState("Die_Wisp");
     }
 }

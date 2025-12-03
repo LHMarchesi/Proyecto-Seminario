@@ -101,17 +101,12 @@ public partial class EnemySpawner : MonoBehaviour
 
         GameObject enemy = pool.Dequeue();
         BaseEnemy baseEnemy = enemy.GetComponent<BaseEnemy>();
+
         baseEnemy.Initialize(this);
         baseEnemy.Spawn(spawnPoints[Random.Range(0, spawnPoints.Length)]);
 
-        // Dificultad
-        if (currentDifficulty > 0)
-        {
-            baseEnemy.AddMaxHealth(10f * currentDifficulty);
-            baseEnemy.AddMaxSpeed(0.2f * currentDifficulty);
-            baseEnemy.AddMaxAttackDamage(5f * currentDifficulty);
-            baseEnemy.AddAttackSpeed(0.1f * currentDifficulty);
-        }
+        baseEnemy.ApplyDifficulty(currentDifficulty);
+
 
         enemy.SetActive(true);
         activeEnemies.Add(enemy);
@@ -139,6 +134,7 @@ public partial class EnemySpawner : MonoBehaviour
 
     private void NotifyAllSpawnersDifficultyUp()
     {
+
         EnemySpawner[] allSpawners = FindObjectsOfType<EnemySpawner>();
         foreach (EnemySpawner spawner in allSpawners)
         {

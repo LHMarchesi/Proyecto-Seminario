@@ -1752,12 +1752,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdd1d7f4671d5e748afa3d77df8efffa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: 55b5d31e35f5eed4a90784234a6c3948, type: 2}
-  baseHealth: 0
-  baseSpeed: 0
-  baseDamage: 0
-  baseAttackSpeed: 0
-  baseExpDrop: 0
+  baseStats: {fileID: 11400000, guid: 55b5d31e35f5eed4a90784234a6c3948, type: 2}
+  currentStats: {fileID: 0}
+  maxHealth: 3000
+  moveSpeed: 0
+  attackDamage: 100
+  attackSpeed: 0
+  expDrop: 0
   currentHealth: 0
   entryScene_Range: 92.4
   baseArmor: 25

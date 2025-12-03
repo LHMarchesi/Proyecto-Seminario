@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class MeleeEnemy : BaseEnemy
 {
-
     private enum MeleeEnemyState
     {
         Idle,
@@ -59,23 +58,23 @@ public class MeleeEnemy : BaseEnemy
         {
             case MeleeEnemyState.Idle:
                 handleAnimations.ChangeAnimationState("Idle_MeleeEnemy");
-                if (distance < stats.detectionRange)
+                if (distance < baseStats.detectionRange)
                     currentState = MeleeEnemyState.Chasing;
                 break;
 
             case MeleeEnemyState.Chasing:
-                if (distance > stats.detectionRange)
+                if (distance > baseStats.detectionRange)
                 {
                     currentState = MeleeEnemyState.Idle;
                 }
-                else if (distance <= stats.attackRange)
+                else if (distance <= baseStats.attackRange)
                 {
                     currentState = MeleeEnemyState.Attacking;
                 }
                 break;
 
             case MeleeEnemyState.Attacking:
-                if (distance > stats.attackRange)
+                if (distance > baseStats.attackRange)
                     currentState = MeleeEnemyState.Chasing;
                 else
                     Attack();
@@ -91,7 +90,7 @@ public class MeleeEnemy : BaseEnemy
 
         currentState = MeleeEnemyState.Damaged;
         handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
-        GetKnockback(stats.knockbackAmmount * 2);
+        GetKnockback(baseStats.knockbackAmmount * 2);
         Invoke(nameof(EndDamageState), handleAnimations.GetCurrentAnimationLength());
         PlayHurtEffect();
 
@@ -119,7 +118,7 @@ public class MeleeEnemy : BaseEnemy
             // Normalizar y mover
             direction.Normalize();
 
-            rb.MovePosition(rb.position + direction * stats.moveSpeed * Time.fixedDeltaTime);
+            rb.MovePosition(rb.position + direction * baseStats.moveSpeed * Time.fixedDeltaTime);
             FaceTarget();
         }
         else
@@ -150,7 +149,7 @@ public class MeleeEnemy : BaseEnemy
         FaceTarget();
         handleAnimations.ChangeAnimationState("Attack_MeleeEnemy");
         if (attackCooldown > 0f) return;
-        attackCooldown = 1f / stats.attackSpeed;
+        attackCooldown = 1f / baseStats.attackSpeed;
         //audioSource.PlayOneShot(attackSound);
     }
 
@@ -158,10 +157,10 @@ public class MeleeEnemy : BaseEnemy
     {
         float distance;
         distance = Vector2.Distance(transform.position, target.position);
-        if (distance < stats.attackRange)
+        if (distance < baseStats.attackRange)
         {
             PlayerController player = target.GetComponent<PlayerController>();
-            player.TakeDamage(stats.attackDamage);
+            player.TakeDamage(attackDamage);
         }
 
     }
@@ -204,7 +203,7 @@ public class MeleeEnemy : BaseEnemy
         // if (flockManager != null)
         //     flockManager.Unregister(this);
 
-        base.Die(stats.expDrop);
+        base.Die(baseStats.expDrop);
         GameObject GO = Instantiate(DeathEffect, transform.position, Quaternion.identity); // Instantiate effect
         Destroy(GO, 3);
         PlayDeathEffect();

@@ -46,16 +46,16 @@ public class RangedEnemy : BaseEnemy
             case RangedEnemyState.Idle:
                 rb.angularVelocity = Vector3.zero;
                 handleAnimations.ChangeAnimationState("Idle_RangedEnemy");
-                if (distance < stats.detectionRange)
+                if (distance < baseStats.detectionRange)
                     currentState = RangedEnemyState.Chasing;
                 break;
 
             case RangedEnemyState.Chasing:
-                if (distance > stats.detectionRange)
+                if (distance > baseStats.detectionRange)
                 {
                     currentState = RangedEnemyState.Idle;
                 }
-                else if (distance <= stats.attackRange)
+                else if (distance <= baseStats.attackRange)
                 {
                     currentState = RangedEnemyState.Attacking;
                 }
@@ -67,7 +67,7 @@ public class RangedEnemy : BaseEnemy
                 break;
 
             case RangedEnemyState.Attacking:
-                if (distance > stats.attackRange)
+                if (distance > baseStats.attackRange)
                 {
                     currentState = RangedEnemyState.Chasing;
                 }
@@ -84,7 +84,7 @@ public class RangedEnemy : BaseEnemy
         Invoke(nameof(EndDamageState), 0.1f);
         base.OnDamage(damage);
         //  handleAnimations.ChangeAnimationState("TakeDamage_RangedEnemy");
-        GetKnockback(stats.knockbackAmmount);
+        GetKnockback(baseStats.knockbackAmmount);
     }
 
     private void EndDamageState()
@@ -94,7 +94,7 @@ public class RangedEnemy : BaseEnemy
 
     protected override void Die(float xpDrop)
     {
-        base.Die(stats.expDrop);
+        base.Die(baseStats.expDrop);
         handleAnimations.ChangeAnimationState("Die_RangedEnemy");
       //  Invoke(nameof(Spawn), 2f); // Respawn after 2 seconds
     }
@@ -112,7 +112,7 @@ public class RangedEnemy : BaseEnemy
         FaceTarget();
         handleAnimations.ChangeAnimationState("Shoot_RangedEnemy");
         ShootProjectile();
-        attackCooldown = 1f / stats.attackSpeed; 
+        attackCooldown = 1f / baseStats.attackSpeed; 
     }
 
     private void ShootProjectile()
@@ -123,6 +123,6 @@ public class RangedEnemy : BaseEnemy
         Projectile projectileScript = project.GetComponent<Projectile>();
         Rigidbody projectilRB = project.GetComponent<Rigidbody>();
         projectilRB.velocity = directionToTarget * projectileSpeed;
-        projectileScript.SetDamage(stats.attackDamage);
+        projectileScript.SetDamage(attackDamage);
     }
 }

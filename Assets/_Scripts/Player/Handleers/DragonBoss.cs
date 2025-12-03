@@ -88,7 +88,7 @@ public class DragonBoss : BaseEnemy
 
         if (currentHealth < 0)
         {
-            Die(stats.expDrop);
+            Die(baseStats.expDrop);
         }
         else
         {
@@ -112,7 +112,7 @@ public class DragonBoss : BaseEnemy
         currentState = BossState.Entry;
         rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
 
-        currentHealth = stats.maxHealth;
+        currentHealth = baseStats.maxHealth;
         projectilePoolManager = new PoolManager<Projectile>(projectilePrefab.GetComponent<Projectile>(), poolSize, transform);
     }
 
@@ -232,7 +232,7 @@ public class DragonBoss : BaseEnemy
 
     private void HandlePhases()
     {
-        float healthPercent = currentHealth / stats.maxHealth;
+        float healthPercent = currentHealth / baseStats.maxHealth;
 
         if (healthPercent <= 0.5f && currentPhase < 3)
             currentPhase = 3;
