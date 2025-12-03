@@ -100,8 +100,7 @@ public class ExperienceManager : MonoBehaviour
         OnLevelUp?.Invoke();
 
         // Mostrar panel
-        CameraManager.Instance.StopScreenShake();
-        Time.timeScale = 0;
+        StartCoroutine(pauseWDelay());
         panel.SetActive(true);
 
         Cursor.visible = true;
@@ -127,6 +126,7 @@ public class ExperienceManager : MonoBehaviour
             yield return null;
     }
 
+
     void UpdateInterface()
     {
         if (currentLevel <= 1)
@@ -148,9 +148,9 @@ public class ExperienceManager : MonoBehaviour
 
     public void ApplySelectedAbility(AbilityEntry selectedAbility)
     {
+
         GameObject instance = Instantiate(selectedAbility.abilityPrefab);
         BasePowerUp powerUp = instance.GetComponent<BasePowerUp>();
-        playerContext.HandleInputs.SetPaused(false);
 
         if (powerUp != null)
         {
@@ -163,10 +163,11 @@ public class ExperienceManager : MonoBehaviour
             Destroy(go);
         spawnedButtons.Clear();
 
+        Time.timeScale = 1;
+        playerContext.HandleInputs.SetPaused(false);
         panel.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        Time.timeScale = 1;
     }
 
     List<AbilityEntry> GetRandomAbilityOptions(int count)
@@ -189,6 +190,7 @@ public class ExperienceManager : MonoBehaviour
 
     IEnumerator pauseWDelay()
     {
+        CameraManager.Instance.StopScreenShake();
         yield return new WaitForSecondsRealtime(.2f);
         Time.timeScale = 0;
     }
