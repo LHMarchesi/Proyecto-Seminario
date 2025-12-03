@@ -7,8 +7,6 @@ public class RoomTrigger : MonoBehaviour
     [Header("Doors")]
     public List<GameObject> activeDoors;
 
-    private bool roomCleared = false;
-
     public List<ObstacleDestructible> activePillars = new List<ObstacleDestructible>();
     private Dictionary<ObstacleDestructible, Action> deathHandlers = new Dictionary<ObstacleDestructible, Action>();
     private bool activated = false;
@@ -70,6 +68,8 @@ public class RoomTrigger : MonoBehaviour
 
     void DetectEnemiesInRoom()
     {
+        if (!activated) return;
+
         activePillars.Clear();
 
         BoxCollider box = GetComponent<BoxCollider>();
@@ -94,7 +94,6 @@ public class RoomTrigger : MonoBehaviour
         }
 
         UIManager.Instance.UpdateEnemiesRemaining(true, activePillars.Count);
-        CheckIfAllDead();
     }
 
     void SafeSubscribe(ObstacleDestructible pillar)
@@ -129,7 +128,7 @@ public class RoomTrigger : MonoBehaviour
                 obj.SetActive(false);
 
             activated = false;
-
+            Destroy(gameObject);
             // Subir dificultad
             //     DifficultyManager.Instance.IncreaseDifficulty();
         }

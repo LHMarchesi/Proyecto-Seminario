@@ -182,7 +182,8 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public void AddHealth(int health)
     {
-        currentHealth += health;
+        currentHealth += health; 
+        playerStats.maxHealth += health; 
         UIManager.Instance.OnPlayerAddHealth(); // Flash verde en UI
     }
     public void AddMaxDamage(float damage)

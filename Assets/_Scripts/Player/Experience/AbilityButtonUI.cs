@@ -41,5 +41,6 @@ public class AbilityButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     public void OnSelect()
     {
         manager.ApplySelectedAbility(ability);
+        UIManager.Instance.OnPlayerAddHealth();
     }
 }
