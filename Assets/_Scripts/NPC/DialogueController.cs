@@ -32,6 +32,7 @@ public class DialogueController : MonoBehaviour
 
     public void StartDialogue(NPCInteractable npc, DialogueData dialogue)
     {
+
         if (!dialogueCanvas || !bodyText || dialogue == null)
         { Debug.LogError("DialogueController: assign dialogueCanvas, bodyText, and DialogueData."); return; }
 
@@ -82,8 +83,8 @@ public class DialogueController : MonoBehaviour
         if (!dialogueCanvas || !dialogueCanvas.enabled) return;
         if (Time.unscaledTime < inputBlockUntil) return;
 
-        // Only E advances or completes
-        if (Input.GetKeyDown(KeyCode.E))
+        // E or Mouse 0 advances or completes
+        if (Input.GetKeyDown(KeyCode.E) || (Input.GetKeyDown(KeyCode.Mouse0)))
         {
             if (typing)
             {
@@ -106,7 +107,7 @@ public class DialogueController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape)) EndDialogue();
+       
     }
 
     public void EndIfCurrent(NPCInteractable npc)

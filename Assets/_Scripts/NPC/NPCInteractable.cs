@@ -1,11 +1,17 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
 public class NPCInteractable : MonoBehaviour
 {
     [Header("Setup")]
-    public DialogueData dialogue;
+    public DialogueData dialogue;   // Base / default dialogue
+
+    [Header("Death-based Dialogue (optional)")]
+    [Tooltip("Index 0 = after 1st death, 1 = after 2nd death, etc. If empty or null, the NPC will always use 'dialogue'.")]
+    public DialogueData[] deathDialogues;
+
     public Transform promptCanvas;
     public KeyCode interactKey = KeyCode.E;
 
@@ -100,12 +106,14 @@ public class NPCInteractable : MonoBehaviour
         if (CanInteractNow())
         {
             if (!dialogueActive && promptCanvas) promptCanvas.gameObject.SetActive(true);
+            {
+
+            }
         }
         playerContext = other.GetComponent<PlayerContext>();
     }
 
     PlayerContext playerContext;
-
 
     void OnTriggerExit(Collider other)
     {
@@ -146,8 +154,20 @@ public class NPCInteractable : MonoBehaviour
 
             if (DialogueController.Instance)
             {
-                DialogueController.Instance.StartDialogue(this, dialogue);
+                
+                DialogueData selectedDialogue = GetDialogueForCurrentDeath();
+
+                if (selectedDialogue == null)
+                {
+                    Debug.LogWarning($"NPCInteractable on {name}: No DialogueData found, using default 'dialogue'.");
+                    selectedDialogue = dialogue;
+                }
+
+                DialogueController.Instance.StartDialogue(this, selectedDialogue);
                 dialogueActive = true;
+                playerContext.HandleInputs.SetPaused(true);
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
             }
         }
     }
@@ -156,6 +176,30 @@ public class NPCInteractable : MonoBehaviour
     {
         if (requireExitToRetrigger && mustExitOnce) return false;
         return Time.time >= nextAllowedTime;
+    }
+
+    // ============================
+    //   NEW HELPER FOR DIALOGUE
+    // ============================
+    private DialogueData GetDialogueForCurrentDeath()
+    {
+        int deaths = PlayerDeathTracker.DeathCount;
+
+        // If no deaths yet, always use base dialogue
+        if (deaths <= 0) return dialogue;
+
+        // If no special death dialogues assigned, fall back to base
+        if (deathDialogues == null || deathDialogues.Length == 0) return dialogue;
+
+        // deaths = 1 -> index 0, deaths = 2 -> index 1, ...
+        int index = deaths - 1;
+
+        // Clamp to last available variant if deaths exceed the array length
+        if (index >= deathDialogues.Length)
+            index = deathDialogues.Length - 1;
+
+        DialogueData variant = deathDialogues[index];
+        return variant != null ? variant : dialogue;
     }
 
     // Called by DialogueController while typing
@@ -170,7 +214,9 @@ public class NPCInteractable : MonoBehaviour
     public void OnDialogueEnded()
     {
         dialogueActive = false;
-
+        playerContext.HandleInputs.SetPaused(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         // Begin dissolve to 1. Door deactivates after transition.
         if (dissolveCo != null) StopCoroutine(dissolveCo);
         dissolveCo = StartCoroutine(DissolveRoutine());
@@ -223,7 +269,7 @@ public class NPCInteractable : MonoBehaviour
     private void StartPopupsSequence()
     {
         if (infoPopups == null || infoPopups.Length == 0) return;
-
+        if (PlayerDeathTracker.DeathCount != 0) return; // Only show on first life
         if (showPopupsOnlyOnce && popupsAlreadyShown) return;
         popupsAlreadyShown = true;
 
@@ -287,18 +333,13 @@ public class NPCInteractable : MonoBehaviour
     private void EndPopupsSequence()
     {
         if (infoPopups != null)
-
-        
         {
             for (int i = 0; i < infoPopups.Length; i++)
             {
-                 if (infoPopups[i])
-                    
+                if (infoPopups[i])
                 {
                     infoPopups[i].SetActive(false);
-                    
                 }
-               
             }
         }
 
