@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class DragonBoss : BaseEnemy
 {
+    [SerializeField] private GameObject finalDoor;
+
+
     [Header("-----------Basic Settings----------------")]
     [Header("Entry scene range")]
     [SerializeField] private float entryScene_Range;
@@ -99,6 +102,7 @@ public class DragonBoss : BaseEnemy
     protected override void Die(float experience)
     {
         Destroy(gameObject);
+        finalDoor.SetActive(true);
         UIManager.Instance.DisableBossName();
     }
 

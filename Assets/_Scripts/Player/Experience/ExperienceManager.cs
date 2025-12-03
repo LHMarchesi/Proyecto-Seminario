@@ -148,6 +148,11 @@ public class ExperienceManager : MonoBehaviour
 
     public void ApplySelectedAbility(AbilityEntry selectedAbility)
     {
+        Time.timeScale = 1;
+        playerContext.HandleInputs.SetPaused(false);
+        panel.SetActive(false);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
 
         GameObject instance = Instantiate(selectedAbility.abilityPrefab);
         BasePowerUp powerUp = instance.GetComponent<BasePowerUp>();
@@ -162,12 +167,6 @@ public class ExperienceManager : MonoBehaviour
         foreach (var go in spawnedButtons)
             Destroy(go);
         spawnedButtons.Clear();
-
-        Time.timeScale = 1;
-        playerContext.HandleInputs.SetPaused(false);
-        panel.SetActive(false);
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
     }
 
     List<AbilityEntry> GetRandomAbilityOptions(int count)
@@ -190,8 +189,8 @@ public class ExperienceManager : MonoBehaviour
 
     IEnumerator pauseWDelay()
     {
-        CameraManager.Instance.StopScreenShake();
         yield return new WaitForSecondsRealtime(.2f);
+        CameraManager.Instance.StopScreenShake();
         Time.timeScale = 0;
     }
 }
