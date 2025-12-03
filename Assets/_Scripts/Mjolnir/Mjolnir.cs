@@ -21,7 +21,7 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private float maxThrowPower;
     [SerializeField] private float torqueForce;
     [SerializeField] private float maxRetractPower;
-    [SerializeField] private float damage;
+    [SerializeField] public float damage;
     //public float parryCooldown;
     // public float nextParryCD;
 

@@ -12,19 +12,27 @@ public class PlayerStatsTabScreen : MonoBehaviour
     public int maxHealthIncrease;
     public float maxWalkSpeedIncrease;
     public float damageIncrease;
+    public float mjolnirIncrease;
 
     [Header("References")]
     [SerializeField] private PlayerStats defaultPlayerStats;
     [SerializeField] private PlayerStats currentPlayerStats;
+    [SerializeField] private Mjolnir mjolnir;
+
     [SerializeField] private GameObject tabPanel;
     [SerializeField] private ExperienceManager experienceManager;
+
     [SerializeField] private TextMeshProUGUI maxHealthText;
     [SerializeField] private TextMeshProUGUI runningSpeedText;
+    [SerializeField] private TextMeshProUGUI mjolnirDamageText;
     [SerializeField] private TextMeshProUGUI damageText;
     [SerializeField] private TextMeshProUGUI statPointsText;
+
+
     [SerializeField] private Button increaseHealthButton;
     [SerializeField] private Button increaseWalkSpeedButton;
     [SerializeField] private Button increaseRunSpeedButton;
+    [SerializeField] private Button increaseMjolnirButton;
 
     private bool isOpen = false;
     private PlayerContext playerContext;
@@ -72,6 +80,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
         increaseHealthButton.onClick.AddListener(IncreaseHealth);
         increaseWalkSpeedButton.onClick.AddListener(IncreaseWalkSpeed);
         increaseRunSpeedButton.onClick.AddListener(IncreaseRunSpeed);
+        increaseMjolnirButton.onClick.AddListener(IncreaseMjolnirAttack);
     }
 
     void OpenPanel()
@@ -100,14 +109,23 @@ public class PlayerStatsTabScreen : MonoBehaviour
     {
         maxHealthText.text = $"Health: {defaultPlayerStats.maxHealth:F1}";
         runningSpeedText.text = $"Running Speed: {defaultPlayerStats.runningSpeed:F1}";
-        damageText.text = $"Damage: {defaultPlayerStats.basicMaxDamage:F1}";
+        damageText.text = $"Melee Damage: {defaultPlayerStats.basicMaxDamage:F1}";
         statPointsText.text = $"Upgrade Points: {experienceManager.GetAvailableStatPoints()}";
+        mjolnirDamageText.text = $"Mjolnir Damage: {mjolnir.damage:F1}";
     }
 
     void IncreaseHealth()
     {
         if (!experienceManager.SpendStatPoint()) return;
         defaultPlayerStats.maxHealth += maxHealthIncrease;
+        UpdateUI();
+        SoundManagerOcta.Instance.PlaySound("SpendPoint");
+    }
+
+    void IncreaseMjolnirAttack()
+    {
+        if (!experienceManager.SpendStatPoint()) return;
+        mjolnir.damage += mjolnirIncrease;
         UpdateUI();
         SoundManagerOcta.Instance.PlaySound("SpendPoint");
     }
