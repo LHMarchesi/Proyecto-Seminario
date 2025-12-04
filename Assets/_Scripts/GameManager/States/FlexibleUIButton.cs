@@ -15,7 +15,8 @@ public enum ButtonAction
     ChangeState, // Load a scene and change game state
     RestartGame, // Load a scene and change game state
     QuitGame,    // Exit the application
-    Resume       // Resume gameplay from pause
+    Resume,       // Resume gameplay from pause
+    MainMenu
 }
 
 
@@ -79,6 +80,10 @@ public class FlexibleUIButton : MonoBehaviour
             case ButtonAction.Resume:
                 Time.timeScale = 1;
                 GameManager.Instance.ChangeState(new GameplayState());
+                break;
+            case ButtonAction.MainMenu:
+                TransitionManager.Instance.PlayTransitionAndLoadScene(TransitionType.FadeIn, SceneManager.GetActiveScene().buildIndex);
+                GameManager.Instance.ChangeState(new MainMenuState());
                 break;
 
             case ButtonAction.RestartGame:

@@ -28,6 +28,7 @@ public class ExperienceManager : MonoBehaviour
     [Header("Interface")]
     [SerializeField] TextMeshProUGUI levelText;
     [SerializeField] private SliderPassValue sliderPass;
+    [SerializeField] private GameObject StatsPopUp;
 
     [Header("Panel de Elección de Habilidades")]
     [SerializeField] GameObject panel;
@@ -43,6 +44,7 @@ public class ExperienceManager : MonoBehaviour
     // Evento OnLevelUp
     public delegate void OnLevelUpEvent();
     public event OnLevelUpEvent OnLevelUp;
+    public bool appearedOnce = false;
 
 
     private void Update()
@@ -51,6 +53,13 @@ public class ExperienceManager : MonoBehaviour
             textPopUp.SetActive(true);
         else
             textPopUp.SetActive(false);
+
+        if(availableStatPoints >= 1 && appearedOnce == false)
+        {
+            appearedOnce = true;
+            StatsPopUp.SetActive(true);
+        }
+
     }
 
     public void AddExperience(float amount)

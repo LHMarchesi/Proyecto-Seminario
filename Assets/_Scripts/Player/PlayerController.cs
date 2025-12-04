@@ -182,10 +182,26 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public void AddHealth(int health)
     {
-        currentHealth += health; 
+        if(currentHealth >= playerStats.maxHealth)
+        {
+            return;
+        }
+        else
+        {
+            currentHealth += health;
+            //playerStats.maxHealth += health; 
+            UIManager.Instance.OnPlayerAddHealth(); // Flash verde en UI
+        }
+
+    }
+
+    public void AddMaxHealth(int health)
+    {
+        currentHealth += health;
         playerStats.maxHealth += health; 
         UIManager.Instance.OnPlayerAddHealth(); // Flash verde en UI
     }
+
     public void AddMaxDamage(float damage)
     {
         playerStats.basicMaxDamage += damage;

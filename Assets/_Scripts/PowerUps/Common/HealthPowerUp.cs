@@ -4,13 +4,13 @@ public class HealthPowerUp : BasePowerUp { // Hereda de BasePowerUP
    
     [SerializeField] MaxHealthStats stats;
 
-    void AddHealth()
+    void AddMaxHealth()
     {
-        playerContext.PlayerController.AddHealth(stats.newMaxHealth);  //Llama al AddHealth en PlayerController
+        playerContext.PlayerController.AddMaxHealth(stats.newMaxHealth);  //Llama al AddHealth en PlayerController
     }
     protected override void ApplyEffect() 
     {
-        AddHealth();
+        AddMaxHealth();
     }
 
     protected override void Upgrade()
