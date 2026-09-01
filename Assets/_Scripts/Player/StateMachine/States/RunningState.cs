@@ -17,7 +17,7 @@
             return;
         }
 
-        if (playerContext.HandleInputs.IsThrowing()) { 
+        if (playerContext.Mjolnir.IsChargingThrow) { 
             stateMachine.ChangeState(stateMachine.startThrowingState);
             return  ;
         }

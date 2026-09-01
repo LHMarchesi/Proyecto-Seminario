@@ -6,7 +6,7 @@
 
     public override void Enter()
     {
-        playerContext.HandleAnimations.ChangeAnimationState("Throw");
+        playerContext.HandleAnimations.ChangeAnimationState("Throw", false, 0.05f);
     }
 
     public override void Update()

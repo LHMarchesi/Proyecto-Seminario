@@ -10,7 +10,7 @@ public class JumpState : PlayerState
 
     public override void Update()
     {
-        if (playerContext.HandleInputs.IsThrowing())
+        if (playerContext.Mjolnir.IsChargingThrow)
         {
             stateMachine.ChangeState(stateMachine.startThrowingState);
             return;

@@ -11,7 +11,7 @@ public class HandleAnimations : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
     }
 
-    public void ChangeAnimationState(string newState, bool canInterrup = false)
+    public void ChangeAnimationState(string newState, bool canInterrup = false, float transitionDuration = 0.2f)
     {
         // STOP THE SAME ANIMATION FROM INTERRUPTING WITH ITSELF //
         if (!canInterrup)
@@ -21,7 +21,7 @@ public class HandleAnimations : MonoBehaviour
 
         // PLAY THE ANIMATION //
         currentAnimation = newState;
-        animator.CrossFadeInFixedTime(currentAnimation, 0.2f);
+        animator.CrossFadeInFixedTime(currentAnimation, transitionDuration);
     }
 
     public float GetCurrentAnimationLength()

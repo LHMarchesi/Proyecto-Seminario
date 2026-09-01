@@ -19,6 +19,8 @@ public class Mjolnir : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float minThrowPower;
     [SerializeField] private float maxThrowPower;
+    [SerializeField] private float maxChargeTime = 1.5f;
+    [SerializeField] private float minHoldTimeToStartCharge = 0.12f;
     [SerializeField] private float torqueForce;
     [SerializeField] private float maxRetractPower;
     [SerializeField] public float damage;
@@ -32,11 +34,12 @@ public class Mjolnir : MonoBehaviour
 
     private bool isHeld;
     private bool isRetracting;
+    public bool IsChargingThrow => isChargingThrow;
     public bool teleport;
     public bool parry;
 
     private float throwChargeTime = 0f;
-    private float maxChargeTime = 3;
+    private float pressHoldTime;
     private bool isChargingThrow = false;
     private bool wasThrowing = false;
     private Vector3 originalSize;
@@ -71,33 +74,63 @@ public class Mjolnir : MonoBehaviour
     }
 
 
-    void Update()
+    private void Update()
     {
-        // HADNLE THROW //
-        //
-        bool isCurrentlyThrowing = playerContext.HandleInputs.IsThrowing();
-        if (isHeld && isCurrentlyThrowing)
+        bool isThrowButtonHeld =
+            playerContext.HandleInputs.IsThrowing();
+
+        // ==========================================
+        // THROW INPUT
+        // ==========================================
+
+        if (isHeld && isThrowButtonHeld)
         {
             if (!isChargingThrow)
-                isChargingThrow = true;  // Start charging the throw
+            {
+                pressHoldTime += Time.deltaTime;
 
-            throwChargeTime += Time.deltaTime * 2;  // Increment time charge
-            throwChargeTime = Mathf.Clamp(throwChargeTime, 0f, maxChargeTime);
+                // después del threshold empieza la carga.
+                if (pressHoldTime >= minHoldTimeToStartCharge)
+                {
+                    StartChargingThrow();
+                }
+            }
+            else
+            {
+                // Ahora sí cuenta como carga real.
+                throwChargeTime += Time.deltaTime;
 
-
+                throwChargeTime = Mathf.Min(
+                    throwChargeTime,
+                    maxChargeTime
+                );
+            }
         }
-        else if (isChargingThrow && wasThrowing && !isCurrentlyThrowing) // Throw at button release
+
+        // Soltó el botón
+        if (wasThrowing && !isThrowButtonHeld)
         {
-            Throw();
-            throwChargeTime = 0f;  // Reset throw
-            isChargingThrow = false;
-        }
-        wasThrowing = isCurrentlyThrowing; // Save state 
+            if (isChargingThrow)
+            {
+                // Sólo lanzamos si REALMENTE había empezado la carga.
+                Throw();
+            }
 
-        // HADNLE CATCH //
-        //
-        if (!isHeld && playerContext.HandleInputs.IsCatching())
+            ResetThrowInput();
+        }
+
+        wasThrowing = isThrowButtonHeld;
+
+        // ==========================================
+        // CATCH
+        // ==========================================
+
+        if (!isHeld &&
+            !isRetracting &&
+            playerContext.HandleInputs.IsCatching())
+        {
             isRetracting = true;
+        }
     }
 
     private void FixedUpdate()
@@ -108,21 +141,46 @@ public class Mjolnir : MonoBehaviour
         }
     }
 
+    private void ResetThrowInput()
+    {
+        pressHoldTime = 0f;
+        throwChargeTime = 0f;
+        isChargingThrow = false;
+    }
+    private void StartChargingThrow()
+    {
+        isChargingThrow = true;
+        throwChargeTime = 0f;
+    }
     public void Throw()
     {
+        float charge01 = Mathf.Clamp01(
+            throwChargeTime / maxChargeTime
+        );
+
+        float finalThrowPower = Mathf.Lerp(
+            minThrowPower,
+            maxThrowPower,
+            charge01
+        );
+
         OnMjolnirThrow?.Invoke();
+
         rb.isKinematic = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
+
         isHeld = false;
-
-        Vector3 cameraForward = Camera.main.transform.forward; // Calculate direction towards camera
-        float finalThrowPower = Mathf.Lerp(minThrowPower, maxThrowPower, throwChargeTime);  // Calculate the force acordding to the loading time
-
         transform.parent = null;
 
-        // Apply force and torque
-        rb.AddForce(SearchForCloseEnemies() * finalThrowPower, ForceMode.VelocityChange);
-        rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
+        rb.AddForce(
+            SearchForCloseEnemies() * finalThrowPower,
+            ForceMode.VelocityChange
+        );
+
+        rb.AddTorque(
+            Vector3.right * torqueForce,
+            ForceMode.VelocityChange
+        );
     }
 
     public Vector3 SearchForCloseEnemies()

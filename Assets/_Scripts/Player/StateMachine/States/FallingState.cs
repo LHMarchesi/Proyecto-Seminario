@@ -15,7 +15,7 @@ public class FallingState : PlayerState
             return;
         }
 
-        if (playerContext.HandleInputs.IsThrowing())
+        if (playerContext.Mjolnir.IsChargingThrow)
         {
             stateMachine.ChangeState(stateMachine.startThrowingState);
             return;

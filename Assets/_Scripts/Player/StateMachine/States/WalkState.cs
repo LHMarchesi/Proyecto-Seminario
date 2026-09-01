@@ -24,7 +24,7 @@ public class WalkState : PlayerState
             stateMachine.ChangeState(stateMachine.runningState);
             return;
         }
-        if (playerContext.HandleInputs.IsThrowing())
+        if (playerContext.Mjolnir.IsChargingThrow)
         {
             stateMachine.ChangeState(stateMachine.startThrowingState);
             return;
