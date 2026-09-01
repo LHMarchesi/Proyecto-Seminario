@@ -34,6 +34,7 @@ public class ChargedAttack : PlayerState
         {
             stateMachine.ResetAnimations();
             stateMachine.ChangeState(stateMachine.idleState);
+            return;
         }
 
     }

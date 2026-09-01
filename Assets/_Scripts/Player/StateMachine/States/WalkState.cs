@@ -1,4 +1,3 @@
-using UnityEngine;
 
 public class WalkState : PlayerState
 {
@@ -16,21 +15,32 @@ public class WalkState : PlayerState
         stateMachine.ResetAnimations();
 
         if (playerContext.HandleInputs.IsAttackHeld())
+        {
             stateMachine.ChangeState(stateMachine.chargingAttackState);
-
+            return;
+        }
         if (playerContext.HandleInputs.IsRunning())
+        {
             stateMachine.ChangeState(stateMachine.runningState);
-
+            return;
+        }
         if (playerContext.HandleInputs.IsThrowing())
+        {
             stateMachine.ChangeState(stateMachine.startThrowingState);
+            return;
+        }
 
         if (playerContext.HandleInputs.IsDashing() && playerContext.PlayerController.CanDash())
+        {
             stateMachine.ChangeState(stateMachine.dashState);
+            return;
+        }
 
         if (playerContext.HandleInputs.IsJumping())
         {
             playerContext.PlayerController.DoJump(playerContext.PlayerController.playerStats.minJumpForce);
             stateMachine.ChangeState(stateMachine.jumpState);
+            return;
         }
     }
 }

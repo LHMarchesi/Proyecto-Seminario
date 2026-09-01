@@ -21,11 +21,15 @@ public class CatchingState : PlayerState
             playerContext.HandleAnimations.ChangeAnimationState("Catch");
 
             timer += Time.deltaTime;
-            if (timer > delay)
+            if (timer > delay) { 
                 stateMachine.ChangeState(stateMachine.idleState);
+                return;
+            }
         }
 
-        if (playerContext.HandleInputs.TryConsumeTap())
+        if (playerContext.HandleInputs.TryConsumeTap()) { 
             stateMachine.ChangeState(stateMachine.attackState);
+            return;
+        }
     }
 }

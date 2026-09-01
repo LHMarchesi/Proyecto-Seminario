@@ -62,14 +62,20 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void ChangeState(PlayerState newState)
     {
+        if (newState == null || currentState == newState)
+            return;
+
         if (currentState != null)
         {
-            previousState = currentState;   //  Guardamos el anterior
+            previousState = currentState;
             currentState.Exit();
         }
 
         currentState = newState;
-        debugStatesText.text = "State: " + currentState.GetType().Name;
+
+        if (debugStatesText != null)
+            debugStatesText.text = "State: " + currentState.GetType().Name;
+
         currentState.Enter();
     }
 

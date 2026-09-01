@@ -21,15 +21,18 @@ public class ChargingAttack : PlayerState
         if (playerContext.HandleInputs.IsAttackHeld())
         {
             chargeTimer += Time.deltaTime;
-            // opcional: feedback visual
             return;
         }
 
-        if (playerContext.HandleInputs.TryConsumeTap())
+        if (playerContext.HandleInputs.TryConsumeTap()) { 
             stateMachine.ChangeState(stateMachine.attackState);
-
+            return;
+        }
 
         if (playerContext.HandleInputs.TryConsumeHoldReleased() && chargeTimer >= minChargeTime)
+        {
             stateMachine.ChangeState(stateMachine.chargedAttackState);
+            return;
+        }
     }
 }

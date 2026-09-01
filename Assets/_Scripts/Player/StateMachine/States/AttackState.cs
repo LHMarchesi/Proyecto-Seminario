@@ -38,13 +38,16 @@ public class AttackState : PlayerState
         if (timer >= attackDuration)
         {
             stateMachine.ChangeState(stateMachine.idleState);
+            return;
         }
         else if (!queuedNextAttack && playerContext.HandleInputs.TryConsumeTap() && timer > 0.4f)
         {
             queuedNextAttack = true;
         }
 
-        if (queuedNextAttack)
+        if (queuedNextAttack) { 
             stateMachine.ChangeState(stateMachine.secondAttackState);
+            return;
+        }
     }
 }

@@ -21,8 +21,10 @@ public class DashState : PlayerState
     public override void Update()
     {
         timer += Time.deltaTime;
-        if (timer >= dashDuration)
+        if (timer >= dashDuration) { 
             stateMachine.ResetAnimations();
+            return;
+        }
     }
 
     public override void Exit()

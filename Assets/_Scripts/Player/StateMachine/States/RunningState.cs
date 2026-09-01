@@ -12,20 +12,30 @@
     public override void Update()
     {
 
-        if (playerContext.HandleInputs.IsAttackHeld())
+        if (playerContext.HandleInputs.IsAttackHeld()) { 
             stateMachine.ChangeState(stateMachine.chargingAttackState);
+            return;
+        }
 
-        if (playerContext.HandleInputs.IsThrowing())
+        if (playerContext.HandleInputs.IsThrowing()) { 
             stateMachine.ChangeState(stateMachine.startThrowingState);
+            return  ;
+        }
 
-        if (!playerContext.HandleInputs.IsRunning())
+        if (!playerContext.HandleInputs.IsRunning()) { 
             stateMachine.ResetAnimations();
+            return;
+        }
 
         if (playerContext.HandleInputs.IsDashing() && playerContext.PlayerController.CanDash())
+        {
             stateMachine.ChangeState(stateMachine.dashState);
-
-        if (playerContext.HandleInputs.IsChargingJump())
+            return;
+        }
+        if (playerContext.HandleInputs.IsChargingJump()) { 
             stateMachine.ChangeState(stateMachine.chargingJumpState);
+            return;
+        }
 
     }
 }

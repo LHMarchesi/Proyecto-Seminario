@@ -22,6 +22,7 @@ public class FallingWithHammer : PlayerState
         {
             DoGroundImpact();
             stateMachine.ResetAnimations();
+            return;
         }
         else
         {
