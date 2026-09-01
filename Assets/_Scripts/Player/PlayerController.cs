@@ -3,7 +3,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
-    [SerializeField] public PlayerStats playerStats;
+    [SerializeField] private PlayerStats defaultPlayerStats;
+    public PlayerStats playerStats { get; private set; }
 
     private PlayerContext playerContext;
     private Rigidbody rb;
@@ -25,12 +26,18 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private bool isChargingJump;
 
-    void Awake()
+    private void Awake()
     {
+        playerStats = Instantiate(defaultPlayerStats);
+
         rb = GetComponent<Rigidbody>();
         playerContext = GetComponent<PlayerContext>();
+
         currentHealth = playerStats.maxHealth;
+        currentSpeed = playerStats.runningSpeed;
+
         canTakeDamage = true;
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

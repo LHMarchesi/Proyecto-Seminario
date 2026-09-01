@@ -42,7 +42,7 @@ public class PlayerStatsTabScreen : MonoBehaviour
         playerContext = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerContext>();
         
 
-        SetStatsToDefault(); 
+        //SetStatsToDefault(); 
         tabPanel.SetActive(false);
         experienceManager.OnLevelUp += UpdateUI;
         AddButtonListeners();
