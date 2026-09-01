@@ -22,7 +22,10 @@ public class ChargedAttack : PlayerState
             playerContext.PlayerController.playerStats.chargedMaxDamage,
             playerContext.PlayerController.playerStats.chargedAttackRadius,
             playerContext.PlayerController.playerStats.chargedAttackShakeDuration,
-            playerContext.PlayerController.playerStats.chargedAttackShakeMagnitude
+            playerContext.PlayerController.playerStats.chargedAttackShakeMagnitude,
+            playerContext.PlayerController.playerStats.chargedAttackKickPitch,
+            playerContext.PlayerController.playerStats.chargedAttackKickYaw,
+            playerContext.PlayerController.playerStats.chargedHitStopDuration
         );
     }
 

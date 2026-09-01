@@ -199,7 +199,7 @@ public class ExperienceManager : MonoBehaviour
     IEnumerator pauseWDelay()
     {
         yield return new WaitForSecondsRealtime(.2f);
-        CameraManager.Instance.StopScreenShake();
+      //  CameraManager.Instance.StopScreenShake();
         Time.timeScale = 0;
     }
 }

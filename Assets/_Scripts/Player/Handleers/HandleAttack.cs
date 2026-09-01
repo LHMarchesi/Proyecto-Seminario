@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.Pool;
-using UnityEngine.SceneManagement;
 
 public class HandleAttack : MonoBehaviour
 {
@@ -22,10 +20,9 @@ public class HandleAttack : MonoBehaviour
 
     private bool attacking = false;
     private bool readyToAttack = true;
-    private int attackCount;
     private float playerSpeed;
 
-    private int ultimoIndex = -1;
+    private Coroutine hitStopRoutine;
 
     private void Awake()
     {
@@ -37,22 +34,19 @@ public class HandleAttack : MonoBehaviour
     {
     }
 
-    public void Attack(float damage,float radius, float shakeDuration, float shakeMagnitude)
+    public void Attack(float damage,float radius, float shakeDuration, float shakeMagnitude, float kickPitch, float kickYaw, float hitStopDuration)
     {
         if (!readyToAttack || attacking) return;
 
-        StartCoroutine(DoAttack(damage, radius, shakeDuration, shakeMagnitude));
+        StartCoroutine(DoAttack(damage, radius, shakeDuration, shakeMagnitude, kickPitch, kickYaw, hitStopDuration));
     }
 
     public void PlayHitAttackSound()
     {
-        // Lista de nombres de sonidos disponibles
         string[] attackSounds = {"AttackHit2", "AttackHit3" };
 
-        // Elegir un sonido aleatorio
         int index = Random.Range(0, attackSounds.Length);
 
-        // Reproducir el sonido elegido
         SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
     }
 
@@ -65,10 +59,11 @@ public class HandleAttack : MonoBehaviour
         SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
     }
 
-    private IEnumerator DoAttack(float damage, float radius, float shakeDuration, float shakeMagnitude)
+    private IEnumerator DoAttack(float damage, float radius, float shakeDuration, float shakeMagnitude, float kickPitch, float kickYaw, float hitStopDuration)
     {
         readyToAttack = false;
         attacking = true;
+        bool hitSomething = false;
 
         PlayAttackSound();
 
@@ -83,13 +78,26 @@ public class HandleAttack : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            HitTarget(hit.ClosestPoint(origin));
             IDamageable damagable = hit.GetComponent<IDamageable>();
             if (damagable != null)
             {
                 damagable.TakeDamage(damage);
-                CameraManager.Instance.DoScreenShake(shakeDuration, shakeMagnitude);
+                HitTarget(hit.ClosestPoint(origin));
+                hitSomething = true;
             }
+        }
+
+        if (hitSomething) {
+            CameraManager.Instance.DoScreenShake(
+            shakeDuration,
+            shakeMagnitude
+        );
+
+            CameraManager.Instance.DoCameraKick(
+                kickPitch,
+                Random.Range(-kickYaw, kickYaw)
+            );
+            yield return HitStopRoutine(hitStopDuration);
         }
 
         playerContext.PlayerController.ChangeSpeed(playerSpeed);
@@ -104,27 +112,16 @@ public class HandleAttack : MonoBehaviour
         PlayHitAttackSound();
     }
 
-    private IEnumerator HitStop(float duration, GameObject enemy)
+    private IEnumerator HitStopRoutine(float duration)
     {
-        float originalPlayerSpeed = playerContext.PlayerController.currentSpeed;
-        Rigidbody enemyRb = enemy.GetComponent<Rigidbody>();
+        float previousTimeScale = Time.timeScale;
 
-        playerContext.PlayerController.ChangeSpeed(0);
-
-        Vector3 enemyVel = Vector3.zero;
-        if (enemyRb != null)
-        {
-            enemyVel = enemyRb.velocity;
-            enemyRb.isKinematic = true;
-        }
+        Time.timeScale = 0f;
 
         yield return new WaitForSecondsRealtime(duration);
 
-        playerContext.PlayerController.ChangeSpeed(originalPlayerSpeed);
-        if (enemyRb != null)
-        {
-            enemyRb.isKinematic = false;
-            enemyRb.velocity = enemyVel;
-        }
+        Time.timeScale = previousTimeScale;
+
+        hitStopRoutine = null;
     }
 }

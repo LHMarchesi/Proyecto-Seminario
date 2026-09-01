@@ -14477,6 +14477,14 @@ PrefabInstance:
       propertyPath: playerStats
       value: 
       objectReference: {fileID: 11400000, guid: b614df207a6efd546a1e00712f4cfea5, type: 2}
+    - target: {fileID: 3699948644332890831, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: kickPivot
+      value: 
+      objectReference: {fileID: 2020636354}
+    - target: {fileID: 3699948644332890831, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      propertyPath: shakePivot
+      value: 
+      objectReference: {fileID: 2020636355}
     - target: {fileID: 3963363766679398963, guid: a7630a00b79f3294393851b790b546c0, type: 3}
       propertyPath: m_Height
       value: 1.9525207
@@ -14545,13 +14553,21 @@ PrefabInstance:
       propertyPath: attackDistance
       value: 7
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 1712049122246075715, guid: a7630a00b79f3294393851b790b546c0, type: 3}
-    - {fileID: 134108428823148862, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+--- !u!4 &2020636354 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8452379755174113185, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+  m_PrefabInstance: {fileID: 2020636353}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2020636355 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8039127784500638804, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+  m_PrefabInstance: {fileID: 2020636353}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2035750573
 GameObject:
   m_ObjectHideFlags: 0

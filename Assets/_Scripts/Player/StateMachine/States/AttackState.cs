@@ -17,7 +17,10 @@ public class AttackState : PlayerState
         playerContext.HandleAttack.Attack(playerContext.PlayerController.playerStats.basicMaxDamage,
                playerContext.PlayerController.playerStats.basicAttackRadius,
                playerContext.PlayerController.playerStats.basicAttackShakeDuration,
-               playerContext.PlayerController.playerStats.basicAttackShakeMagnitude);
+               playerContext.PlayerController.playerStats.basicAttackShakeMagnitude,
+               playerContext.PlayerController.playerStats.basicAttackKickPitch,
+               playerContext.PlayerController.playerStats.basicAttackKickYaw,
+               playerContext.PlayerController.playerStats.basicHitStopDuration);
 
         if (playerContext.Mjolnir.IsHeld())
         {

@@ -25,16 +25,31 @@ public class PlayerStats : ScriptableObject
 
     [Header("Basic Attack Settings")]
     public float basicMaxDamage;
+    public float basicHitStopDuration;
     public float speedReductor;
     public float basicAttackRadius;
     public float basicAttackShakeDuration;
     public float basicAttackShakeMagnitude;
+    public float basicAttackKickPitch;
+    public float basicAttackKickYaw;
+
+    [Header("Second Attack Settings")]
+    public float secondMaxDamage;
+    public float secondHitStopDuration;
+    public float secondAttackRadius;
+    public float secondAttackShakeDuration;
+    public float secondAttackShakeMagnitude;
+    public float secondAttackKickPitch;
+    public float secondAttackKickYaw;
 
     [Header("Charged Attack Settings")]
     public float chargedMaxDamage;
+    public float chargedHitStopDuration;
     public float chargedAttackRadius;
     public float chargedAttackShakeDuration;
     public float chargedAttackShakeMagnitude;
+    public float chargedAttackKickPitch;
+    public float chargedAttackKickYaw;
 
     [Header("Gravity")]
     public float extraGravityForce;

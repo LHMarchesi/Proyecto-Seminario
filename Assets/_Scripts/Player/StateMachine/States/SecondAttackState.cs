@@ -13,10 +13,13 @@ public class SecondAttackState : PlayerState
     {
         timer = 0f;
 
-        playerContext.HandleAttack.Attack(playerContext.PlayerController.playerStats.basicMaxDamage,
-              playerContext.PlayerController.playerStats.basicAttackRadius,
-              playerContext.PlayerController.playerStats.basicAttackShakeDuration,
-              playerContext.PlayerController.playerStats.basicAttackShakeMagnitude);
+        playerContext.HandleAttack.Attack(playerContext.PlayerController.playerStats.secondMaxDamage,
+              playerContext.PlayerController.playerStats.secondAttackRadius,
+              playerContext.PlayerController.playerStats.secondAttackShakeDuration,
+              playerContext.PlayerController.playerStats.secondAttackShakeMagnitude,
+              playerContext.PlayerController.playerStats.secondAttackKickPitch,
+              playerContext.PlayerController.playerStats.secondAttackKickYaw,
+              playerContext.PlayerController.playerStats.secondHitStopDuration);
 
 
         if (playerContext.Mjolnir.IsHeld())
