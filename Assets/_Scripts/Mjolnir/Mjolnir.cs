@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Coffee.UIEffects;
 using UnityEngine;
 
 public interface IMjolnirRetractBehavior
@@ -34,6 +35,8 @@ public class Mjolnir : MonoBehaviour
 
     private bool isHeld;
     private bool isRetracting;
+    public bool IsRetracting => isRetracting;
+
     public bool IsChargingThrow => isChargingThrow;
     public bool teleport;
     public bool parry;
@@ -306,42 +309,116 @@ public class Mjolnir : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (isHeld) return;
-
-        IDamageable damageable = collision.collider.GetComponent<IDamageable>();
-
-        if (damageable == playerContext.PlayerController.GetComponent<IDamageable>()) //Dont damage player
+        if (isHeld)
             return;
 
-        if (damageable != null)
+        IDamageable damageable =
+            collision.collider.GetComponentInParent<IDamageable>();
+
+        if (damageable == null)
+            return;
+
+        // No golpear al Player.
+        IDamageable playerDamageable =
+            playerContext.PlayerController.GetComponent<IDamageable>();
+
+        if (damageable == playerDamageable)
+            return;
+
+        damageable.TakeDamage(damage);
+        OnHitEnemy?.Invoke(collision.collider);
+
+
+        SpawnMjolnirHitEffect(collision);
+
+        SoundManagerOcta.Instance.PlaySound(
+            "MjolnirThrowHit"
+        );
+
+
+        BaseEnemy enemy =
+            collision.collider.GetComponentInParent<BaseEnemy>();
+
+        if (enemy != null)
         {
-            damageable?.TakeDamage(damage);
-            OnHitEnemy?.Invoke(collision.collider);
+            playerContext.PlayerStateMachine.ChangeState(
+                playerContext.PlayerStateMachine.catchingState
+            );
 
-            var enemy = collision.collider.CompareTag("Enemy") ? collision.collider.gameObject : null;
-            if (enemy != null)
-            {
-                playerContext.PlayerStateMachine.ChangeState(playerContext.PlayerStateMachine.catchingState);
-                isRetracting = true;
-            }
-
-            // --- spawn VFX on hit (add-only) ---
-            if (hitVFXPrefab != null && collision.contactCount > 0)
-            {
-                var contact = collision.GetContact(0);
-                Vector3 spawnPos = contact.point;
-                Quaternion spawnRot = Quaternion.LookRotation(contact.normal);
-                GameObject vfx = Instantiate(hitVFXPrefab, spawnPos, spawnRot);
-                SoundManagerOcta.Instance.PlaySound("MjolnirThrowHit");
-
-                if (parentVFXToHit)
-                    vfx.transform.SetParent(collision.collider.transform, true);
-
-                Destroy(vfx, hitVFXLifetime);
-            }
+            isRetracting = true;
         }
     }
+   private void SpawnMjolnirHitEffect(
+    Collision collision)
+    {
+        if (hitVFXPrefab == null)
+            return;
 
+        Vector3 spawnPosition;
+        Vector3 hitNormal;
+
+
+        if (collision.contactCount > 0)
+        {
+            ContactPoint contact =
+                collision.GetContact(0);
+
+            hitNormal =
+                contact.normal.normalized;
+
+            spawnPosition =
+                contact.point +
+                hitNormal * 0.08f;
+        }
+        else
+        {
+            Collider targetCollider =
+                collision.collider;
+
+            spawnPosition =
+                targetCollider.ClosestPoint(
+                    transform.position
+                );
+
+            hitNormal =
+                (
+                    transform.position -
+                    targetCollider.bounds.center
+                ).normalized;
+
+            if (hitNormal.sqrMagnitude < 0.001f)
+            {
+                hitNormal =
+                    -transform.forward;
+            }
+
+            spawnPosition +=
+                hitNormal * 0.08f;
+        }
+
+        Quaternion spawnRotation =
+            Quaternion.LookRotation(hitNormal);
+
+        GameObject vfx =
+            Instantiate(
+                hitVFXPrefab,
+                spawnPosition,
+                spawnRotation
+            );
+
+        if (parentVFXToHit)
+        {
+            vfx.transform.SetParent(
+                collision.collider.transform,
+                true
+            );
+        }
+
+        Destroy(
+            vfx,
+            hitVFXLifetime
+        );
+    }
     public void StopRetracting()
     {
         isRetracting = false;

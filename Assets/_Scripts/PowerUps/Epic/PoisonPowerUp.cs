@@ -5,34 +5,49 @@ using UnityEngine;
 public class PoisonPowerUp : BasePowerUp
 {
     [SerializeField] private PoisonStrikeStats stats;
+
     private float lastStrikeTime = -Mathf.Infinity;
+
+    private void Awake()
+    {
+        stats = CreateRuntimeStatsCopy(stats);
+    }
 
     protected override void ApplyEffect()
     {
+        if (playerContext == null || playerContext.Mjolnir == null)
+            return;
+
         playerContext.Mjolnir.OnHitEnemy += ApplyPoison;
-        UIManager.Instance.RegisterHability("Poison", stats.IconSprite);
     }
 
     protected override void Upgrade()
     {
+        if (stats == null)
+            return;
+
         stats.poisonDamagePerSecond += stats.upgradeDamageIncrease;
         stats.poisonDuration += stats.upgradeDurationIncrease;
     }
 
     private void ApplyPoison(Collider enemyCollider)
     {
-        if (Time.time - lastStrikeTime < stats.cooldown) return; // cooldown check
+        if (stats == null || enemyCollider == null)
+            return;
+
+        if (Time.time - lastStrikeTime < stats.cooldown)
+            return;
+
         lastStrikeTime = Time.time;
 
-        if (enemyCollider == null) return;
+        BaseEnemy enemy = enemyCollider.GetComponentInParent<BaseEnemy>();
+        if (enemy == null)
+            return;
 
-        BaseEnemy enemy = enemyCollider.GetComponent<BaseEnemy>();
-        if (enemy == null) return;
-
-        // Inicia la corrutina del efecto de veneno en el enemigo
         enemy.StartCoroutine(ApplyPoisonEffect(enemy));
 
-        UIManager.Instance.TriggerHabilityCooldown("Poison", stats.cooldown);
+        if (UIManager.Instance != null)
+            UIManager.Instance.TriggerHabilityCooldown("Poison", stats.cooldown);
     }
 
     private IEnumerator ApplyPoisonEffect(BaseEnemy enemy)
@@ -41,12 +56,19 @@ public class PoisonPowerUp : BasePowerUp
 
         while (elapsed < stats.poisonDuration)
         {
-            if (enemy == null) yield break;
+            if (enemy == null)
+                yield break;
 
             enemy.TakeDamage(stats.poisonDamagePerSecond * Time.deltaTime);
             elapsed += Time.deltaTime;
-
             yield return null;
         }
     }
+
+    private void OnDestroy()
+    {
+        if (playerContext != null && playerContext.Mjolnir != null)
+            playerContext.Mjolnir.OnHitEnemy -= ApplyPoison;
+    }
 }
+

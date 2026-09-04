@@ -18,6 +18,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     private float lastDamageTime = -Mathf.Infinity;
 
     [SerializeField] protected float currentHealth;
+    public float CurrentHealth => currentHealth;
 
     protected Transform target;
     protected Vector3 spawnPosition;
@@ -90,6 +91,31 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         if (Time.time - lastDamageTime < damageCooldown)
             return;
         OnDamage(damage);
+    }
+
+    public void TakeEffectDamage(float damage)
+    {
+        if (damage <= 0f || IsDead())
+            return;
+
+        currentHealth -= damage;
+
+        if (currentHealth <= 0f)
+            Die();
+    }
+
+    public void ApplyExternalKnockback(Vector3 direction, float force, float upwardForce = 0f)
+    {
+        if (rb == null || force <= 0f)
+            return;
+
+        Vector3 finalDirection = direction.normalized;
+        finalDirection.y = 0f;
+
+        rb.AddForce(finalDirection * force, ForceMode.Impulse);
+
+        if (upwardForce > 0f)
+            rb.AddForce(Vector3.up * upwardForce, ForceMode.Impulse);
     }
 
     protected virtual void OnDamage(float damage)

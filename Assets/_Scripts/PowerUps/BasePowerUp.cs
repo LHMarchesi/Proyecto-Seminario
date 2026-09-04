@@ -4,48 +4,104 @@ using UnityEngine;
 public abstract class BasePowerUp : MonoBehaviour, IPickuppeable //Clase Abstracta de la que heredan demas Power Ups
 {
     protected PlayerContext playerContext;
+
+    [Header("Pickup legacy")]
     [SerializeField] private bool isTrigger;
 
+    private bool acquiredForRun;
+
+    public bool IsAcquiredForRun => acquiredForRun;
+
+    // Usado por RunInventory. El objeto queda vivo durante toda la run.
+    public void AcquireForRun(PlayerContext context)
+    {
+        if (acquiredForRun || context == null)
+            return;
+
+        playerContext = context;
+        acquiredForRun = true;
+
+        DisablePickupPresentation();
+        ApplyEffect();
+    }
+
+    // Mantiene compatibilidad con pickups viejos del mundo.
+    // En vez de destruir el componente, lo conserva como lógica runtime.
     public void PickUp()
     {
-        ApplyEffect();
-        gameObject.SetActive(false); 
-        Destroy(gameObject, 0.3f);
+        if (playerContext == null)
+            return;
+
+        transform.SetParent(playerContext.transform);
+        transform.localPosition = Vector3.zero;
+        AcquireForRun(playerContext);
     }
 
     public void UpgradePowerUp()
     {
+        if (!acquiredForRun)
+            return;
+
         Upgrade();
     }
-    protected abstract void ApplyEffect(); // Metodo que utilizan los hijos de esta clase
-    protected abstract void Upgrade(); // Metodo que utilizan los hijos de esta clase
+
+    protected abstract void ApplyEffect();
+    protected abstract void Upgrade();
+
+    protected T CreateRuntimeStatsCopy<T>(T source) where T : ScriptableObject
+    {
+        return source != null ? Instantiate(source) : null;
+    }
+
+    private void DisablePickupPresentation()
+    {
+        Collider[] colliders = GetComponentsInChildren<Collider>(true);
+        foreach (Collider col in colliders)
+            col.enabled = false;
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+        foreach (Renderer renderer in renderers)
+            renderer.enabled = false;
+
+        Rigidbody body = GetComponent<Rigidbody>();
+        if (body != null)
+        {
+            body.velocity = Vector3.zero;
+            body.angularVelocity = Vector3.zero;
+            body.isKinematic = true;
+            body.detectCollisions = false;
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!isTrigger)
-            return; // Si no es un trigger, no hacer nada
+        if (!isTrigger || acquiredForRun)
+            return;
 
-        // Chequear collision con jugador y asignar PlayerContext para acceder a PlayerController y Mjolnir
-        playerContext = other.GetComponent<PlayerContext>();
+        PlayerContext context = other.GetComponentInParent<PlayerContext>();
+        if (context == null)
+            return;
 
-        if (playerContext != null)
-            PickUp();
+        playerContext = context;
+        PickUp();
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (isTrigger) return;
+        if (isTrigger || acquiredForRun)
+            return;
 
-        // Chequear collision con jugador y asignar PlayerContext para acceder a PlayerController y Mjolnir
-        playerContext = collision.collider.GetComponent<PlayerContext>();
+        PlayerContext context = collision.collider.GetComponentInParent<PlayerContext>();
+        if (context == null)
+            return;
 
-        if (playerContext != null)
-            PickUp();
+        playerContext = context;
+        PickUp();
     }
 
     public void SetPlayerContext(PlayerContext context)
     {
-        this.playerContext = context;
+        playerContext = context;
     }
 }
 

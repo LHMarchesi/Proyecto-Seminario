@@ -25,7 +25,7 @@ public class ChargedAttack : PlayerState
             playerContext.PlayerController.playerStats.chargedAttackShakeMagnitude,
             playerContext.PlayerController.playerStats.chargedAttackKickPitch,
             playerContext.PlayerController.playerStats.chargedAttackKickYaw,
-            playerContext.PlayerController.playerStats.chargedHitStopDuration
+            playerContext.PlayerController.playerStats.chargedHitStopDuration, MeleeAttackType.Charged
         );
     }
 

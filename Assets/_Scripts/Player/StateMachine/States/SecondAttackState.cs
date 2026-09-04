@@ -19,7 +19,7 @@ public class SecondAttackState : PlayerState
               playerContext.PlayerController.playerStats.secondAttackShakeMagnitude,
               playerContext.PlayerController.playerStats.secondAttackKickPitch,
               playerContext.PlayerController.playerStats.secondAttackKickYaw,
-              playerContext.PlayerController.playerStats.secondHitStopDuration);
+              playerContext.PlayerController.playerStats.secondHitStopDuration, MeleeAttackType.Attack2);
 
 
         if (playerContext.Mjolnir.IsHeld())

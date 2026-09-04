@@ -8,12 +8,4 @@ public class StatsPopUpScreen : MonoBehaviour
     public bool appearedOnce = false;
 
 
-    public void Update()
-    {
-        if(expManager.availableStatPoints > 0 && appearedOnce == false)
-        {
-            appearedOnce = true;
-            this.gameObject.SetActive(true);
-        }
-    }
 }

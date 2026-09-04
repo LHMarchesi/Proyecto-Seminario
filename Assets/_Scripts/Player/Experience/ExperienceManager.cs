@@ -1,231 +1,353 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
 
 public class ExperienceManager : MonoBehaviour
 {
-    [Header("PlayerContext")]
-    [SerializeField] PlayerContext playerContext;
+    [Header("Player")]
+    [SerializeField] private PlayerContext playerContext;
+    [SerializeField] private RunInventory runInventory;
 
-    [Header("Habilidades")]
+    [Header("Habilidades disponibles")]
     public List<AbilityEntry> availableAbilities = new List<AbilityEntry>();
 
     [Header("Tabla de Experiencia")]
     [SerializeField] private ExperienceTable experienceTable;
 
-    int currentLevel;
-    float totalExperience;
-
-    float previousLevelsExperience, nextLevelsExperience;
-
-    [Header("Stat Points")]
-    public int availableStatPoints = 3;
-    public int statPointsPerLevel = 3;
-    public GameObject textPopUp;
-
-    [Header("Interface")]
-    [SerializeField] TextMeshProUGUI levelText;
+    [Header("Interface de experiencia")]
+    [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private SliderPassValue sliderPass;
-    [SerializeField] private GameObject StatsPopUp;
 
-    [Header("Panel de Elección de Habilidades")]
-    [SerializeField] GameObject panel;
-    [SerializeField] Transform abilityButtonContainer;
-    [SerializeField] GameObject abilityButtonPrefab;
+    [Header("Panel de Level Up")]
+    [SerializeField] private GameObject panel;
+    [SerializeField] private Transform abilityButtonContainer;
+    [SerializeField] private GameObject abilityButtonPrefab;
+    [SerializeField, Min(1)] private int optionsPerLevel = 2;
 
-    private List<GameObject> spawnedButtons = new List<GameObject>();
+    [Header("Fallback de curación")]
+    [SerializeField] private Sprite healIcon;
+    [SerializeField] private string healName = "Recuperar vida";
+    [SerializeField, TextArea] private string healDescription = "Recupera un porcentaje de la vida máxima.";
+    [SerializeField, Range(0.01f, 1f)] private float healPercentOfMaxHealth = 0.25f;
 
-    // Cola de niveles pendientes
-    private int pendingLevelUps = 0;
-    private bool selectionInProgress = false;
+    private int currentLevel;
+    private float totalExperience;
+    private float previousLevelsExperience;
+    private float nextLevelsExperience;
 
-    // Evento OnLevelUp
+    private readonly List<GameObject> spawnedButtons = new List<GameObject>();
+
+    private int pendingLevelUps;
+    private bool selectionInProgress;
+    private bool optionSelected;
+
     public delegate void OnLevelUpEvent();
     public event OnLevelUpEvent OnLevelUp;
-    public bool appearedOnce = false;
 
+    public int CurrentLevel => currentLevel;
+    public float TotalExperience => totalExperience;
+    public RunInventory Inventory => runInventory;
 
-    private void Update()
+    private void Awake()
     {
-        if (availableStatPoints >= 1)
-            textPopUp.SetActive(true);
-        else
-            textPopUp.SetActive(false);
+        if (playerContext == null)
+            playerContext = GetComponent<PlayerContext>();
 
-        if(availableStatPoints >= 1 && appearedOnce == false)
-        {
-            appearedOnce = true;
-            StatsPopUp.SetActive(true);
-        }
+        if (runInventory == null)
+            runInventory = GetComponent<RunInventory>();
 
+        if (panel != null)
+            panel.SetActive(false);
+    }
+
+    private void Start()
+    {
+        UpdateInterface();
     }
 
     public void AddExperience(float amount)
     {
+        if (amount <= 0f)
+            return;
+
         totalExperience += amount;
         CheckForLevelUp();
         UpdateInterface();
     }
 
-    void CheckForLevelUp()
+    private void CheckForLevelUp()
     {
-        while (currentLevel < experienceTable.xpNeededPerLevel.Length &&
-               totalExperience >= experienceTable.xpNeededPerLevel[currentLevel])
+        if (experienceTable == null)
         {
-            currentLevel++;
-            pendingLevelUps++;  // Guarda LevelUps extra
+            Debug.LogError("ExperienceManager: falta ExperienceTable.");
+            return;
         }
 
-        // Si no hay una UI abierta, comenzá el proceso
+        float nextThreshold = experienceTable.GetCumulativeXPThreshold(currentLevel);
+
+        while (totalExperience >= nextThreshold)
+        {
+            currentLevel++;
+            pendingLevelUps++;
+            nextThreshold = experienceTable.GetCumulativeXPThreshold(currentLevel);
+        }
+
         if (!selectionInProgress && pendingLevelUps > 0)
-            StartCoroutine(ProcessNextLevelUp());
+            StartCoroutine(ProcessPendingLevelUps());
     }
 
-    IEnumerator ProcessNextLevelUp()
+    private IEnumerator ProcessPendingLevelUps()
     {
         selectionInProgress = true;
+        PauseGameplayForLevelUp();
 
         while (pendingLevelUps > 0)
         {
-            yield return StartCoroutine(OpenLevelUpPanel());
+            yield return OpenLevelUpPanel();
             pendingLevelUps--;
-
-            // Esperar 1 segundo antes de abrir otro panel
-            if (pendingLevelUps > 0)
-                yield return new WaitForSecondsRealtime(.8f);
         }
 
+        ResumeGameplayAfterLevelUp();
         selectionInProgress = false;
     }
 
-    IEnumerator OpenLevelUpPanel()
+    private IEnumerator OpenLevelUpPanel()
     {
-        // Otorgar stat points
-        availableStatPoints += statPointsPerLevel;
-
-        // Evento
+        optionSelected = false;
         OnLevelUp?.Invoke();
 
-        // Mostrar panel
-        StartCoroutine(pauseWDelay());
-        panel.SetActive(true);
+        ClearSpawnedButtons();
 
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-        playerContext.HandleInputs.SetPaused(true);
+        if (panel != null)
+            panel.SetActive(true);
 
-        // Elegir habilidades
-        List<AbilityEntry> options = GetRandomAbilityOptions(2);
+        List<AbilityEntry> options = GetRandomAbilityOptions(optionsPerLevel);
 
-        foreach (var ability in options)
-        {
-            GameObject buttonGO = Instantiate(abilityButtonPrefab, abilityButtonContainer);
-            spawnedButtons.Add(buttonGO);
+        foreach (AbilityEntry ability in options)
+            SpawnAbilityButton(ability);
 
-            AbilityButtonUI buttonUI = buttonGO.GetComponent<AbilityButtonUI>();
-            buttonUI.Setup(ability, this);
-        }
+        // Si sólo queda una mejora válida, la segunda opción es vida.
+        // Si ya no queda ninguna mejora, se muestra únicamente vida.
+        if (options.Count < optionsPerLevel)
+            SpawnHealButton();
 
         UpdateInterface();
 
-        // Esperar a que el jugador elija una habilidad
-        while (panel.activeSelf)
+        while (!optionSelected)
             yield return null;
+
+        if (panel != null)
+            panel.SetActive(false);
+
+        ClearSpawnedButtons();
     }
 
-
-    void UpdateInterface()
+    private void SpawnAbilityButton(AbilityEntry ability)
     {
-        if (currentLevel <= 1)
-            previousLevelsExperience = 0;
-        else
-            previousLevelsExperience = experienceTable.xpNeededPerLevel[currentLevel - 1];
+        if (abilityButtonPrefab == null || abilityButtonContainer == null)
+            return;
 
-        nextLevelsExperience = experienceTable.xpNeededPerLevel[currentLevel];
+        GameObject buttonGO = Instantiate(abilityButtonPrefab, abilityButtonContainer);
+        spawnedButtons.Add(buttonGO);
 
-        float currentXP = totalExperience - previousLevelsExperience;
-        float neededXP = nextLevelsExperience - previousLevelsExperience;
+        AbilityButtonUI buttonUI = buttonGO.GetComponent<AbilityButtonUI>();
+        if (buttonUI != null)
+            buttonUI.Setup(ability, this);
+    }
 
-        sliderPass.SetMax(neededXP);
-        sliderPass.ChangeValue(currentXP);
+    private void SpawnHealButton()
+    {
+        if (abilityButtonPrefab == null || abilityButtonContainer == null)
+            return;
+
+        GameObject buttonGO = Instantiate(abilityButtonPrefab, abilityButtonContainer);
+        spawnedButtons.Add(buttonGO);
+
+        AbilityButtonUI buttonUI = buttonGO.GetComponent<AbilityButtonUI>();
+        if (buttonUI != null)
+            buttonUI.SetupHeal(this, healIcon, healName, healDescription, healPercentOfMaxHealth);
+    }
+
+    public void ApplySelectedAbility(AbilityEntry selectedAbility)
+    {
+        if (optionSelected || selectedAbility == null || runInventory == null)
+            return;
+
+        if (!runInventory.AddOrUpgrade(selectedAbility))
+        {
+            Debug.LogWarning($"No se pudo agregar/mejorar {selectedAbility.abilityName}.");
+            return;
+        }
+
+        CompleteSelection();
+    }
+
+    public void ApplyHealOption(float healPercent)
+    {
+        if (optionSelected || playerContext == null || playerContext.PlayerController == null)
+            return;
+
+        int maxHealth = playerContext.PlayerController.MaxHealth;
+        int healAmount = Mathf.Max(1, Mathf.CeilToInt(maxHealth * healPercent));
+        playerContext.PlayerController.AddHealth(healAmount);
+
+        CompleteSelection();
+    }
+
+    private void CompleteSelection()
+    {
+        optionSelected = true;
+    }
+
+    public int GetAbilityLevel(AbilityEntry ability)
+    {
+        return runInventory != null ? runInventory.GetAbilityLevel(ability) : 0;
+    }
+
+    public int GetAbilityLevel(string abilityId)
+    {
+        return runInventory != null ? runInventory.GetAbilityLevel(abilityId) : 0;
+    }
+
+    private List<AbilityEntry> GetRandomAbilityOptions(int count)
+    {
+        List<AbilityEntry> candidates = new List<AbilityEntry>();
+
+        foreach (AbilityEntry ability in availableAbilities)
+        {
+            if (ability == null)
+                continue;
+
+            if (runInventory != null && runInventory.CanOffer(ability))
+                candidates.Add(ability);
+        }
+
+        List<AbilityEntry> result = new List<AbilityEntry>();
+
+        while (result.Count < count && candidates.Count > 0)
+        {
+            AbilityEntry chosen = PickWeightedAbility(candidates);
+            if (chosen == null)
+                break;
+
+            result.Add(chosen);
+            candidates.Remove(chosen);
+        }
+
+        return result;
+    }
+
+    private AbilityEntry PickWeightedAbility(List<AbilityEntry> candidates)
+    {
+        float totalWeight = 0f;
+
+        foreach (AbilityEntry ability in candidates)
+            totalWeight += Mathf.Max(0.01f, ability.dropChance);
+
+        float roll = UnityEngine.Random.Range(0f, totalWeight);
+
+        foreach (AbilityEntry ability in candidates)
+        {
+            roll -= Mathf.Max(0.01f, ability.dropChance);
+            if (roll <= 0f)
+                return ability;
+        }
+
+        return candidates.Count > 0 ? candidates[candidates.Count - 1] : null;
+    }
+
+    private void UpdateInterface()
+    {
+        if (experienceTable == null)
+            return;
+
+        previousLevelsExperience = currentLevel <= 0
+            ? 0f
+            : experienceTable.GetCumulativeXPThreshold(currentLevel - 1);
+
+        nextLevelsExperience = experienceTable.GetCumulativeXPThreshold(currentLevel);
+
+        float currentXP = Mathf.Max(0f, totalExperience - previousLevelsExperience);
+        float neededXP = Mathf.Max(1f, nextLevelsExperience - previousLevelsExperience);
+
+        if (sliderPass != null)
+        {
+            sliderPass.SetMax(neededXP);
+            sliderPass.ChangeValue(Mathf.Min(currentXP, neededXP));
+        }
 
         if (levelText != null)
             levelText.text = $"Nivel {currentLevel}";
     }
 
-    public void ApplySelectedAbility(AbilityEntry selectedAbility)
+    private void PauseGameplayForLevelUp()
     {
-        Time.timeScale = 1;
-        playerContext.HandleInputs.SetPaused(false);
-        panel.SetActive(false);
+        Time.timeScale = 0f;
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        if (playerContext != null && playerContext.HandleInputs != null)
+            playerContext.HandleInputs.SetPaused(true);
+    }
+
+    private void ResumeGameplayAfterLevelUp()
+    {
+        Time.timeScale = 1f;
+
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        GameObject instance = Instantiate(selectedAbility.abilityPrefab);
-        BasePowerUp powerUp = instance.GetComponent<BasePowerUp>();
+        if (playerContext != null && playerContext.HandleInputs != null)
+            playerContext.HandleInputs.SetPaused(false);
+    }
 
-        if (powerUp != null)
+    private void ClearSpawnedButtons()
+    {
+        foreach (GameObject go in spawnedButtons)
         {
-            powerUp.SetPlayerContext(playerContext);
-            powerUp.PickUp();
+            if (go != null)
+                Destroy(go);
         }
 
-        // Limpiar UI
-        foreach (var go in spawnedButtons)
-            Destroy(go);
         spawnedButtons.Clear();
     }
-
-    List<AbilityEntry> GetRandomAbilityOptions(int count)
-    {
-        List<AbilityEntry> shuffled = new List<AbilityEntry>(availableAbilities);
-        shuffled.Shuffle();
-        return shuffled.GetRange(0, Mathf.Min(count, shuffled.Count));
-    }
-
-    public bool SpendStatPoint()
-    {
-        if (availableStatPoints <= 0)
-            return false;
-
-        availableStatPoints--;
-        return true;
-    }
-
-    public int GetAvailableStatPoints() => availableStatPoints;
-
-    IEnumerator pauseWDelay()
-    {
-        yield return new WaitForSecondsRealtime(.2f);
-      //  CameraManager.Instance.StopScreenShake();
-        Time.timeScale = 0;
-    }
 }
 
-
-[System.Serializable]
+[Serializable]
 public class AbilityEntry
 {
+    [Header("Identidad")]
+    public string abilityId;
     public string abilityName;
-    public string abilityDescription;
+    [TextArea] public string abilityDescription;
     public GameObject abilityPrefab;
     public Sprite icon;
-    [Range(1, 100)]
-    public float dropChance;
-}
 
-public static class ListExtensions
-{
-    public static void Shuffle<T>(this IList<T> list)
+    [Header("Progresión")]
+    [Min(1)] public int maxLevel = 5;
+    [Tooltip("Índice 0 = descripción de Lv.1, índice 1 = Lv.2, etc.")]
+    [TextArea] public List<string> levelDescriptions = new List<string>();
+
+    [Header("Peso de aparición")]
+    [Range(1f, 100f)] public float dropChance = 100f;
+
+    public string Id => string.IsNullOrWhiteSpace(abilityId) ? abilityName : abilityId;
+    public int MaxLevel => Mathf.Max(1, maxLevel);
+
+    public string GetDescriptionForLevel(int level)
     {
-        int n = list.Count;
-        while (n > 1)
+        int index = level - 1;
+
+        if (levelDescriptions != null && index >= 0 && index < levelDescriptions.Count)
         {
-            n--;
-            int k = Random.Range(0, n + 1);
-            (list[n], list[k]) = (list[k], list[n]);
+            string description = levelDescriptions[index];
+            if (!string.IsNullOrWhiteSpace(description))
+                return description;
         }
+
+        return abilityDescription;
     }
 }

@@ -2694,6 +2694,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 256973624}
   m_CullTransparentMesh: 1
+--- !u!1 &282784046
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 282784047}
+  m_Layer: 8
+  m_Name: RuntimeBuildItemsRun
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &282784047
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 282784046}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1366313345}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &315229788
 GameObject:
   m_ObjectHideFlags: 0
@@ -4739,7 +4770,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &802769168
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4798,6 +4829,8 @@ MonoBehaviour:
   increaseWalkSpeedButton: {fileID: 2035750575}
   increaseRunSpeedButton: {fileID: 707043787}
   increaseMjolnirButton: {fileID: 1842204471}
+  isOpen: 0
+  playerContext: {fileID: 0}
 --- !u!1 &814629726
 GameObject:
   m_ObjectHideFlags: 0
@@ -6002,6 +6035,7 @@ GameObject:
   m_Component:
   - component: {fileID: 920831040}
   - component: {fileID: 920831039}
+  - component: {fileID: 920831041}
   m_Layer: 0
   m_Name: ExperienceManager
   m_TagString: Untagged
@@ -6022,54 +6056,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerContext: {fileID: 1366313344}
+  runInventory: {fileID: 920831041}
   availableAbilities:
-  - abilityName: Health
-    abilityDescription: Restaura vida y agrega 40 de vida maxima
-    abilityPrefab: {fileID: 5388500805080441627, guid: 01ca280bb3e226f4dbc63a5fc7008077, type: 3}
-    icon: {fileID: 21300000, guid: 8ddd9ba15131d5f479ddb631473349b4, type: 3}
-    dropChance: 25
-  - abilityName: LightingStrike
-    abilityDescription: Al impactar un enemigo lanzando el martillo caera un rayo
-      sobre el
-    abilityPrefab: {fileID: 2603085137963816570, guid: 7eae963b0f9403942af2e7756a4ee97d, type: 3}
-    icon: {fileID: 21300000, guid: 81aca82948e3a004f93b17c55916a336, type: 3}
-    dropChance: 25
-  - abilityName: Explode
-    abilityDescription: Genera una explosion al impactar un enemigo lanzando el martillo
-    abilityPrefab: {fileID: 3024337285511993676, guid: 37d59c6c0bd03b5418ec3fdd8cf40a14, type: 3}
+  - abilityId: 
+    abilityName: Draugblot
+    abilityDescription: 
+    abilityPrefab: {fileID: 2603085137963816570, guid: e9fb5d6026466924488fb76996ed693f, type: 3}
     icon: {fileID: 21300000, guid: 63b8069a2acbd8643bccf429e6d16e08, type: 3}
-    dropChance: 25
-  - abilityName: Teleport
-    abilityDescription: Teleportate al hacer Retract
-    abilityPrefab: {fileID: 6888289325539637698, guid: 1e5009d93049ed74093354c5be9101ad, type: 3}
-    icon: {fileID: 21300000, guid: 5d5d7e0a0349aba4ab3c4bd1a9eaf38f, type: 3}
-    dropChance: 25
-  - abilityName: More Jump
-    abilityDescription: Agrega 10 de fuerza de salto
-    abilityPrefab: {fileID: 8125483870244303703, guid: a027171cf0a67d84e8f7ebf9ae2819a1, type: 3}
-    icon: {fileID: 21300000, guid: 314ca6c0054e33944a43770848cc4026, type: 3}
-    dropChance: 25
-  - abilityName: More Speed
-    abilityDescription: Agrega 15 de velocidad de movimiento
-    abilityPrefab: {fileID: 6150757120336825280, guid: e4d936fd2ad8ea7468c5d199a24d8f9a, type: 3}
-    icon: {fileID: 21300000, guid: 4b810c750c011584c9ad1d480b5cf4c0, type: 3}
-    dropChance: 25
-  - abilityName: More Damage
-    abilityDescription: "Agrega 20 de da\xF1o"
-    abilityPrefab: {fileID: 1139715878782822800, guid: 02344b4a9bc1e6044a01ae15602b4431, type: 3}
-    icon: {fileID: 21300000, guid: 1f2fc815de221ad4495f140840126264, type: 3}
-    dropChance: 25
+    maxLevel: 5
+    levelDescriptions: []
+    dropChance: 0
+  - abilityId: 
+    abilityName: Venoumunus
+    abilityDescription: 
+    abilityPrefab: {fileID: 2603085137963816570, guid: 8f6464360a3c7fe48834af4b98c518f9, type: 3}
+    icon: {fileID: 21300000, guid: a6843b3da946d834aab8644c50fb3c13, type: 3}
+    maxLevel: 5
+    levelDescriptions: []
+    dropChance: 0
+  - abilityId: 
+    abilityName: Thunder Strike
+    abilityDescription: 
+    abilityPrefab: {fileID: 2603085137963816570, guid: e7368812e4d3f8d4babf64b6793a6fae, type: 3}
+    icon: {fileID: 21300000, guid: 81aca82948e3a004f93b17c55916a336, type: 3}
+    maxLevel: 5
+    levelDescriptions: []
+    dropChance: 0
   experienceTable: {fileID: 11400000, guid: 17fb45079f94fb445a55e313b1acdc0c, type: 2}
-  availableStatPoints: 0
-  statPointsPerLevel: 3
-  textPopUp: {fileID: 1096211184}
   levelText: {fileID: 993963713}
   sliderPass: {fileID: 932139742}
-  StatsPopUp: {fileID: 605597528}
   panel: {fileID: 2065159548}
   abilityButtonContainer: {fileID: 2065159547}
   abilityButtonPrefab: {fileID: 8407598785988740686, guid: a78bb2d338067ae4f81508dc39a0bcf5, type: 3}
-  appearedOnce: 0
+  optionsPerLevel: 2
+  healIcon: {fileID: 21300000, guid: 8ddd9ba15131d5f479ddb631473349b4, type: 3}
+  healName: Recuperar vida
+  healDescription: "Recupera un porcentaje de la vida m\xE1xima."
+  healPercentOfMaxHealth: 0.25
 --- !u!4 &920831040
 Transform:
   m_ObjectHideFlags: 0
@@ -6085,6 +6108,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &920831041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920831038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a59a4a39a746de47bea050fdd3bbfed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerContext: {fileID: 1366313344}
+  runtimeItemsRoot: {fileID: 282784047}
+  maxBuildItems: 4
+  buildItems: []
 --- !u!1 &927552488
 GameObject:
   m_ObjectHideFlags: 0
@@ -8299,63 +8338,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1099013003}
   m_CullTransparentMesh: 1
---- !u!1001 &1101244247
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.52
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 8.64
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 13.344915
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9020160763774116252, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
-      propertyPath: m_Name
-      value: PillarSpawner
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
 --- !u!1 &1114199357
 GameObject:
   m_ObjectHideFlags: 0
@@ -10602,6 +10584,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35a460cf35a7d64f987521e6320cdab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &1366313345 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1062747013407456577, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+  m_PrefabInstance: {fileID: 2020636353}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1375264872
 GameObject:
   m_ObjectHideFlags: 0
@@ -14620,7 +14607,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1062747013407456577, guid: a7630a00b79f3294393851b790b546c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 282784047}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a7630a00b79f3294393851b790b546c0, type: 3}
 --- !u!4 &2020636354 stripped
@@ -15549,4 +15539,3 @@ SceneRoots:
   - {fileID: 86698991}
   - {fileID: 78671670}
   - {fileID: 747302324}
-  - {fileID: 1101244247}
