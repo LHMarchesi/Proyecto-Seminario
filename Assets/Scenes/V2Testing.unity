@@ -993,17 +993,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 64325709}
   m_CullTransparentMesh: 1
---- !u!114 &70723392 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6364020380140799004, guid: a7630a00b79f3294393851b790b546c0, type: 3}
-  m_PrefabInstance: {fileID: 2020636353}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07be436bd994843429c4bf14312aadec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &78671668
 GameObject:
   m_ObjectHideFlags: 0
@@ -4811,26 +4800,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee7745442910b1b479c1659c825f4db7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealthIncrease: 5
-  maxWalkSpeedIncrease: 0.05
-  damageIncrease: 10
-  mjolnirIncrease: 15
-  defaultPlayerStats: {fileID: 11400000, guid: 8ad56ffaf84276f4a89017ccfbefaae9, type: 2}
-  currentPlayerStats: {fileID: 11400000, guid: b614df207a6efd546a1e00712f4cfea5, type: 2}
-  mjolnir: {fileID: 70723392}
-  tabPanel: {fileID: 1068366123}
-  experienceManager: {fileID: 920831039}
-  maxHealthText: {fileID: 1867334791}
-  runningSpeedText: {fileID: 55799311}
-  mjolnirDamageText: {fileID: 1471116897}
-  damageText: {fileID: 1484231724}
-  statPointsText: {fileID: 913078114}
-  increaseHealthButton: {fileID: 208689945}
-  increaseWalkSpeedButton: {fileID: 2035750575}
-  increaseRunSpeedButton: {fileID: 707043787}
-  increaseMjolnirButton: {fileID: 1842204471}
-  isOpen: 0
-  playerContext: {fileID: 0}
 --- !u!1 &814629726
 GameObject:
   m_ObjectHideFlags: 0
@@ -6065,7 +6034,7 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: 63b8069a2acbd8643bccf429e6d16e08, type: 3}
     maxLevel: 5
     levelDescriptions: []
-    dropChance: 0
+    dropChance: 100
   - abilityId: 
     abilityName: Venoumunus
     abilityDescription: 

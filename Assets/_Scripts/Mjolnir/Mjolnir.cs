@@ -29,6 +29,7 @@ public class Mjolnir : MonoBehaviour
     // public float nextParryCD;
 
     public Action<Collider> OnHitEnemy;
+    public Action<Collider, Vector3, Vector3, bool> OnMjolnirImpact;
     public Action OnMjolnirThrow;
     public Action OnMjolnirRetract;
     public Action OnChrgingThrow;
@@ -52,7 +53,6 @@ public class Mjolnir : MonoBehaviour
     [SerializeField] private GameObject hitVFXPrefab;   // Prefab with ParticleSystem or VFX Graph
     [SerializeField] private float hitVFXLifetime = 2f; // Safety destroy time
     [SerializeField] private bool parentVFXToHit = false; // Stick effect to the hit object
-
     private readonly List<IMjolnirRetractBehavior> retractBehaviors = new();
     public void RegisterRetractBehavior(IMjolnirRetractBehavior behavior)
     {
@@ -318,23 +318,64 @@ public class Mjolnir : MonoBehaviour
         if (damageable == null)
             return;
 
-        // No golpear al Player.
         IDamageable playerDamageable =
             playerContext.PlayerController.GetComponent<IDamageable>();
 
         if (damageable == playerDamageable)
             return;
 
+        // IMPORTANTE:
+        // capturamos el estado ANTES de modificar isRetracting.
+        bool wasRecallHit = isRetracting;
+
+        Vector3 hitPoint;
+        Vector3 hitNormal;
+
+        if (collision.contactCount > 0)
+        {
+            ContactPoint contact =
+                collision.GetContact(0);
+
+            hitPoint = contact.point;
+            hitNormal = contact.normal.normalized;
+        }
+        else
+        {
+            hitPoint =
+                collision.collider.ClosestPoint(
+                    transform.position
+                );
+
+            hitNormal =
+                (
+                    transform.position -
+                    collision.collider.bounds.center
+                ).normalized;
+
+            if (hitNormal.sqrMagnitude < 0.001f)
+                hitNormal = -transform.forward;
+        }
+
+
+        OnMjolnirImpact?.Invoke(
+            collision.collider,
+            hitPoint,
+            hitNormal,
+            wasRecallHit
+        );
         damageable.TakeDamage(damage);
-        OnHitEnemy?.Invoke(collision.collider);
 
+        OnHitEnemy?.Invoke(
+            collision.collider
+        );
 
-        SpawnMjolnirHitEffect(collision);
+        SpawnMjolnirHitEffect(
+            collision
+        );
 
         SoundManagerOcta.Instance.PlaySound(
             "MjolnirThrowHit"
         );
-
 
         BaseEnemy enemy =
             collision.collider.GetComponentInParent<BaseEnemy>();
@@ -348,7 +389,7 @@ public class Mjolnir : MonoBehaviour
             isRetracting = true;
         }
     }
-   private void SpawnMjolnirHitEffect(
+    private void SpawnMjolnirHitEffect(
     Collision collision)
     {
         if (hitVFXPrefab == null)
@@ -396,14 +437,13 @@ public class Mjolnir : MonoBehaviour
                 hitNormal * 0.08f;
         }
 
-        Quaternion spawnRotation =
-            Quaternion.LookRotation(hitNormal);
+
 
         GameObject vfx =
             Instantiate(
                 hitVFXPrefab,
                 spawnPosition,
-                spawnRotation
+                Quaternion.identity
             );
 
         if (parentVFXToHit)

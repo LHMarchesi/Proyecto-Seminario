@@ -6,7 +6,18 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     [SerializeField] public EnemyStats baseStats;
     [SerializeField] public EnemyStats currentStats;
+    [Header("VFX")]
+    [Header("Combat VFX")]
+    [SerializeField]
+    private Transform combatVFXAnchor;
 
+    public Transform CombatVFXAnchor =>
+        combatVFXAnchor;
+
+    public Vector3 CombatVFXPosition =>
+        combatVFXAnchor != null
+            ? combatVFXAnchor.position
+            : transform.position + Vector3.up;
     [Header("Runtime Stats (copiados del template)")]
     public float maxHealth;
     public float moveSpeed;
