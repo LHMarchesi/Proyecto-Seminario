@@ -11,16 +11,16 @@ public class ObstacleDestructible : MonoBehaviour, IDamageable
     public Action OnDestroy;
     private bool canTakeDamage = true; // ← NUEVO
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, DamageFeedbackType feedbackType = DamageFeedbackType.Normal)
     {
         if (!canTakeDamage) return; // ← bloquea daño si está desactivado
         if (Time.time - lastDamageTime < damageCooldown) return;
 
-        OnDamage(damage);
+        OnDamage(damage, feedbackType);
         lastDamageTime = Time.time;
     }
 
-    private void OnDamage(float damage)
+    private void OnDamage(float damage, DamageFeedbackType feedbackType)
     {
         currentHealth -= damage;
         if (currentHealth <= 0)

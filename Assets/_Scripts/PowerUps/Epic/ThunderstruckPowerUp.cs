@@ -5,9 +5,15 @@ public class ThunderstruckPowerUp : BasePowerUp
 {
     [Header("Base")]
     [SerializeField] private LightingStrikeStats stats;
-    [SerializeField] private LayerMask enemyLayer;
-    [SerializeField] private float searchRadius = 8f;
     [SerializeField] private float vfxLifetime = 2f;
+    [SerializeField] private float lightningVFXHeightOffset = 0f;
+
+    [Header("Lightning targets")]
+    [SerializeField] private int level1TargetCount = 2;
+    [SerializeField] private int level3TargetCount = 3;
+
+    [Header("Electricity")]
+    [SerializeField] private ElectricityApplicationData electricityData;
 
     [Header("Level 2 - Charged bonus damage")]
     [SerializeField, Range(0f, 1f)]
@@ -18,15 +24,13 @@ public class ThunderstruckPowerUp : BasePowerUp
     private float extraKnockbackPercent = 0.30f;
 
     [Header("Level 5 - Discharge")]
+    [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float dischargeRadius = 3f;
-
     [SerializeField, Range(0f, 2f)]
     private float dischargeDamageMultiplier = 0.5f;
-
     [SerializeField] private GameObject dischargeVFXPrefab;
 
     private int level = 1;
-    private int secondaryTargetCount = 1;
 
     private void Awake()
     {
@@ -39,201 +43,215 @@ public class ThunderstruckPowerUp : BasePowerUp
             playerContext.HandleAttack == null)
             return;
 
-        playerContext.HandleAttack.OnMeleeHit +=
-            HandleMeleeHit;
+        playerContext.HandleAttack.OnMeleeAttackResolved +=
+            HandleMeleeAttackResolved;
     }
 
-    private void HandleMeleeHit(
-        MeleeHitInfo hitInfo)
+    private void HandleMeleeAttackResolved(
+        IReadOnlyList<MeleeHitInfo> hits)
     {
-        if (hitInfo.AttackType !=
-            MeleeAttackType.Charged)
+        if (hits == null || hits.Count == 0)
             return;
 
-        BaseEnemy primaryEnemy =
-            hitInfo.Enemy;
-
-        if (primaryEnemy == null)
+        if (hits[0].AttackType != MeleeAttackType.Charged)
             return;
 
-        // ==========================================
-        // LV2 - EXTRA CHARGED DAMAGE
-        // ==========================================
+        List<BaseEnemy> chargedEnemies =
+            GetUniqueChargedEnemies(hits);
 
-        if (level >= 2 &&
-            !primaryEnemy.IsDead())
+        if (chargedEnemies.Count == 0)
+            return;
+
+        // -------------------------------------------------
+        // Lv2: +20% al Charged sobre TODOS los golpeados.
+        // -------------------------------------------------
+        if (level >= 2)
         {
-            primaryEnemy.TakeEffectDamage(
-                hitInfo.Damage *
-                chargedBonusDamagePercent
-            );
-        }
-
-        // ==========================================
-        // LV4 - EXTRA KNOCKBACK
-        // ==========================================
-
-        if (level >= 4 &&
-            !primaryEnemy.IsDead() &&
-            hitInfo.KnockbackForce > 0f)
-        {
-            primaryEnemy.ApplyExternalKnockback(
-                hitInfo.HitDirection,
-                hitInfo.KnockbackForce *
-                extraKnockbackPercent
-            );
-        }
-
-        // ==========================================
-        // LIGHTNING TARGETS
-        // ==========================================
-
-        List<BaseEnemy> lightningTargets =
-            CombatTargeting.FindClosestEnemies(
-                primaryEnemy.transform.position,
-                searchRadius,
-                enemyLayer,
-                secondaryTargetCount,
-                primaryEnemy
-            );
-
-        // Si no encontramos otro enemigo,
-        // el rayo cae sobre el enemigo golpeado.
-        if (lightningTargets.Count == 0)
-        {
-            StrikeEnemy(
-                primaryEnemy,
-                stats != null
-                    ? stats.additionalDamage
-                    : 0f
-            );
-        }
-        else
-        {
-            foreach (BaseEnemy target
-                     in lightningTargets)
+            foreach (MeleeHitInfo hit in hits)
             {
-                StrikeEnemy(
-                    target,
-                    stats != null
-                        ? stats.additionalDamage
-                        : 0f
-                );
+                BaseEnemy enemy = hit.Enemy;
+
+                if (enemy == null || enemy.IsDead())
+                    continue;
+
+                enemy.TakeEffectDamage(
+                    hit.Damage * chargedBonusDamagePercent,
+                    DamageFeedbackType.Normal);
             }
         }
 
-        // ==========================================
-        // LV5 - DISCHARGE
-        // ==========================================
+        // -------------------------------------------------
+        // Lv4: knockback adicional sobre TODOS los golpeados.
+        // -------------------------------------------------
+        if (level >= 4)
+        {
+            foreach (MeleeHitInfo hit in hits)
+            {
+                BaseEnemy enemy = hit.Enemy;
 
+                if (enemy == null ||
+                    enemy.IsDead() ||
+                    hit.KnockbackForce <= 0f)
+                    continue;
+
+                enemy.ApplyExternalKnockback(
+                    hit.HitDirection,
+                    hit.KnockbackForce * extraKnockbackPercent);
+            }
+        }
+
+        // Elegimos los más cercanos al jugador para que sea determinista.
+        chargedEnemies.Sort((a, b) =>
+        {
+            float distanceA =
+                (a.transform.position - playerContext.transform.position)
+                .sqrMagnitude;
+
+            float distanceB =
+                (b.transform.position - playerContext.transform.position)
+                .sqrMagnitude;
+
+            return distanceA.CompareTo(distanceB);
+        });
+
+        int targetCount =
+            level >= 3
+                ? level3TargetCount
+                : level1TargetCount;
+
+        int amountToStrike = Mathf.Min(
+            targetCount,
+            chargedEnemies.Count);
+
+        // -------------------------------------------------
+        // Lightning + daño extra + Electricity.
+        // -------------------------------------------------
+        for (int i = 0; i < amountToStrike; i++)
+        {
+            StrikeEnemy(chargedEnemies[i]);
+        }
+
+        // -------------------------------------------------
+        // Lv5: descarga alrededor del primer objetivo.
+        // -------------------------------------------------
         if (level >= 5)
         {
-            CreateDischarge(
-                primaryEnemy
-            );
+            CreateDischarge(chargedEnemies[0]);
         }
     }
 
-    private void StrikeEnemy(
-        BaseEnemy enemy,
-        float damage)
+    private List<BaseEnemy> GetUniqueChargedEnemies(
+        IReadOnlyList<MeleeHitInfo> hits)
+    {
+        List<BaseEnemy> enemies = new List<BaseEnemy>();
+        HashSet<BaseEnemy> unique = new HashSet<BaseEnemy>();
+
+        foreach (MeleeHitInfo hit in hits)
+        {
+            if (hit.AttackType != MeleeAttackType.Charged)
+                continue;
+
+            BaseEnemy enemy = hit.Enemy;
+
+            if (enemy == null)
+                continue;
+
+            if (!unique.Add(enemy))
+                continue;
+
+            enemies.Add(enemy);
+        }
+
+        return enemies;
+    }
+
+    private void StrikeEnemy(BaseEnemy enemy)
     {
         if (enemy == null)
             return;
 
-        // Guardamos la posición ANTES de hacer
-        // cualquier daño adicional.
+        // Guardamos la posición ANTES de hacer daño por si el rayo mata.
         Vector3 vfxPosition =
-            enemy.CombatVFXPosition;
+            enemy.CombatVFXPosition +
+            Vector3.up * lightningVFXHeightOffset;
 
-        // ==========================================
-        // DAMAGE
-        // ==========================================
-
-        // Si el Charged ya lo mató,
-        // no intentamos dañarlo otra vez.
-        if (!enemy.IsDead())
-        {
-            enemy.TakeEffectDamage(
-                damage
-            );
-        }
-
-        // ==========================================
-        // LIGHTNING VFX
-        // ==========================================
-
+        // -------------------------------------------------
+        // Lightning VFX
+        // -------------------------------------------------
         if (stats != null &&
             stats.lightningEffectPrefab != null)
         {
-            GameObject vfx =
-                Instantiate(
-                    stats.lightningEffectPrefab,
-                    vfxPosition,
-                    Quaternion.identity
-                );
+            GameObject vfx = Instantiate(
+                stats.lightningEffectPrefab,
+                vfxPosition,
+                Quaternion.identity);
 
             if (vfxLifetime > 0f)
-            {
-                Destroy(
-                    vfx,
-                    vfxLifetime
-                );
-            }
+                Destroy(vfx, vfxLifetime);
         }
-
-        // ==========================================
-        // SOUND
-        // ==========================================
 
         if (SoundManagerOcta.Instance != null)
         {
             SoundManagerOcta.Instance.PlaySound(
-                "LightningStrike"
-            );
+                "LightningStrike");
         }
+
+        if (enemy.IsDead())
+            return;
+
+        // -------------------------------------------------
+        // Daño adicional del rayo
+        // -------------------------------------------------
+        float lightningDamage =
+            stats != null
+                ? stats.additionalDamage
+                : 0f;
+
+        if (lightningDamage > 0f)
+        {
+            enemy.TakeEffectDamage(lightningDamage, DamageFeedbackType.Electricity);
+        }
+
+        // Si el rayo lo mató, ya no aplicamos status.
+        if (enemy.IsDead())
+            return;
+
+        // -------------------------------------------------
+        // Electricity: VFX persistente + stun corto.
+        // -------------------------------------------------
+        EnemyStatusEffectController status =
+            enemy.GetComponent<EnemyStatusEffectController>();
+
+        if (status == null)
+        {
+            status = enemy.gameObject.AddComponent<
+                EnemyStatusEffectController>();
+        }
+
+        status.ApplyElectricity(electricityData);
     }
 
-    private void CreateDischarge(
-        BaseEnemy primaryEnemy)
+    private void CreateDischarge(BaseEnemy primaryEnemy)
     {
         if (primaryEnemy == null)
             return;
 
-        // Para GAMEPLAY dejamos transform.position.
-        // Es más fiable como centro de OverlapSphere.
         Vector3 gameplayCenter =
             primaryEnemy.transform.position;
 
-        // Para VISUALES usamos el anchor.
         Vector3 visualCenter =
             primaryEnemy.CombatVFXPosition;
 
-        // ==========================================
-        // DISCHARGE VFX
-        // ==========================================
-
         if (dischargeVFXPrefab != null)
         {
-            GameObject vfx =
-                Instantiate(
-                    dischargeVFXPrefab,
-                    visualCenter,
-                    Quaternion.identity
-                );
+            GameObject vfx = Instantiate(
+                dischargeVFXPrefab,
+                visualCenter,
+                Quaternion.identity);
 
             if (vfxLifetime > 0f)
-            {
-                Destroy(
-                    vfx,
-                    vfxLifetime
-                );
-            }
+                Destroy(vfx, vfxLifetime);
         }
-
-        // ==========================================
-        // DISCHARGE DAMAGE
-        // ==========================================
 
         List<BaseEnemy> targets =
             CombatTargeting.FindClosestEnemies(
@@ -241,38 +259,24 @@ public class ThunderstruckPowerUp : BasePowerUp
                 dischargeRadius,
                 enemyLayer,
                 32,
-                null
-            );
+                null);
 
         float dischargeDamage =
-            (stats != null
-                ? stats.additionalDamage
-                : 0f)
-            * dischargeDamageMultiplier;
+            (stats != null ? stats.additionalDamage : 0f) *
+            dischargeDamageMultiplier;
 
-        foreach (BaseEnemy target
-                 in targets)
+        foreach (BaseEnemy target in targets)
         {
-            if (target == null ||
-                target.IsDead())
+            if (target == null || target.IsDead())
                 continue;
 
-            target.TakeEffectDamage(
-                dischargeDamage
-            );
+            target.TakeEffectDamage(dischargeDamage, DamageFeedbackType.Electricity);
         }
     }
 
     protected override void Upgrade()
     {
         level++;
-
-        // Lv3:
-        // un objetivo adicional.
-        if (level == 3)
-        {
-            secondaryTargetCount++;
-        }
     }
 
     private void OnDestroy()
@@ -280,8 +284,8 @@ public class ThunderstruckPowerUp : BasePowerUp
         if (playerContext != null &&
             playerContext.HandleAttack != null)
         {
-            playerContext.HandleAttack.OnMeleeHit -=
-                HandleMeleeHit;
+            playerContext.HandleAttack.OnMeleeAttackResolved -=
+                HandleMeleeAttackResolved;
         }
     }
 }

@@ -174,7 +174,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         return hit;
     }
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, DamageFeedbackType feedbackType = DamageFeedbackType.Normal)
     {
         if (!canTakeDamage) return;
 

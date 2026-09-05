@@ -21,7 +21,7 @@ public class HandleAttack : MonoBehaviour
 
     // Los Build Items escuchan este evento.
     public event Action<MeleeHitInfo> OnMeleeHit;
-
+    public event Action<IReadOnlyList<MeleeHitInfo>> OnMeleeAttackResolved;
     private bool attacking = false;
     private bool readyToAttack = true;
 
@@ -158,6 +158,7 @@ public class HandleAttack : MonoBehaviour
             QueryTriggerInteraction.Ignore
         );
 
+        List<MeleeHitInfo> resolvedHits = new List<MeleeHitInfo>();
         HashSet<BaseEnemy> damagedEnemies =
       new HashSet<BaseEnemy>();
 
@@ -214,7 +215,14 @@ public class HandleAttack : MonoBehaviour
                 );
 
             OnMeleeHit?.Invoke(hitInfo);
+            resolvedHits.Add(hitInfo);
         }
+
+        if (resolvedHits.Count > 0)
+        {
+            OnMeleeAttackResolved?.Invoke(resolvedHits);
+        }
+
         // FEEDBACK  DEL GOLPE
 
         if (hitSomething)

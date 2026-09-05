@@ -5,6 +5,10 @@ public class EnemyStatusEffectController : MonoBehaviour
 {
     private BaseEnemy enemy;
 
+    // =============================
+    // POISON
+    // =============================
+
     private Coroutine poisonRoutine;
     private int poisonStacks;
     private float poisonRemainingDuration;
@@ -14,10 +18,30 @@ public class EnemyStatusEffectController : MonoBehaviour
     private GameObject poisonVFXInstance;
     private PoisonApplicationData poisonData;
 
+    // =============================
+    // ELECTRICITY
+    // =============================
+
+    private Coroutine electricityRoutine;
+    private float electricityEffectUntil;
+    private float stunUntil;
+    private GameObject electricityVFXInstance;
+
+    private bool ownsEnemyDisable;
+    private bool enemyWasEnabledBeforeStun;
+
+    private Animator stunnedAnimator;
+    private bool animatorFrozen;
+    private float previousAnimatorSpeed;
+
     private void Awake()
     {
         enemy = GetComponent<BaseEnemy>();
     }
+
+    // =====================================================
+    // POISON
+    // =====================================================
 
     public void ApplyPoison(PoisonApplicationData data)
     {
@@ -34,8 +58,9 @@ public class EnemyStatusEffectController : MonoBehaviour
             1,
             poisonMaxStacks);
 
-        // Cada nueva aplicación refresca la duración.
-        poisonRemainingDuration = Mathf.Max(poisonRemainingDuration, data.duration);
+        poisonRemainingDuration = Mathf.Max(
+            poisonRemainingDuration,
+            data.duration);
 
         EnsurePoisonVFX(data.vfxPrefab);
 
@@ -45,24 +70,29 @@ public class EnemyStatusEffectController : MonoBehaviour
 
     private IEnumerator PoisonRoutine()
     {
-        while (poisonRemainingDuration > 0f && enemy != null && !enemy.IsDead())
+        while (poisonRemainingDuration > 0f &&
+               enemy != null &&
+               !enemy.IsDead())
         {
-            float step = Mathf.Min(poisonTickInterval, poisonRemainingDuration);
+            float step = Mathf.Min(
+                poisonTickInterval,
+                poisonRemainingDuration);
+
             yield return new WaitForSeconds(step);
 
             if (enemy == null || enemy.IsDead())
                 break;
 
-            float damage = poisonDamagePerSecond * step * poisonStacks;
+            float damage =
+                poisonDamagePerSecond * step * poisonStacks;
 
-            // Si este tick va a matar al objetivo, propagamos ANTES de que el
-            // enemigo se desactive por pooling/muerte.
-            bool poisonWillKill = damage >= enemy.CurrentHealth;
+            bool poisonWillKill =
+                damage >= enemy.CurrentHealth;
 
             if (poisonWillKill && poisonData.spreadOnDeath)
                 SpreadPoison();
 
-            enemy.TakeEffectDamage(damage);
+            enemy.TakeEffectDamage(damage, DamageFeedbackType.Poison);
             poisonRemainingDuration -= step;
         }
 
@@ -71,20 +101,27 @@ public class EnemyStatusEffectController : MonoBehaviour
 
     private void SpreadPoison()
     {
-        var nearbyEnemies = CombatTargeting.FindClosestEnemies(
-            transform.position,
-            poisonData.spreadRadius,
-            poisonData.enemyLayer,
-            poisonData.maxSpreadTargets,
-            enemy);
+        var nearbyEnemies =
+            CombatTargeting.FindClosestEnemies(
+                transform.position,
+                poisonData.spreadRadius,
+                poisonData.enemyLayer,
+                poisonData.maxSpreadTargets,
+                enemy);
 
         foreach (BaseEnemy nearbyEnemy in nearbyEnemies)
         {
+            if (nearbyEnemy == null || nearbyEnemy.IsDead())
+                continue;
+
             EnemyStatusEffectController statusController =
                 nearbyEnemy.GetComponent<EnemyStatusEffectController>();
 
             if (statusController == null)
-                statusController = nearbyEnemy.gameObject.AddComponent<EnemyStatusEffectController>();
+            {
+                statusController =
+                    nearbyEnemy.gameObject.AddComponent<EnemyStatusEffectController>();
+            }
 
             PoisonApplicationData spreadData = poisonData;
             spreadData.stacksToAdd = 1;
@@ -98,7 +135,14 @@ public class EnemyStatusEffectController : MonoBehaviour
         if (vfxPrefab == null || poisonVFXInstance != null)
             return;
 
-        poisonVFXInstance = Instantiate(vfxPrefab, transform);
+        Transform anchor = GetVFXAnchor();
+
+        poisonVFXInstance = Instantiate(
+            vfxPrefab,
+            anchor.position,
+            Quaternion.identity,
+            anchor);
+
         poisonVFXInstance.transform.localPosition = Vector3.zero;
     }
 
@@ -115,8 +159,162 @@ public class EnemyStatusEffectController : MonoBehaviour
         }
     }
 
+    // =====================================================
+    // ELECTRICITY
+    // =====================================================
+
+    public void ApplyElectricity(ElectricityApplicationData data)
+    {
+        if (enemy == null || enemy.IsDead())
+            return;
+
+        float now = Time.time;
+
+        stunUntil = Mathf.Max(
+            stunUntil,
+            now + Mathf.Max(0f, data.stunDuration));
+
+        electricityEffectUntil = Mathf.Max(
+            electricityEffectUntil,
+            now + Mathf.Max(0f, data.effectDuration));
+
+        EnsureElectricityVFX(
+            data.vfxPrefab,
+            data.vfxLocalOffset);
+
+        if (data.stunDuration > 0f)
+            BeginStun();
+
+        if (electricityRoutine == null)
+        {
+            electricityRoutine =
+                StartCoroutine(ElectricityRoutine());
+        }
+    }
+
+    private IEnumerator ElectricityRoutine()
+    {
+        while (enemy != null &&
+               !enemy.IsDead() &&
+               (Time.time < electricityEffectUntil ||
+                Time.time < stunUntil))
+        {
+            if (ownsEnemyDisable && Time.time >= stunUntil)
+                EndStun();
+
+            yield return null;
+        }
+
+        EndStun();
+        ClearElectricityVFX();
+
+        electricityEffectUntil = 0f;
+        stunUntil = 0f;
+        electricityRoutine = null;
+    }
+
+    private void BeginStun()
+    {
+        if (enemy == null || enemy.IsDead())
+            return;
+
+        if (!ownsEnemyDisable)
+        {
+            enemyWasEnabledBeforeStun = enemy.enabled;
+
+            if (enemyWasEnabledBeforeStun)
+            {
+                enemy.enabled = false;
+                ownsEnemyDisable = true;
+            }
+        }
+
+        Rigidbody enemyRb = enemy.GetComponent<Rigidbody>();
+
+        if (enemyRb != null && !enemyRb.isKinematic)
+        {
+            Vector3 velocity = enemyRb.velocity;
+            velocity.x = 0f;
+            velocity.z = 0f;
+            enemyRb.velocity = velocity;
+
+            enemyRb.angularVelocity = Vector3.zero;
+        }
+
+        if (!animatorFrozen)
+        {
+            stunnedAnimator = enemy.GetComponentInChildren<Animator>();
+
+            if (stunnedAnimator != null)
+            {
+                previousAnimatorSpeed = stunnedAnimator.speed;
+                stunnedAnimator.speed = 0f;
+                animatorFrozen = true;
+            }
+        }
+    }
+
+    private void EndStun()
+    {
+        if (animatorFrozen && stunnedAnimator != null)
+        {
+            stunnedAnimator.speed = previousAnimatorSpeed;
+        }
+
+        animatorFrozen = false;
+        stunnedAnimator = null;
+
+        if (ownsEnemyDisable && enemy != null)
+        {
+            // Sólo reactivamos el comportamiento si nosotros lo desactivamos.
+            enemy.enabled = enemyWasEnabledBeforeStun;
+        }
+
+        ownsEnemyDisable = false;
+    }
+
+    private void EnsureElectricityVFX(
+        GameObject vfxPrefab,
+        Vector3 localOffset)
+    {
+        if (vfxPrefab == null)
+            return;
+
+        Transform anchor = GetVFXAnchor();
+
+        if (electricityVFXInstance == null)
+        {
+            electricityVFXInstance = Instantiate(
+                vfxPrefab,
+                anchor.position,
+                Quaternion.identity,
+                anchor);
+        }
+
+        electricityVFXInstance.transform.localPosition = localOffset;
+        electricityVFXInstance.transform.localRotation = Quaternion.identity;
+    }
+
+    private void ClearElectricityVFX()
+    {
+        if (electricityVFXInstance != null)
+        {
+            Destroy(electricityVFXInstance);
+            electricityVFXInstance = null;
+        }
+    }
+
+    private Transform GetVFXAnchor()
+    {
+        if (enemy != null && enemy.CombatVFXAnchor != null)
+            return enemy.CombatVFXAnchor;
+
+        return transform;
+    }
+
     private void OnDisable()
     {
+        // Poison
         if (poisonRoutine != null)
         {
             StopCoroutine(poisonRoutine);
@@ -131,6 +329,19 @@ public class EnemyStatusEffectController : MonoBehaviour
             Destroy(poisonVFXInstance);
             poisonVFXInstance = null;
         }
+
+        // Electricity
+        if (electricityRoutine != null)
+        {
+            StopCoroutine(electricityRoutine);
+            electricityRoutine = null;
+        }
+
+        EndStun();
+        ClearElectricityVFX();
+
+        electricityEffectUntil = 0f;
+        stunUntil = 0f;
     }
 }
 
@@ -148,4 +359,13 @@ public struct PoisonApplicationData
     public float spreadRadius;
     public int maxSpreadTargets;
     public LayerMask enemyLayer;
+}
+
+[System.Serializable]
+public struct ElectricityApplicationData
+{
+    [Min(0f)] public float stunDuration;
+    [Min(0f)] public float effectDuration;
+    public GameObject vfxPrefab;
+    public Vector3 vfxLocalOffset;
 }

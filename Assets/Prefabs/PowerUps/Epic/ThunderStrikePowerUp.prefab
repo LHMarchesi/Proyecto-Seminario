@@ -120,14 +120,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isTrigger: 1
   stats: {fileID: 11400000, guid: db31a46bbe8d5054da0b45de88fbd095, type: 2}
+  vfxLifetime: 2
+  lightningVFXHeightOffset: 6
+  level1TargetCount: 2
+  level3TargetCount: 3
+  electricityData:
+    stunDuration: 2
+    effectDuration: 3
+    vfxPrefab: {fileID: 0}
+    vfxLocalOffset: {x: 0, y: 0, z: 0}
+  chargedBonusDamagePercent: 0.2
+  extraKnockbackPercent: 0.3
   enemyLayer:
     serializedVersion: 2
     m_Bits: 1024
-  searchRadius: 8
-  verticalVFXOffset: 0.5
-  vfxLifetime: 2
-  chargedBonusDamagePercent: 0.2
-  extraKnockbackPercent: 0.3
   dischargeRadius: 3
   dischargeDamageMultiplier: 0.5
-  dischargeVFXPrefab: {fileID: 0}
+  dischargeVFXPrefab: {fileID: 739573661533650317, guid: df0318feda06d6941b800a8ecbbcf41b, type: 3}

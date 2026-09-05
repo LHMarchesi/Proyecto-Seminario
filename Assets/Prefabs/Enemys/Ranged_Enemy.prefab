@@ -227,6 +227,7 @@ Transform:
   m_Children:
   - {fileID: 1171324123391565948}
   - {fileID: 2419937082021406679}
+  - {fileID: 4181022835743875256}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5703265546371494214
@@ -295,6 +296,15 @@ MonoBehaviour:
   baseStats: {fileID: 11400000, guid: cca60d9fcd6806e46ac088b25fa88af2, type: 2}
   currentStats: {fileID: 0}
   combatVFXAnchor: {fileID: 2419937082021406679}
+  floatingTextPrefab: {fileID: 6819794237618631478, guid: 7dbdcd9fe3d929643a0ce3027f1f0253, type: 3}
+  damageTextOffset: {x: 0, y: 0.5, z: 0}
+  normalDamageColor: {r: 0.7416178, g: 0.7660377, b: 0, a: 1}
+  poisonDamageColor: {r: 0.3, g: 1, b: 0.3, a: 1}
+  electricityDamageColor: {r: 0.3, g: 0.8, b: 1, a: 1}
+  fireDamageColor: {r: 1, g: 0.4, b: 0.1, a: 1}
+  popupClusterResetTime: 0.15
+  popupHorizontalSpacing: 0.2
+  popupVerticalSpacing: 0.12
   maxHealth: 70
   moveSpeed: 9
   attackDamage: 25
@@ -408,3 +418,47 @@ MonoBehaviour:
     maxAmount: 10
   dropHeightOffset: 1
   scatterRadius: 0.5
+--- !u!1 &6530217274066241491
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4181022835743875256}
+  - component: {fileID: 2630902871454551401}
+  m_Layer: 6
+  m_Name: EnemyStatusEffectController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4181022835743875256
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6530217274066241491}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7584834659849636189}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2630902871454551401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6530217274066241491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79123d4d2d9bc1f40be456d4de8b8246, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

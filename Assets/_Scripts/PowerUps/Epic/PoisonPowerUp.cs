@@ -59,7 +59,7 @@ public class PoisonPowerUp : BasePowerUp
             if (enemy == null)
                 yield break;
 
-            enemy.TakeDamage(stats.poisonDamagePerSecond * Time.deltaTime);
+            enemy.TakeDamage(stats.poisonDamagePerSecond * Time.deltaTime, DamageFeedbackType.Poison);
             elapsed += Time.deltaTime;
             yield return null;
         }

@@ -6029,28 +6029,44 @@ MonoBehaviour:
   availableAbilities:
   - abilityId: 
     abilityName: Draugblot
-    abilityDescription: 
+    abilityDescription: "El primer enemigo golpeado durante cada lanzamiento de Mjolnir
+      genera una explosi\xF3n AoE."
     abilityPrefab: {fileID: 2603085137963816570, guid: e9fb5d6026466924488fb76996ed693f, type: 3}
     icon: {fileID: 21300000, guid: 63b8069a2acbd8643bccf429e6d16e08, type: 3}
     maxLevel: 5
-    levelDescriptions: []
-    dropChance: 100
+    levelDescriptions:
+    - "El primer enemigo golpeado durante cada lanzamiento de Mjolnir genera una
+      explosi\xF3n AoE."
+    - "+20% de radio de explosi\xF3n."
+    - "+20% de da\xF1o de explosi\xF3n."
+    - "Aumenta la fuerza/knockback de la explosi\xF3n."
+    - "permite una segunda explosi\xF3n durante el Recall."
+    dropChance: 1
   - abilityId: 
     abilityName: Venoumunus
-    abilityDescription: 
+    abilityDescription: Attack1 y Attack2 aplican 1 stack de Poison.
     abilityPrefab: {fileID: 2603085137963816570, guid: 8f6464360a3c7fe48834af4b98c518f9, type: 3}
     icon: {fileID: 21300000, guid: a6843b3da946d834aab8644c50fb3c13, type: 3}
     maxLevel: 5
-    levelDescriptions: []
-    dropChance: 0
+    levelDescriptions:
+    - Attack1 y Attack2 aplican 1 stack de Poison.
+    - "m\xE1ximo de 2 stacks de Poison."
+    - Attack2 aplica 2 stacks directamente.
+    - "m\xE1ximo de 4 stacks."
+    - cuando un enemigo envenenado muere, propaga Poison a enemigos cercanos.
+    dropChance: 1
   - abilityId: 
     abilityName: Thunder Strike
-    abilityDescription: 
+    abilityDescription: Al impactar un Charged Attack, cae un Lightning Strike sobre
+      un enemigo cercano
     abilityPrefab: {fileID: 2603085137963816570, guid: e7368812e4d3f8d4babf64b6793a6fae, type: 3}
     icon: {fileID: 21300000, guid: 81aca82948e3a004f93b17c55916a336, type: 3}
     maxLevel: 5
-    levelDescriptions: []
-    dropChance: 0
+    levelDescriptions:
+    - Al impactar un Charged Attack, cae un Lightning Strike sobre un enemigo cercano
+    - "+20% de da\xF1o adicional al Charged Attack."
+    - +1 objetivo para Lightning Strike.
+    dropChance: 1
   experienceTable: {fileID: 11400000, guid: 17fb45079f94fb445a55e313b1acdc0c, type: 2}
   levelText: {fileID: 993963713}
   sliderPass: {fileID: 932139742}
