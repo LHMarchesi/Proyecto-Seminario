@@ -22,6 +22,44 @@ public class HandleAttack : MonoBehaviour
     // Los Build Items escuchan este evento.
     public event Action<MeleeHitInfo> OnMeleeHit;
     public event Action<IReadOnlyList<MeleeHitInfo>> OnMeleeAttackResolved;
+    // Se dispara una sola vez por aterrizaje, desde FallingWithHammer.
+    [Header("Ground impact")]
+    [SerializeField] private LayerMask groundLayer = ~0;
+    [SerializeField] private float groundRayDistance = 3f;
+    [SerializeField] private float fallingBaseRadius = 20f;
+    [SerializeField] private float fallingBaseDamage = 100f;
+    public LayerMask EnemyHitLayer => attackLayer;
+    public float FallingBaseRadius => fallingBaseRadius;
+    public float FallingBaseDamage => fallingBaseDamage;
+
+    public Vector3 GetGroundImpactPoint(Vector3 playerPosition)
+    {
+        Vector3 origin = playerPosition + Vector3.up * 0.3f;
+        RaycastHit[] hits = Physics.RaycastAll(origin, Vector3.down,
+            groundRayDistance, groundLayer, QueryTriggerInteraction.Ignore);
+        float closest = float.PositiveInfinity;
+        Vector3 result = playerPosition;
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.collider.transform.IsChildOf(transform) ||
+                hit.collider.GetComponentInParent<BaseEnemy>() != null ||
+                hit.collider.GetComponentInParent<Mjolnir>() != null) continue;
+            if (hit.distance < closest)
+            {
+                closest = hit.distance;
+                result = hit.point;
+            }
+        }
+        return result;
+    }
+
+    public event Action<Vector3> OnFallingHammerLanded;
+
+    public void NotifyFallingHammerLanding(Vector3 groundPoint)
+    {
+        OnFallingHammerLanded?.Invoke(groundPoint);
+    }
+
     private bool attacking = false;
     private bool readyToAttack = true;
 
@@ -165,7 +203,7 @@ public class HandleAttack : MonoBehaviour
         foreach (Collider hit in hits)
         {
             BaseEnemy enemy = hit.GetComponentInParent<BaseEnemy>();
-   
+
 
             if (enemy == null)
                 continue;
@@ -175,7 +213,7 @@ public class HandleAttack : MonoBehaviour
 
             IDamageable damageable = enemy.GetComponent<IDamageable>();
 
-               
+
             if (damageable == null)
                 continue;
 
@@ -193,6 +231,12 @@ public class HandleAttack : MonoBehaviour
                     enemy.transform.position -
                     transform.position
                 ).normalized;
+
+            // Snapshot antes del daño: un golpe letal puede desactivar el enemigo.
+            EnemyStatusEffectController status = enemy.GetComponent<EnemyStatusEffectController>();
+            bool wasBurning = status != null && status.IsBurning;
+            Vector3 targetPosition = enemy.transform.position;
+            Vector3 visualPosition = enemy.CombatVFXPosition;
 
             damageable.TakeDamage(damage);
 
@@ -213,6 +257,10 @@ public class HandleAttack : MonoBehaviour
                     damage,
                     knockbackForce
                 );
+
+            hitInfo.WasBurning = wasBurning;
+            hitInfo.TargetPosition = targetPosition;
+            hitInfo.VisualPosition = visualPosition;
 
             OnMeleeHit?.Invoke(hitInfo);
             resolvedHits.Add(hitInfo);

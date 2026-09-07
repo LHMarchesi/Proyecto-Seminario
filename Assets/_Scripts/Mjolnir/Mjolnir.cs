@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Coffee.UIEffects;
 using UnityEngine;
 
 public interface IMjolnirRetractBehavior
@@ -11,6 +10,7 @@ public interface IMjolnirRetractBehavior
 public class Mjolnir : MonoBehaviour
 {
     private Rigidbody rb;
+    private MjolnirChainController chainController;
     private PlayerContext playerContext;
     private Quaternion startRotation;
 
@@ -69,6 +69,7 @@ public class Mjolnir : MonoBehaviour
     void OnEnable()
     {
         rb = GetComponent<Rigidbody>();
+        chainController = GetComponent<MjolnirChainController>();
         playerContext = GetComponentInParent<PlayerContext>();
 
         startRotation = transform.localRotation;
@@ -132,7 +133,7 @@ public class Mjolnir : MonoBehaviour
             !isRetracting &&
             playerContext.HandleInputs.IsCatching())
         {
-            isRetracting = true;
+            BeginRetract();
         }
     }
 
@@ -157,33 +158,25 @@ public class Mjolnir : MonoBehaviour
     }
     public void Throw()
     {
-        float charge01 = Mathf.Clamp01(
-            throwChargeTime / maxChargeTime
-        );
+        float charge01 = Mathf.Clamp01(throwChargeTime / Mathf.Max(0.01f, maxChargeTime));
+        float finalThrowPower = Mathf.Lerp(minThrowPower, maxThrowPower, charge01);
+        PrepareThrow();
+        rb.AddForce(SearchForCloseEnemies() * finalThrowPower, ForceMode.VelocityChange);
+        rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
+    }
 
-        float finalThrowPower = Mathf.Lerp(
-            minThrowPower,
-            maxThrowPower,
-            charge01
-        );
-
+    private void PrepareThrow()
+    {
+        isRetracting = false;
+        if (chainController == null) chainController = GetComponent<MjolnirChainController>();
+        if (chainController != null) chainController.BeginFlight();
         OnMjolnirThrow?.Invoke();
-
         rb.isKinematic = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
-
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
         isHeld = false;
         transform.parent = null;
-
-        rb.AddForce(
-            SearchForCloseEnemies() * finalThrowPower,
-            ForceMode.VelocityChange
-        );
-
-        rb.AddTorque(
-            Vector3.right * torqueForce,
-            ForceMode.VelocityChange
-        );
     }
 
     public Vector3 SearchForCloseEnemies()
@@ -240,17 +233,9 @@ public class Mjolnir : MonoBehaviour
 
     public void ThrowWithPower(float powerMultiplier = 1f)
     {
-        OnMjolnirThrow?.Invoke();
-
-        isRetracting = false;
-        rb.isKinematic = false;
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
-
-
+        PrepareThrow();
         Vector3 cameraForward = Camera.main.transform.forward;
         float finalThrowPower = maxThrowPower * powerMultiplier;
-        Debug.Log(finalThrowPower);
-
         rb.AddForce(cameraForward.normalized * finalThrowPower, ForceMode.VelocityChange);
         rb.AddTorque(Vector3.right * torqueForce, ForceMode.VelocityChange);
     }
@@ -260,6 +245,7 @@ public class Mjolnir : MonoBehaviour
     private void Retract()
     {
         if (isHeld) return;     // Avoid running if already held
+        if (chainController != null && chainController.IsTraveling) return;
 
         OnMjolnirRetract?.Invoke();
 
@@ -296,172 +282,102 @@ public class Mjolnir : MonoBehaviour
 
     public void Catch()
     {
-
         isHeld = true;
         rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
         isRetracting = false;
-
-        transform.parent = hand; // Assing to the hand
+        if (chainController != null) chainController.Cancel();
+        transform.parent = hand;
         transform.localPosition = Vector3.zero;
         transform.localRotation = startRotation;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (isHeld)
-            return;
-
-        IDamageable damageable =
-            collision.collider.GetComponentInParent<IDamageable>();
-
-        if (damageable == null)
-            return;
-
-        IDamageable playerDamageable =
-            playerContext.PlayerController.GetComponent<IDamageable>();
-
-        if (damageable == playerDamageable)
-            return;
-
-        // IMPORTANTE:
-        // capturamos el estado ANTES de modificar isRetracting.
-        bool wasRecallHit = isRetracting;
-
+        if (isHeld || (chainController != null && chainController.IsTraveling)) return;
         Vector3 hitPoint;
         Vector3 hitNormal;
-
         if (collision.contactCount > 0)
         {
-            ContactPoint contact =
-                collision.GetContact(0);
-
+            ContactPoint contact = collision.GetContact(0);
             hitPoint = contact.point;
             hitNormal = contact.normal.normalized;
         }
         else
         {
-            hitPoint =
-                collision.collider.ClosestPoint(
-                    transform.position
-                );
-
-            hitNormal =
-                (
-                    transform.position -
-                    collision.collider.bounds.center
-                ).normalized;
-
-            if (hitNormal.sqrMagnitude < 0.001f)
-                hitNormal = -transform.forward;
+            hitPoint = collision.collider.ClosestPoint(transform.position);
+            hitNormal = transform.position - collision.collider.bounds.center;
+            if (hitNormal.sqrMagnitude < 0.001f) hitNormal = -transform.forward;
+            hitNormal.Normalize();
         }
-
-
-        OnMjolnirImpact?.Invoke(
-            collision.collider,
-            hitPoint,
-            hitNormal,
-            wasRecallHit
-        );
-        damageable.TakeDamage(damage);
-
-        OnHitEnemy?.Invoke(
-            collision.collider
-        );
-
-        SpawnMjolnirHitEffect(
-            collision
-        );
-
-        SoundManagerOcta.Instance.PlaySound(
-            "MjolnirThrowHit"
-        );
-
-        BaseEnemy enemy =
-            collision.collider.GetComponentInParent<BaseEnemy>();
-
-        if (enemy != null)
-        {
-            playerContext.PlayerStateMachine.ChangeState(
-                playerContext.PlayerStateMachine.catchingState
-            );
-
-            isRetracting = true;
-        }
+        ResolveDamageableImpact(collision.collider, hitPoint, hitNormal);
     }
-    private void SpawnMjolnirHitEffect(
-    Collision collision)
+
+    // Usado por el sweep de Helvegr. El evento es el mismo que en un impacto físico.
+    public void ResolveChainImpact(Collider collider, Vector3 point, Vector3 normal)
     {
-        if (hitVFXPrefab == null)
-            return;
+        if (isHeld || isRetracting || chainController == null || !chainController.IsTraveling) return;
+        ResolveDamageableImpact(collider, point, normal);
+    }
 
-        Vector3 spawnPosition;
-        Vector3 hitNormal;
+    private void ResolveDamageableImpact(Collider collider, Vector3 point, Vector3 normal)
+    {
+        if (collider == null) return;
+        IDamageable damageable = collider.GetComponentInParent<IDamageable>();
+        if (damageable == null || IsPlayerCollider(collider)) return;
+        BaseEnemy enemy = collider.GetComponentInParent<BaseEnemy>();
+        if (enemy != null && enemy.IsDead()) return;
+        bool wasRecallHit = isRetracting;
+        Vector3 enemyCenter = enemy != null ? enemy.CombatVFXPosition : point;
+        Vector3 enemyGameplayPosition = enemy != null ? enemy.transform.position : point;
 
+        // Antes del daño: Draugblot y otros VFX deben sobrevivir al golpe letal.
+        OnMjolnirImpact?.Invoke(collider, point, normal, wasRecallHit);
+        if (enemy == null || !enemy.IsDead()) damageable.TakeDamage(damage);
+        OnHitEnemy?.Invoke(collider);
+        SpawnMjolnirHitEffect(point, normal, collider.transform);
+        if (SoundManagerOcta.Instance != null)
+            SoundManagerOcta.Instance.PlaySound("MjolnirThrowHit");
 
-        if (collision.contactCount > 0)
-        {
-            ContactPoint contact =
-                collision.GetContact(0);
+        if (enemy == null) return;
+        bool chainHandled = chainController != null &&
+            chainController.TryHandleImpact(enemy, enemyCenter, enemyGameplayPosition, wasRecallHit);
+        if (!chainHandled) BeginRetract(true);
+    }
 
-            hitNormal =
-                contact.normal.normalized;
+    public bool IsPlayerCollider(Collider collider)
+    {
+        return collider != null && playerContext != null &&
+            collider.GetComponentInParent<PlayerContext>() == playerContext;
+    }
 
-            spawnPosition =
-                contact.point +
-                hitNormal * 0.08f;
-        }
-        else
-        {
-            Collider targetCollider =
-                collision.collider;
+    public void SetChainController(MjolnirChainController controller)
+    {
+        chainController = controller;
+    }
 
-            spawnPosition =
-                targetCollider.ClosestPoint(
-                    transform.position
-                );
+    public void BeginRetract(bool playCatchAnimation = false)
+    {
+        if (isHeld) return;
+        isRetracting = true;
+        if (chainController != null) chainController.Cancel();
+        if (playCatchAnimation && playerContext != null)
+            playerContext.PlayerStateMachine.ChangeState(playerContext.PlayerStateMachine.catchingState);
+    }
 
-            hitNormal =
-                (
-                    transform.position -
-                    targetCollider.bounds.center
-                ).normalized;
-
-            if (hitNormal.sqrMagnitude < 0.001f)
-            {
-                hitNormal =
-                    -transform.forward;
-            }
-
-            spawnPosition +=
-                hitNormal * 0.08f;
-        }
-
-
-
-        GameObject vfx =
-            Instantiate(
-                hitVFXPrefab,
-                spawnPosition,
-                Quaternion.identity
-            );
-
-        if (parentVFXToHit)
-        {
-            vfx.transform.SetParent(
-                collision.collider.transform,
-                true
-            );
-        }
-
-        Destroy(
-            vfx,
-            hitVFXLifetime
-        );
+    private void SpawnMjolnirHitEffect(Vector3 point, Vector3 normal, Transform hitTransform)
+    {
+        if (hitVFXPrefab == null) return;
+        if (normal.sqrMagnitude < 0.001f) normal = -transform.forward;
+        Vector3 position = point + normal.normalized * 0.08f;
+        GameObject vfx = Instantiate(hitVFXPrefab, position, Quaternion.identity);
+        if (parentVFXToHit && hitTransform != null) vfx.transform.SetParent(hitTransform, true);
+        if (hitVFXLifetime > 0f) Destroy(vfx, hitVFXLifetime);
     }
     public void StopRetracting()
     {
         isRetracting = false;
+        if (chainController != null && chainController.IsTraveling) chainController.Cancel();
     }
 
     public bool IsHeld() { return isHeld; }

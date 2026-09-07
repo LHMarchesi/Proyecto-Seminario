@@ -34,9 +34,38 @@ public class EnemyStatusEffectController : MonoBehaviour
     private bool animatorFrozen;
     private float previousAnimatorSpeed;
 
+    // Fire es independiente de Poison y Electricity.
+    private Coroutine fireRoutine;
+    private float fireRemainingDuration;
+    private float fireDamagePerSecond;
+    private float fireTickInterval;
+    private int fireStacks;
+    private int fireMaxStacks;
+    private GameObject fireVFXInstance;
+    private FireApplicationData fireData;
+
+    // El BaseEnemy actual emite OnDeath despues de devolver el objeto al pool.
+    // Guardamos la explosion ANTES de que OnDisable limpie los estados.
+    private bool fireDeathExplosionPending;
+    private FireDeathExplosionSnapshot pendingFireExplosion;
+    private static int fireExplosionDepth;
+
+    private struct FireDeathExplosionSnapshot
+    {
+        public FireApplicationData Data;
+        public Vector3 GameplayCenter;
+        public Vector3 VisualCenter;
+        public int Stacks;
+    }
+
+    public bool IsBurning => fireRemainingDuration > 0f && enemy != null && !enemy.IsDead();
+    public int FireStacks => IsBurning ? fireStacks : 0;
+
     private void Awake()
     {
         enemy = GetComponent<BaseEnemy>();
+        if (enemy != null)
+            enemy.OnDeath += HandleEnemyDeath;
     }
 
     // =====================================================
@@ -156,6 +185,136 @@ public class EnemyStatusEffectController : MonoBehaviour
         {
             Destroy(poisonVFXInstance);
             poisonVFXInstance = null;
+        }
+    }
+
+    // =====================================================
+    // FIRE
+    // =====================================================
+
+    public void ApplyFire(FireApplicationData data)
+    {
+        if (enemy == null || enemy.IsDead() || data.duration <= 0f)
+            return;
+
+        fireData = data;
+        fireMaxStacks = Mathf.Max(1, data.maxStacks);
+        fireDamagePerSecond = Mathf.Max(0f, data.damagePerSecond);
+        fireTickInterval = Mathf.Max(0.05f, data.tickInterval);
+        fireStacks = Mathf.Clamp(fireStacks + Mathf.Max(1, data.stacksToAdd), 1, fireMaxStacks);
+        fireRemainingDuration = Mathf.Max(fireRemainingDuration, data.duration);
+
+        EnsureFireVFX(data.vfxPrefab, data.vfxLocalOffset);
+        if (fireRoutine == null)
+            fireRoutine = StartCoroutine(FireRoutine());
+    }
+
+    private IEnumerator FireRoutine()
+    {
+        while (fireRemainingDuration > 0f && enemy != null && !enemy.IsDead())
+        {
+            float step = Mathf.Min(fireTickInterval, fireRemainingDuration);
+            yield return new WaitForSeconds(step);
+            if (enemy == null || enemy.IsDead())
+                break;
+
+            float damage = fireDamagePerSecond * step * fireStacks;
+            // El tiempo se descuenta despues del daño para que una muerte
+            // en el ultimo tick tambien pueda activar el remate de Lv5.
+            if (damage > 0f)
+                enemy.TakeEffectDamage(damage, DamageFeedbackType.Fire);
+            if (enemy == null || enemy.IsDead())
+                break;
+            fireRemainingDuration -= step;
+        }
+        ClearFire();
+    }
+
+    private void EnsureFireVFX(GameObject prefab, Vector3 localOffset)
+    {
+        if (prefab == null) return;
+        Transform anchor = GetVFXAnchor();
+        if (fireVFXInstance == null)
+            fireVFXInstance = Instantiate(prefab, anchor.position, Quaternion.identity, anchor);
+        fireVFXInstance.transform.localPosition = localOffset;
+        fireVFXInstance.transform.localRotation = Quaternion.identity;
+    }
+
+    private void ClearFire()
+    {
+        fireRoutine = null;
+        fireStacks = 0;
+        fireMaxStacks = 0;
+        fireRemainingDuration = 0f;
+        fireDamagePerSecond = 0f;
+        fireTickInterval = 0f;
+        fireData = default(FireApplicationData);
+        if (fireVFXInstance != null)
+        {
+            Destroy(fireVFXInstance);
+            fireVFXInstance = null;
+        }
+    }
+
+    private void PrepareFireDeathExplosion()
+    {
+        if (fireDeathExplosionPending || fireExplosionDepth > 0 ||
+            enemy == null || !enemy.IsDead() ||
+            fireRemainingDuration <= 0f || fireStacks <= 0 ||
+            !fireData.explodeOnDeath)
+            return;
+
+        pendingFireExplosion = new FireDeathExplosionSnapshot
+        {
+            Data = fireData,
+            GameplayCenter = enemy.transform.position,
+            VisualCenter = enemy.CombatVFXPosition,
+            Stacks = fireStacks
+        };
+        fireDeathExplosionPending = true;
+    }
+
+    private void HandleEnemyDeath()
+    {
+        // Tambien funciona si en el futuro OnDeath se mueve antes del pooling.
+        PrepareFireDeathExplosion();
+        if (!fireDeathExplosionPending)
+            return;
+
+        FireDeathExplosionSnapshot snapshot = pendingFireExplosion;
+        fireDeathExplosionPending = false;
+        pendingFireExplosion = default(FireDeathExplosionSnapshot);
+        ExplodeFromFire(snapshot);
+    }
+
+    private void ExplodeFromFire(FireDeathExplosionSnapshot snapshot)
+    {
+        FireApplicationData data = snapshot.Data;
+        Vector3 visualPosition = snapshot.VisualCenter + data.explosionVFXOffset;
+
+        if (data.explosionVFXPrefab != null)
+        {
+            GameObject vfx = Instantiate(data.explosionVFXPrefab, visualPosition, Quaternion.identity);
+            if (data.explosionVFXLifetime > 0f)
+                Destroy(vfx, data.explosionVFXLifetime);
+        }
+
+        // La explosion no aplica Burn ni genera otra explosion en cadena.
+        // Esto evita cascadas de decenas de detonaciones en una horda.
+        float damage = Mathf.Max(0f, data.explosionDamagePerStack) * snapshot.Stacks;
+        if (damage <= 0f || data.explosionRadius <= 0f)
+            return;
+
+        fireExplosionDepth++;
+        try
+        {
+            CombatAreaDamage.DealDamage(snapshot.GameplayCenter, data.explosionRadius,
+                data.enemyLayer, damage, DamageFeedbackType.Fire,
+                0f, 0f, Mathf.Max(1, data.maxExplosionTargets), enemy);
+        }
+        finally
+        {
+            fireExplosionDepth--;
         }
     }
 
@@ -314,6 +473,10 @@ public class EnemyStatusEffectController : MonoBehaviour
 
     private void OnDisable()
     {
+        PrepareFireDeathExplosion();
+        if (fireRoutine != null) StopCoroutine(fireRoutine);
+        ClearFire();
+
         // Poison
         if (poisonRoutine != null)
         {
@@ -343,6 +506,13 @@ public class EnemyStatusEffectController : MonoBehaviour
         electricityEffectUntil = 0f;
         stunUntil = 0f;
     }
+    private void OnDestroy()
+    {
+        if (enemy != null)
+            enemy.OnDeath -= HandleEnemyDeath;
+        fireDeathExplosionPending = false;
+    }
+
 }
 
 [System.Serializable]

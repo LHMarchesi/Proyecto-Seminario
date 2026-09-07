@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 1882377222335894627}
   - component: {fileID: 4001287103964008758}
   - component: {fileID: 4231512017001934842}
-  - component: {fileID: 59293511167901679}
+  - component: {fileID: -518248613318465974}
   m_Layer: 0
-  m_Name: LightningStrikePowerUp 1
+  m_Name: MuspelCombbo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -106,7 +106,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &59293511167901679
+--- !u!114 &-518248613318465974
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,9 +115,37 @@ MonoBehaviour:
   m_GameObject: {fileID: 2603085137963816570}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c44507d987c5b349b506ed010660328, type: 3}
+  m_Script: {fileID: 11500000, guid: be77487eca84c1e4f863cdfb789091d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   isTrigger: 1
-  stats: {fileID: 11400000, guid: 0507693e1ea84e5408d4aa0eaa38ee27, type: 2}
-  verticalOffset: 8
+  fireData:
+    damagePerSecond: 15
+    duration: 3
+    tickInterval: 0.5
+    stacksToAdd: 1
+    maxStacks: 2
+    vfxPrefab: {fileID: 0}
+    vfxLocalOffset: {x: 0, y: 0, z: 0}
+    explodeOnDeath: 0
+    explosionRadius: 2.5
+    explosionDamagePerStack: 20
+    maxExplosionTargets: 1
+    enemyLayer:
+      serializedVersion: 2
+      m_Bits: 1024
+    explosionVFXPrefab: {fileID: 0}
+    explosionVFXOffset: {x: 0, y: 0, z: 0}
+    explosionVFXLifetime: 0
+  level2MaxStacks: 2
+  level3Attack2Stacks: 3
+  level4MaxStacks: 5
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  explosionRadius: 2.5
+  explosionDamagePerStack: 5
+  maxExplosionTargets: 16
+  explosionVFXPrefab: {fileID: 0}
+  explosionVFXOffset: {x: 0, y: 0, z: 0}
+  vfxLifetime: 2

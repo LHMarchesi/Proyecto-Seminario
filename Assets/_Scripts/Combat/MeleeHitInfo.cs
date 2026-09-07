@@ -9,6 +9,10 @@ public struct MeleeHitInfo
     public Vector3 HitDirection;
     public float Damage;
     public float KnockbackForce;
+    // Capturados antes de TakeDamage para conservar información de golpes letales.
+    public bool WasBurning;
+    public Vector3 TargetPosition;
+    public Vector3 VisualPosition;
 
     public MeleeHitInfo(
         MeleeAttackType attackType,
@@ -26,5 +30,8 @@ public struct MeleeHitInfo
         HitDirection = hitDirection;
         Damage = damage;
         KnockbackForce = knockbackForce;
+        WasBurning = false;
+        TargetPosition = Vector3.zero;
+        VisualPosition = Vector3.zero;
     }
 }
