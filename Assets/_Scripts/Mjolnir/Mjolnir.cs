@@ -35,6 +35,47 @@ public class Mjolnir : MonoBehaviour
     public Action OnMjolnirRetract;
     public Action OnChrgingThrow;
 
+    // Eventos de una sola transición. OnMjolnirRetract legacy sigue siendo por tick.
+    public event Action OnMjolnirRecallStarted;
+    public event Action<BaseEnemy, float, Vector3, Vector3> OnMjolnirRecallHit;
+    public event Action<bool> OnMjolnirRecallEnded; // true = atrapado; false = interrumpido
+
+    [Header("Recall hit detection")]
+    [SerializeField, Min(0.01f)] private float recallHitRadius = 0.35f;
+    [SerializeField] private LayerMask recallObstacleLayer;
+    [SerializeField] private bool logRecallDebug;
+
+    // Un enemigo recibe como máximo un impacto por regreso.
+    private readonly HashSet<BaseEnemy> recallHitEnemies = new HashSet<BaseEnemy>();
+    private readonly List<RecallCandidate> recallCandidates = new List<RecallCandidate>();
+    private readonly Collider[] recallColliderBuffer = new Collider[256];
+    private float recallDamageMultiplier = 1f;
+    private float recallSpeedMultiplier = 1f;
+
+    public float RecallDamageMultiplier => recallDamageMultiplier;
+    public float RecallSpeedMultiplier => recallSpeedMultiplier;
+
+    private struct RecallCandidate
+    {
+        public BaseEnemy Enemy;
+        public Collider Collider;
+        public float Along;
+        public Vector3 Point;
+        public Vector3 Normal;
+    }
+
+    public void ConfigureRecallModifiers(float damageMultiplier, float speedMultiplier)
+    {
+        recallDamageMultiplier = Mathf.Max(0f, damageMultiplier);
+        recallSpeedMultiplier = Mathf.Max(0.01f, speedMultiplier);
+    }
+
+    public void ResetRecallModifiers()
+    {
+        recallDamageMultiplier = 1f;
+        recallSpeedMultiplier = 1f;
+    }
+
     private bool isHeld;
     private bool isRetracting;
     public bool IsRetracting => isRetracting;
@@ -168,7 +209,11 @@ public class Mjolnir : MonoBehaviour
 
     private void PrepareThrow()
     {
+        // Un relanzamiento (por ejemplo, Parry) termina el regreso anterior.
+        if (isRetracting)
+            OnMjolnirRecallEnded?.Invoke(false);
         isRetracting = false;
+        recallHitEnemies.Clear();
         if (chainController == null) chainController = GetComponent<MjolnirChainController>();
         if (chainController != null) chainController.BeginFlight();
         OnMjolnirThrow?.Invoke();
@@ -245,57 +290,193 @@ public class Mjolnir : MonoBehaviour
 
     private void Retract()
     {
-        if (isHeld) return;     // Avoid running if already held
+        if (isHeld) return;
         if (chainController != null && chainController.IsTraveling) return;
 
+        // Conservamos los comportamientos legacy existentes.
         OnMjolnirRetract?.Invoke();
-
         foreach (var behavior in retractBehaviors)
-        {
             behavior.OnRetract(this);
-        }
+
+        if (isHeld || !isRetracting) return;
 
         Vector3 directionToHand = hand.position - transform.position;
-        Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        if (directionToHand.sqrMagnitude > 0.0001f)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(directionToHand);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation,
+                Time.fixedDeltaTime * 5f);
+        }
 
-        rb.isKinematic = true; // Detenemos la f�sica
-        transform.position = Vector3.MoveTowards(transform.position, hand.position, maxRetractPower * Time.deltaTime);
+        // El Recall vuelve a mover el Transform directamente, como en la
+        // versión estable de Helvegr. No dejamos un MovePosition pendiente
+        // que pueda sobrescribir el snap del Catch al terminar la física.
+        rb.isKinematic = true;
+        rb.interpolation = RigidbodyInterpolation.None;
+        Vector3 start = transform.position;
+        Vector3 end = Vector3.MoveTowards(start, hand.position,
+            maxRetractPower * recallSpeedMultiplier * Time.fixedDeltaTime);
 
+        // Storm Recall conserva el barrido antes de mover. Los callbacks pueden
+        // cancelar el regreso o atrapar el martillo, por eso comprobamos ambos.
+        SweepRecall(start, end);
+        if (isHeld || !isRetracting) return;
 
-        if (Vector3.Distance(hand.position, transform.position) < .5f)
+        transform.position = end;
+        if (Vector3.Distance(hand.position, transform.position) < 0.5f)
         {
             Catch();
+            return;
         }
-        else if (Vector3.Distance(hand.position, transform.position) < .15f)
-        {
-            rb.isKinematic = false;
-            Vector3 cameraForward = Camera.main.transform.forward;
-            float finalThrowPower = Mathf.Lerp(minThrowPower, maxThrowPower, throwChargeTime);
-            isRetracting = false;
-            bool isCurrentlyThrowing = playerContext.HandleInputs.IsThrowing();
-            rb.AddForce(cameraForward.normalized * finalThrowPower * 5f, ForceMode.VelocityChange);
-        }
-        this.transform.localScale = originalSize;
 
-        transform.localScale = Vector3.Lerp(transform.localScale, originalSize, Time.deltaTime * 10f);
+        transform.localScale = originalSize;
+    }
+
+    private void SweepRecall(Vector3 start, Vector3 end)
+    {
+        recallCandidates.Clear();
+        int count = Physics.OverlapCapsuleNonAlloc(start, end, recallHitRadius,
+            recallColliderBuffer, ~0, QueryTriggerInteraction.Ignore);
+
+        // Si se llena el buffer, hacemos una consulta completa para no perder enemigos.
+        if (count == recallColliderBuffer.Length)
+        {
+            Collider[] all = Physics.OverlapCapsule(start, end, recallHitRadius,
+                ~0, QueryTriggerInteraction.Ignore);
+            foreach (Collider collider in all)
+                AddRecallCandidate(collider, start, end);
+        }
+        else
+        {
+            for (int i = 0; i < count; i++)
+                AddRecallCandidate(recallColliderBuffer[i], start, end);
+        }
+
+        // Lv4 depende del orden: primero el enemigo más cercano al inicio del tramo.
+        recallCandidates.Sort(CompareRecallCandidates);
+        foreach (RecallCandidate candidate in recallCandidates)
+        {
+            if (isHeld || !isRetracting) break;
+            BaseEnemy enemy = candidate.Enemy;
+            if (enemy == null || enemy.IsDead() || !enemy.gameObject.activeInHierarchy)
+                continue;
+            if (recallHitEnemies.Contains(enemy)) continue;
+            if (IsRecallPathBlocked(start, candidate.Point)) continue;
+
+            // Se marca ANTES de disparar eventos que podrían provocar otros impactos.
+            recallHitEnemies.Add(enemy);
+            ResolveRecallImpact(candidate);
+        }
+        recallCandidates.Clear();
+    }
+
+    private void AddRecallCandidate(Collider collider, Vector3 start, Vector3 end)
+    {
+        if (collider == null || !collider.enabled || collider.isTrigger ||
+            !collider.gameObject.activeInHierarchy || collider.transform.IsChildOf(transform) ||
+            IsPlayerCollider(collider)) return;
+
+        // No exigimos que el root y los colliders tengan la misma layer.
+        BaseEnemy enemy = collider.GetComponentInParent<BaseEnemy>();
+        if (enemy == null || enemy.IsDead() || !enemy.gameObject.activeInHierarchy ||
+            recallHitEnemies.Contains(enemy)) return;
+
+        Vector3 segment = end - start;
+        float length = segment.magnitude;
+        Vector3 direction = length > 0.0001f ? segment / length : Vector3.forward;
+        Vector3 closest = collider.ClosestPoint(start);
+        float along = length > 0.0001f
+            ? Mathf.Clamp(Vector3.Dot(closest - start, direction), 0f, length) : 0f;
+        Vector3 axisPoint = start + direction * along;
+        Vector3 point = collider.ClosestPoint(axisPoint);
+        Vector3 normal = axisPoint - point;
+        if (normal.sqrMagnitude < 0.0001f) normal = -direction;
+
+        recallCandidates.Add(new RecallCandidate
+        {
+            Enemy = enemy,
+            Collider = collider,
+            Along = along,
+            Point = point,
+            Normal = normal.normalized
+        });
+    }
+
+    private static int CompareRecallCandidates(RecallCandidate a, RecallCandidate b)
+    {
+        int order = a.Along.CompareTo(b.Along);
+        return order != 0 ? order : a.Enemy.GetInstanceID().CompareTo(b.Enemy.GetInstanceID());
+    }
+
+    private bool IsRecallPathBlocked(Vector3 origin, Vector3 goal)
+    {
+        Vector3 delta = goal - origin;
+        float distance = delta.magnitude;
+        if (recallObstacleLayer.value == 0 || distance < 0.02f) return false;
+        RaycastHit[] hits = Physics.RaycastAll(origin, delta / distance, distance,
+            recallObstacleLayer, QueryTriggerInteraction.Ignore);
+        foreach (RaycastHit hit in hits)
+        {
+            Collider collider = hit.collider;
+            if (collider == null || collider.transform.IsChildOf(transform) ||
+                IsPlayerCollider(collider) || collider.GetComponentInParent<BaseEnemy>() != null)
+                continue;
+            if (hit.distance > 0.01f) return true;
+        }
+        return false;
+    }
+
+    private void ResolveRecallImpact(RecallCandidate candidate)
+    {
+        BaseEnemy enemy = candidate.Enemy;
+        if (enemy == null || enemy.IsDead()) return;
+
+        // Capturamos posiciones y daño antes de que un VFX/AoE pueda matar al objetivo.
+        Vector3 visualPosition = enemy.CombatVFXPosition;
+        Vector3 gameplayPosition = enemy.transform.position;
+        float hitDamage = Mathf.Max(0f, damage * recallDamageMultiplier);
+
+        // Compatibilidad con Draugblót y los powerups existentes.
+        OnMjolnirImpact?.Invoke(candidate.Collider, candidate.Point, candidate.Normal, true);
+        OnMjolnirRecallHit?.Invoke(enemy, hitDamage, visualPosition, gameplayPosition);
+
+        // El multiplicador del siguiente golpe ya pudo cambiar, pero hitDamage
+        // conserva el valor de ESTE impacto. No aplicamos una segunda hit reaction.
+        if (enemy != null && !enemy.IsDead() && hitDamage > 0f)
+            enemy.TakeEffectDamage(hitDamage, DamageFeedbackType.Normal);
+
+        OnHitEnemy?.Invoke(candidate.Collider);
+        SpawnMjolnirHitEffect(candidate.Point, candidate.Normal, candidate.Collider.transform);
+        if (SoundManagerOcta.Instance != null)
+            SoundManagerOcta.Instance.PlaySound("MjolnirThrowHit");
+        if (logRecallDebug)
+            Debug.Log("[Mjolnir Recall] Impacto: " + enemy.name + " | daño: " + hitDamage, this);
     }
 
     public void Catch()
     {
+        bool wasRetracting = isRetracting;
         isHeld = true;
         rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
         isRetracting = false;
         if (chainController != null) chainController.Cancel();
-        transform.parent = hand;
+        // Snap físico y visual explícito. No debe quedar ningún movimiento
+        // cinemático pendiente después de volver a ser hijo de la mano.
+        rb.position = hand.position;
+        transform.SetParent(hand, true);
         transform.localPosition = Vector3.zero;
         transform.localRotation = startRotation;
+        transform.localScale = originalSize;
+        recallHitEnemies.Clear();
+        if (wasRetracting)
+            OnMjolnirRecallEnded?.Invoke(true);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (isHeld || (chainController != null && chainController.IsTraveling)) return;
+        // Durante Recall el barrido es la única fuente de impactos.
+        if (isHeld || isRetracting || (chainController != null && chainController.IsTraveling)) return;
         Vector3 hitPoint;
         Vector3 hitNormal;
         if (collision.contactCount > 0)
@@ -365,8 +546,14 @@ public class Mjolnir : MonoBehaviour
     public void BeginRetract(bool playCatchAnimation = false)
     {
         if (isHeld) return;
+        bool starting = !isRetracting;
         isRetracting = true;
         if (chainController != null) chainController.Cancel();
+        if (starting)
+        {
+            recallHitEnemies.Clear();
+            OnMjolnirRecallStarted?.Invoke();
+        }
         if (playCatchAnimation && playerContext != null)
             playerContext.PlayerStateMachine.ChangeState(playerContext.PlayerStateMachine.catchingState);
     }
@@ -382,8 +569,12 @@ public class Mjolnir : MonoBehaviour
     }
     public void StopRetracting()
     {
+        bool wasRetracting = isRetracting;
         isRetracting = false;
+        recallHitEnemies.Clear();
         if (chainController != null && chainController.IsTraveling) chainController.Cancel();
+        if (wasRetracting)
+            OnMjolnirRecallEnded?.Invoke(false);
     }
 
     public bool IsHeld() { return isHeld; }

@@ -27,6 +27,14 @@ public class EnemyStatusEffectController : MonoBehaviour
     private float stunUntil;
     private GameObject electricityVFXInstance;
 
+    [Header("Electricity")]
+    [SerializeField] private bool allowElectricityStun = true;
+    private float electricityDamagePerSecond;
+    private float electricityTickInterval;
+    private float electricityDamageUntil;
+    private float electricityLastDamageTime;
+    private float electricityNextDamageTime;
+
     private bool ownsEnemyDisable;
     private bool enemyWasEnabledBeforeStun;
 
@@ -324,51 +332,80 @@ public class EnemyStatusEffectController : MonoBehaviour
 
     public void ApplyElectricity(ElectricityApplicationData data)
     {
-        if (enemy == null || enemy.IsDead())
-            return;
-
+        if (enemy == null || enemy.IsDead()) return;
         float now = Time.time;
+        float duration = Mathf.Max(0f, data.effectDuration);
 
-        stunUntil = Mathf.Max(
-            stunUntil,
-            now + Mathf.Max(0f, data.stunDuration));
+        if (allowElectricityStun)
+            stunUntil = Mathf.Max(stunUntil, now + Mathf.Max(0f, data.stunDuration));
+        electricityEffectUntil = Mathf.Max(electricityEffectUntil, now + duration);
 
-        electricityEffectUntil = Mathf.Max(
-            electricityEffectUntil,
-            now + Mathf.Max(0f, data.effectDuration));
-
-        EnsureElectricityVFX(
-            data.vfxPrefab,
-            data.vfxLocalOffset);
-
-        if (data.stunDuration > 0f)
-            BeginStun();
-
-        if (electricityRoutine == null)
+        // El DoT es opcional. Una aplicación visual (DPS=0) no borra el DoT
+        // de otra habilidad. Reaplicar refresca duración, no acumula DPS infinito.
+        if (data.damagePerSecond > 0f && duration > 0f)
         {
-            electricityRoutine =
-                StartCoroutine(ElectricityRoutine());
+            float interval = Mathf.Max(0.05f, data.tickInterval);
+            if (electricityDamageUntil <= now || electricityDamagePerSecond <= 0f)
+            {
+                electricityDamagePerSecond = data.damagePerSecond;
+                electricityTickInterval = interval;
+                electricityLastDamageTime = now;
+                electricityNextDamageTime = now + interval;
+            }
+            else
+            {
+                electricityDamagePerSecond = Mathf.Max(electricityDamagePerSecond, data.damagePerSecond);
+                electricityTickInterval = Mathf.Min(electricityTickInterval, interval);
+                electricityNextDamageTime = Mathf.Min(electricityNextDamageTime, now + interval);
+            }
+            electricityDamageUntil = Mathf.Max(electricityDamageUntil, now + duration);
         }
+
+        EnsureElectricityVFX(data.vfxPrefab, data.vfxLocalOffset);
+        if (allowElectricityStun && data.stunDuration > 0f)
+            BeginStun();
+        if (electricityRoutine == null)
+            electricityRoutine = StartCoroutine(ElectricityRoutine());
     }
 
     private IEnumerator ElectricityRoutine()
     {
-        while (enemy != null &&
-               !enemy.IsDead() &&
-               (Time.time < electricityEffectUntil ||
-                Time.time < stunUntil))
+        while (enemy != null && !enemy.IsDead() &&
+               (Time.time < electricityEffectUntil || Time.time < stunUntil ||
+                electricityLastDamageTime + 0.0001f < electricityDamageUntil))
         {
             if (ownsEnemyDisable && Time.time >= stunUntil)
                 EndStun();
 
+            if (electricityDamagePerSecond > 0f &&
+                (Time.time >= electricityNextDamageTime || Time.time >= electricityDamageUntil))
+            {
+                // Se incluye el último tick parcial, sin cobrar tiempo posterior
+                // a la expiración. El tiempo se avanza antes de aplicar daño letal.
+                float tickEnd = Mathf.Min(Time.time, electricityDamageUntil);
+                float step = Mathf.Max(0f, tickEnd - electricityLastDamageTime);
+                float tickDamage = electricityDamagePerSecond * step;
+                electricityLastDamageTime = tickEnd;
+                electricityNextDamageTime = Time.time + Mathf.Max(0.05f, electricityTickInterval);
+                if (tickDamage > 0f)
+                    enemy.TakeEffectDamage(tickDamage, DamageFeedbackType.Electricity);
+            }
             yield return null;
         }
+        ClearElectricityState();
+    }
 
+    private void ClearElectricityState()
+    {
         EndStun();
         ClearElectricityVFX();
-
         electricityEffectUntil = 0f;
         stunUntil = 0f;
+        electricityDamagePerSecond = 0f;
+        electricityTickInterval = 0f;
+        electricityDamageUntil = 0f;
+        electricityLastDamageTime = 0f;
+        electricityNextDamageTime = 0f;
         electricityRoutine = null;
     }
 
@@ -495,16 +532,8 @@ public class EnemyStatusEffectController : MonoBehaviour
 
         // Electricity
         if (electricityRoutine != null)
-        {
             StopCoroutine(electricityRoutine);
-            electricityRoutine = null;
-        }
-
-        EndStun();
-        ClearElectricityVFX();
-
-        electricityEffectUntil = 0f;
-        stunUntil = 0f;
+        ClearElectricityState();
     }
     private void OnDestroy()
     {
@@ -538,4 +567,8 @@ public struct ElectricityApplicationData
     [Min(0f)] public float effectDuration;
     public GameObject vfxPrefab;
     public Vector3 vfxLocalOffset;
+
+    [Header("Optional DoT")]
+    [Min(0f)] public float damagePerSecond;
+    [Min(0.05f)] public float tickInterval;
 }
