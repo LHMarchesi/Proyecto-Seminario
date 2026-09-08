@@ -2,6 +2,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+public sealed class MeleeAttackContext
+{
+    public MeleeAttackType AttackType { get; private set; }
+    public float Damage { get; set; }
+    public float Radius { get; set; }
+    public float KnockbackForce { get; set; }
+    public Vector3 Origin { get; private set; }
+    public Vector3 Forward { get; private set; }
+
+    public MeleeAttackContext(MeleeAttackType attackType, float damage, float radius,
+        float knockbackForce, Vector3 origin, Vector3 forward)
+    {
+        AttackType = attackType;
+        Damage = damage;
+        Radius = radius;
+        KnockbackForce = knockbackForce;
+        Origin = origin;
+        Forward = forward.sqrMagnitude > 0.0001f ? forward.normalized : Vector3.forward;
+    }
+}
 
 public class HandleAttack : MonoBehaviour
 {
@@ -24,6 +44,10 @@ public class HandleAttack : MonoBehaviour
     // Se dispara antes del daño base. Útil para aplicar statuses al golpe letal.
     public event Action<MeleeHitInfo> OnMeleeHitBeforeDamage;
     public event Action<IReadOnlyList<MeleeHitInfo>> OnMeleeAttackResolved;
+    // Permite modificar el daño/radio/fuerza del ataque antes de consultar enemigos.
+    public event Action<MeleeAttackContext> OnMeleeAttackPreparing;
+    // Se emite una vez por ataque ejecutado, incluso si no golpeó a nadie.
+    public event Action<MeleeAttackContext> OnMeleeAttackExecuted;
     // Se dispara una sola vez por aterrizaje, desde FallingWithHammer.
     [Header("Ground impact")]
     [SerializeField] private LayerMask groundLayer = ~0;
@@ -186,9 +210,21 @@ public class HandleAttack : MonoBehaviour
         Vector3 startPoint =
      Camera.main.transform.position;
 
+        Vector3 attackForward = Camera.main.transform.forward;
+        MeleeAttackContext attackContext = new MeleeAttackContext(
+            attackType, damage, radius, knockbackForce, startPoint, attackForward);
+        OnMeleeAttackPreparing?.Invoke(attackContext);
+        damage = Mathf.Max(0f, attackContext.Damage);
+        radius = Mathf.Max(0f, attackContext.Radius);
+        knockbackForce = Mathf.Max(0f, attackContext.KnockbackForce);
+        // Los mismos valores finales llegan a los eventos y al daño base.
+        attackContext.Damage = damage;
+        attackContext.Radius = radius;
+        attackContext.KnockbackForce = knockbackForce;
+
         Vector3 endPoint =
             startPoint +
-            Camera.main.transform.forward * attackDistance;
+            attackForward * attackDistance;
 
         Collider[] hits = Physics.OverlapCapsule(
             startPoint,
@@ -277,6 +313,8 @@ public class HandleAttack : MonoBehaviour
         {
             OnMeleeAttackResolved?.Invoke(resolvedHits);
         }
+
+        OnMeleeAttackExecuted?.Invoke(attackContext);
 
         // FEEDBACK  DEL GOLPE
 
