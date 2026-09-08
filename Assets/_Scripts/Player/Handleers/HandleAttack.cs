@@ -21,6 +21,8 @@ public class HandleAttack : MonoBehaviour
 
     // Los Build Items escuchan este evento.
     public event Action<MeleeHitInfo> OnMeleeHit;
+    // Se dispara antes del daño base. Útil para aplicar statuses al golpe letal.
+    public event Action<MeleeHitInfo> OnMeleeHitBeforeDamage;
     public event Action<IReadOnlyList<MeleeHitInfo>> OnMeleeAttackResolved;
     // Se dispara una sola vez por aterrizaje, desde FallingWithHammer.
     [Header("Ground impact")]
@@ -205,7 +207,7 @@ public class HandleAttack : MonoBehaviour
             BaseEnemy enemy = hit.GetComponentInParent<BaseEnemy>();
 
 
-            if (enemy == null)
+            if (enemy == null || enemy.IsDead())
                 continue;
 
             if (!damagedEnemies.Add(enemy))
@@ -238,15 +240,6 @@ public class HandleAttack : MonoBehaviour
             Vector3 targetPosition = enemy.transform.position;
             Vector3 visualPosition = enemy.CombatVFXPosition;
 
-            damageable.TakeDamage(damage);
-
-            hitSomething = true;
-
-            SpawnHitEffect(
-                hitPoint,
-                hitNormal
-            );
-
             MeleeHitInfo hitInfo =
                 new MeleeHitInfo(
                     attackType,
@@ -262,6 +255,20 @@ public class HandleAttack : MonoBehaviour
             hitInfo.TargetPosition = targetPosition;
             hitInfo.VisualPosition = visualPosition;
 
+            // Muspel aplica Burn antes de que un golpe letal desactive al enemigo.
+            // No hace daño inmediato: sólo inicia/refresca el status.
+            OnMeleeHitBeforeDamage?.Invoke(hitInfo);
+
+            damageable.TakeDamage(damage);
+
+            hitSomething = true;
+
+            SpawnHitEffect(
+                hitPoint,
+                hitNormal
+            );
+
+            // Se conservan los eventos existentes y su orden posterior al daño.
             OnMeleeHit?.Invoke(hitInfo);
             resolvedHits.Add(hitInfo);
         }

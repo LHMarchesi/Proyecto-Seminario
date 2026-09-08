@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-// Attack1 prepara el combo; Attack2 quema. Las explosiones no generan hits melee.
+// Fire aplica stacks como Venomous Blows. Solo Lv5 agrega explosion al morir.
 public class MuspelComboPowerUp : BasePowerUp
 {
     [Header("Fire")]
@@ -31,13 +30,15 @@ public class MuspelComboPowerUp : BasePowerUp
 
     private int level = 1;
     private bool subscribed;
+    [Header("Diagnostics")]
+    [SerializeField] private bool logFireDebug;
 
     protected override void ApplyEffect()
     {
         if (subscribed || playerContext == null || playerContext.HandleAttack == null)
             return;
 
-        playerContext.HandleAttack.OnMeleeHit += HandleMeleeHit;
+        playerContext.HandleAttack.OnMeleeHitBeforeDamage += HandleMeleeHit;
         subscribed = true;
     }
 
@@ -51,9 +52,19 @@ public class MuspelComboPowerUp : BasePowerUp
         if (enemy == null || enemy.IsDead())
             return;
 
+        // El status pertenece al root, junto a BaseEnemy.
+        // No fallamos silenciosamente si faltó configurarlo en un prefab.
         EnemyStatusEffectController status = enemy.GetComponent<EnemyStatusEffectController>();
         if (status == null)
+        {
+            status = enemy.gameObject.AddComponent<EnemyStatusEffectController>();
+            Debug.LogWarning($"Muspel: {enemy.name} no tenía EnemyStatusEffectController; se agregó al root.", enemy);
+        }
+        if (!status.isActiveAndEnabled)
+        {
+            Debug.LogWarning($"Muspel: el controlador de status de {enemy.name} está deshabilitado.", enemy);
             return;
+        }
 
         FireApplicationData data = fireData;
         data.stacksToAdd = level >= 3 && hit.AttackType == MeleeAttackType.Attack2
@@ -72,6 +83,13 @@ public class MuspelComboPowerUp : BasePowerUp
         data.explosionVFXLifetime = vfxLifetime;
 
         status.ApplyFire(data);
+
+        if (logFireDebug)
+        {
+            Debug.Log($"Muspel: Burn aplicado a {enemy.name} | Lv{level} | " +
+                $"Stacks añadidos: {data.stacksToAdd} | Máximo: {data.maxStacks} | " +
+                $"DPS: {data.damagePerSecond} | Tick: {data.tickInterval}", enemy);
+        }
     }
 
     protected override void Upgrade()
@@ -82,7 +100,7 @@ public class MuspelComboPowerUp : BasePowerUp
     private void OnDestroy()
     {
         if (subscribed && playerContext != null && playerContext.HandleAttack != null)
-            playerContext.HandleAttack.OnMeleeHit -= HandleMeleeHit;
+            playerContext.HandleAttack.OnMeleeHitBeforeDamage -= HandleMeleeHit;
         subscribed = false;
     }
 }

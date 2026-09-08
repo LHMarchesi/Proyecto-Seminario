@@ -6,10 +6,12 @@ using UnityEngine;
 [RequireComponent(typeof(Mjolnir), typeof(Rigidbody))]
 public class MjolnirChainController : MonoBehaviour
 {
+    [Header("Diagnostics")]
+    [SerializeField] private bool logChainDebug;
+
     private Mjolnir hammer;
     private Rigidbody body;
     private HelvegrPowerUp owner;
-    private LayerMask targetMask;
     private LayerMask obstacleMask;
     private int remainingJumps;
     private int configuredJumps;
@@ -25,6 +27,7 @@ public class MjolnirChainController : MonoBehaviour
 
     public bool IsTraveling => traveling;
     public bool IsConfigured => owner != null;
+    public bool IsFlightArmed => flightArmed;
 
     private void Awake()
     {
@@ -38,7 +41,8 @@ public class MjolnirChainController : MonoBehaviour
         if (hammer == null) hammer = GetComponent<Mjolnir>();
         if (body == null) body = GetComponent<Rigidbody>();
         owner = powerUp;
-        targetMask = enemies;
+        // La búsqueda valida BaseEnemy, incluso si sus colliders usan otras layers.
+        if (enemies.value == 0) Log("Enemy Layer vacío: se buscarán igualmente componentes BaseEnemy");
         obstacleMask = obstacles;
         configuredJumps = Mathf.Max(1, jumps);
         searchRange = Mathf.Max(0.1f, range);
@@ -47,8 +51,7 @@ public class MjolnirChainController : MonoBehaviour
         arrivalDistance = Mathf.Max(0.01f, arrival);
         hammer.SetChainController(this);
         enabled = true;
-        // Un item adquirido a mitad de un vuelo no secuestra ese vuelo.
-        if (!flightArmed && !traveling) visited.Clear();
+        Log("Configurado: " + configuredJumps + " saltos, rango " + searchRange);
     }
 
     public void BeginFlight()
@@ -57,20 +60,26 @@ public class MjolnirChainController : MonoBehaviour
         if (!IsConfigured || !enabled) return;
         remainingJumps = configuredJumps;
         flightArmed = true;
+        Log("Lanzamiento armado");
     }
 
     public void Cancel()
     {
         bool wasTraveling = traveling;
+        bool wasArmed = flightArmed;
         traveling = false;
         flightArmed = false;
         currentTarget = null;
         currentTargetCollider = null;
         visited.Clear();
-        // Si se cancela sin iniciar Recall, devolvemos el control a la física normal.
+        remainingJumps = 0;
+
+        // No devolvemos la física dinámica cuando el recall ya tomó el control.
         if (wasTraveling && body != null && hammer != null &&
             !hammer.IsHeld() && !hammer.IsRetracting)
             body.isKinematic = false;
+
+        if (wasTraveling || wasArmed) Log("Cadena cancelada");
     }
 
     public void Release()
@@ -82,12 +91,13 @@ public class MjolnirChainController : MonoBehaviour
         enabled = false;
     }
 
-    // Devuelve true si Helvegr toma el control y no debe iniciarse el auto-recall normal.
-    // Se llama después del daño base, con el punto visual capturado antes del daño.
+    // True significa que Helvegr se hace cargo del impacto y Mjolnir NO debe
+    // comenzar su retorno normal. Se llama antes del daño base.
     public bool TryHandleImpact(BaseEnemy enemy, Vector3 impactPosition,
         Vector3 gameplayPosition, bool isRecallHit)
     {
-        if (!flightArmed || !IsConfigured || !enabled || isRecallHit || hammer.IsRetracting)
+        if (!flightArmed || !IsConfigured || !enabled || isRecallHit ||
+            hammer == null || hammer.IsRetracting)
             return false;
         if (enemy == null) return traveling;
 
@@ -100,20 +110,26 @@ public class MjolnirChainController : MonoBehaviour
             owner.OnChainImpact(enemy, impactPosition, gameplayPosition);
         }
 
+        Log("Impacto: " + enemy.name + "; saltos restantes: " + remainingJumps);
+
         if (remainingJumps > 0 && SelectNextTarget(impactPosition))
         {
             traveling = true;
-            body.velocity = Vector3.zero;
-            body.angularVelocity = Vector3.zero;
-            body.isKinematic = true;
+            if (!body.isKinematic)
+            {
+                body.velocity = Vector3.zero;
+                body.angularVelocity = Vector3.zero;
+                body.isKinematic = true;
+            }
             return true;
         }
 
-        // No hay más saltos: Mjolnir vuelve por su sistema normal.
+        // El llamador conserva el auto-recall normal cuando no hay otro objetivo.
         traveling = false;
         flightArmed = false;
         currentTarget = null;
         currentTargetCollider = null;
+        Log("Sin más saltos: retorno normal");
         return false;
     }
 
@@ -121,20 +137,50 @@ public class MjolnirChainController : MonoBehaviour
     {
         currentTarget = null;
         currentTargetCollider = null;
-        List<BaseEnemy> candidates = CombatAreaDamage.FindTargets(origin, searchRange, targetMask);
-        foreach (BaseEnemy candidate in candidates)
+        BaseEnemy bestEnemy = null;
+        Collider bestCollider = null;
+        float bestDistance = float.PositiveInfinity;
+        int bestId = int.MaxValue;
+        var unique = new HashSet<BaseEnemy>();
+
+        // Buscamos colliders de todas las layers, pero sólo aceptamos BaseEnemy.
+        // El mask del item puede estar en el root/trigger y el cuerpo físico en
+        // otra layer. Exigir la misma layer a ambos dejaba la cadena sin objetivo.
+        // El parámetro enemies de Configure se conserva para compatibilidad.
+        Collider[] hits = Physics.OverlapSphere(origin, searchRange, ~0,
+            QueryTriggerInteraction.Collide);
+        foreach (Collider hit in hits)
         {
-            if (candidate == null || visited.Contains(candidate.GetInstanceID())) continue;
-            Collider collider = FindBodyCollider(candidate, origin);
-            if (collider == null) continue;
-            // El mask de obstáculos debe contener SOLO escenario, no enemigos.
-            if (obstacleMask.value != 0 && Physics.Linecast(origin,
-                candidate.CombatVFXPosition, obstacleMask, QueryTriggerInteraction.Ignore)) continue;
-            currentTarget = candidate;
-            currentTargetCollider = collider;
-            return true;
+            BaseEnemy candidate = hit.GetComponentInParent<BaseEnemy>();
+            if (candidate == null || candidate.IsDead() ||
+                !candidate.gameObject.activeInHierarchy ||
+                visited.Contains(candidate.GetInstanceID()) || !unique.Add(candidate))
+                continue;
+
+            Collider physical = FindBodyCollider(candidate, origin);
+            if (physical == null) continue;
+            Vector3 goal = GetGoal(physical, origin);
+            float distance = (goal - origin).sqrMagnitude;
+            if (distance > searchRange * searchRange) continue;
+            if (HasObstacle(origin, goal)) continue;
+
+            int id = candidate.GetInstanceID();
+            if (distance < bestDistance || (Mathf.Approximately(distance, bestDistance) && id < bestId))
+            {
+                bestDistance = distance;
+                bestId = id;
+                bestEnemy = candidate;
+                bestCollider = physical;
+            }
         }
-        return false;
+
+        currentTarget = bestEnemy;
+        currentTargetCollider = bestCollider;
+        if (bestEnemy != null)
+            Log("Siguiente objetivo: " + bestEnemy.name);
+        else
+            Log("No se encontró otro BaseEnemy físico dentro del rango y sin obstáculos");
+        return bestEnemy != null;
     }
 
     private Collider FindBodyCollider(BaseEnemy enemy, Vector3 origin)
@@ -144,8 +190,9 @@ public class MjolnirChainController : MonoBehaviour
         foreach (Collider collider in enemy.GetComponentsInChildren<Collider>())
         {
             if (collider == null || !collider.enabled || collider.isTrigger ||
-                collider.GetComponentInParent<BaseEnemy>() != enemy ||
-                (targetMask.value & (1 << collider.gameObject.layer)) == 0) continue;
+                !collider.gameObject.activeInHierarchy ||
+                collider.GetComponentInParent<BaseEnemy>() != enemy)
+                continue;
             float distance = (collider.ClosestPoint(origin) - origin).sqrMagnitude;
             if (distance < bestDistance)
             {
@@ -154,6 +201,34 @@ public class MjolnirChainController : MonoBehaviour
             }
         }
         return best;
+    }
+
+    private static Vector3 GetGoal(Collider collider, Vector3 origin)
+    {
+        Vector3 point = collider.ClosestPoint(origin);
+        // ClosestPoint devuelve origin si estamos dentro del collider.
+        if ((point - origin).sqrMagnitude < 0.0001f)
+            return collider.bounds.center;
+        return point;
+    }
+
+    private bool HasObstacle(Vector3 origin, Vector3 goal)
+    {
+        Vector3 delta = goal - origin;
+        float distance = delta.magnitude;
+        if (obstacleMask.value == 0 || distance < 0.02f) return false;
+        RaycastHit[] hits = Physics.RaycastAll(origin, delta / distance, distance,
+            obstacleMask, QueryTriggerInteraction.Ignore);
+        foreach (RaycastHit hit in hits)
+        {
+            Collider collider = hit.collider;
+            if (collider == null || collider.transform.IsChildOf(transform) ||
+                hammer.IsPlayerCollider(collider) ||
+                collider.GetComponentInParent<BaseEnemy>() != null)
+                continue;
+            if (hit.distance > 0.01f) return true;
+        }
+        return false;
     }
 
     private void FixedUpdate()
@@ -168,12 +243,12 @@ public class MjolnirChainController : MonoBehaviour
             !currentTarget.gameObject.activeInHierarchy || currentTargetCollider == null ||
             !currentTargetCollider.enabled)
         {
-            if (!SelectNextTarget(body.position)) FinishChain();
+            if (remainingJumps <= 0 || !SelectNextTarget(body.position)) FinishChain();
             return;
         }
 
         Vector3 origin = body.position;
-        Vector3 goal = currentTargetCollider.ClosestPoint(origin);
+        Vector3 goal = GetGoal(currentTargetCollider, origin);
         Vector3 delta = goal - origin;
         if (delta.magnitude <= arrivalDistance)
         {
@@ -183,10 +258,10 @@ public class MjolnirChainController : MonoBehaviour
         Vector3 direction = delta.normalized;
         float distance = Mathf.Min(speed * Time.fixedDeltaTime, delta.magnitude);
 
-        // El sweep evita atravesar enemigos o paredes entre dos FixedUpdates.
-        int mask = targetMask.value | obstacleMask.value;
+        // Sweep con todas las layers: los enemigos se identifican por BaseEnemy;
+        // obstacleMask sólo decide qué superficies detienen el movimiento.
         RaycastHit[] hits = Physics.SphereCastAll(origin, castRadius, direction,
-            distance + 0.01f, mask, QueryTriggerInteraction.Ignore);
+            distance + 0.01f, ~0, QueryTriggerInteraction.Ignore);
         RaycastHit nearest = new RaycastHit();
         bool found = false;
         float nearestDistance = float.PositiveInfinity;
@@ -197,7 +272,8 @@ public class MjolnirChainController : MonoBehaviour
             BaseEnemy enemy = hit.collider.GetComponentInParent<BaseEnemy>();
             if (enemy != null)
             {
-                if (enemy.IsDead() || visited.Contains(enemy.GetInstanceID())) continue;
+                if (enemy.IsDead() || !enemy.gameObject.activeInHierarchy ||
+                    visited.Contains(enemy.GetInstanceID())) continue;
             }
             else if ((obstacleMask.value & (1 << hit.collider.gameObject.layer)) == 0)
                 continue;
@@ -210,7 +286,6 @@ public class MjolnirChainController : MonoBehaviour
         }
         if (found)
         {
-            // Avanzamos hasta el contacto, no atravesamos el objeto.
             body.MovePosition(origin + direction * Mathf.Max(0f, nearest.distance - 0.01f));
             BaseEnemy enemy = nearest.collider.GetComponentInParent<BaseEnemy>();
             if (enemy != null)
@@ -239,11 +314,18 @@ public class MjolnirChainController : MonoBehaviour
 
     private void FinishChain()
     {
+        if (!traveling) return;
         traveling = false;
         flightArmed = false;
         currentTarget = null;
         currentTargetCollider = null;
+        Log("Cadena terminada: recall");
         if (hammer != null && !hammer.IsHeld()) hammer.BeginRetract(true);
+    }
+
+    private void Log(string message)
+    {
+        if (logChainDebug) Debug.Log("Helvegr: " + message, this);
     }
 
     private void OnDisable() { Cancel(); }

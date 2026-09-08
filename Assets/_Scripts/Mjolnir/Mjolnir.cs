@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Coffee.UIEffects;
 using UnityEngine;
 
 public interface IMjolnirRetractBehavior
@@ -331,7 +332,13 @@ public class Mjolnir : MonoBehaviour
         Vector3 enemyCenter = enemy != null ? enemy.CombatVFXPosition : point;
         Vector3 enemyGameplayPosition = enemy != null ? enemy.transform.position : point;
 
-        // Antes del daño: Draugblot y otros VFX deben sobrevivir al golpe letal.
+        // Helvegr reclama el impacto ANTES de que el daño o los eventos
+        // puedan matar/desactivar al enemigo o iniciar el auto-recall.
+        // Un recall pedido por el jugador sigue pudiendo cancelar la cadena.
+        bool chainHandled = enemy != null && chainController != null &&
+            chainController.TryHandleImpact(enemy, enemyCenter, enemyGameplayPosition, wasRecallHit);
+
+        // Conservamos el contrato existente: VFX antes del daño base.
         OnMjolnirImpact?.Invoke(collider, point, normal, wasRecallHit);
         if (enemy == null || !enemy.IsDead()) damageable.TakeDamage(damage);
         OnHitEnemy?.Invoke(collider);
@@ -339,10 +346,9 @@ public class Mjolnir : MonoBehaviour
         if (SoundManagerOcta.Instance != null)
             SoundManagerOcta.Instance.PlaySound("MjolnirThrowHit");
 
-        if (enemy == null) return;
-        bool chainHandled = chainController != null &&
-            chainController.TryHandleImpact(enemy, enemyCenter, enemyGameplayPosition, wasRecallHit);
-        if (!chainHandled) BeginRetract(true);
+        // Sólo el primer impacto sin cadena inicia el retorno automático.
+        if (enemy != null && !chainHandled && !isRetracting)
+            BeginRetract(true);
     }
 
     public bool IsPlayerCollider(Collider collider)
