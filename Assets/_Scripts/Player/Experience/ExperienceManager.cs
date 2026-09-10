@@ -52,9 +52,6 @@ public class ExperienceManager : MonoBehaviour
 
     private void Awake()
     {
-        if (playerContext == null)
-            playerContext = GetComponent<PlayerContext>();
-
         if (runInventory == null)
             runInventory = GetComponent<RunInventory>();
 
@@ -64,6 +61,8 @@ public class ExperienceManager : MonoBehaviour
 
     private void Start()
     {
+        if (playerContext == null)
+            playerContext = GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerContext>();
         UpdateInterface();
     }
 

@@ -20,7 +20,7 @@ public class TerrainGenerator : MonoBehaviour
 
     private Vector2Int lockedDirection = new Vector2Int();    
 
-    void Start()
+    void Awake()
     {
         GenerateTerrain(Random.Range(0, mapSize), Random.Range(0, mapSize));
         Cursor.visible = false;

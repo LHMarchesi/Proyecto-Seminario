@@ -41,6 +41,8 @@ public class WaveSpawner3D : MonoBehaviour
     public event Action<int> OnWaveCompleted;
     public event Action OnAllWavesCompleted;
 
+   
+
     private void Start()
     {
         if (player == null && !string.IsNullOrEmpty(playerTag))
@@ -49,7 +51,6 @@ public class WaveSpawner3D : MonoBehaviour
             if (playerObject != null)
                 player = playerObject.transform;
         }
-
         if (waves == null || waves.Count == 0)
         {
             Debug.LogWarning($"[{name}] WaveSpawner3D no tiene waves configuradas.");
@@ -185,6 +186,7 @@ public class WaveSpawner3D : MonoBehaviour
 
         // Compatible con el BaseEnemy de tu proyecto.
         BaseEnemy enemy = enemyObject.GetComponent<BaseEnemy>();
+        enemy.Initialize();
 
         if (enemy != null)
             enemy.OnDeath += HandleEnemyDeath;

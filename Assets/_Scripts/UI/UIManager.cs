@@ -50,6 +50,9 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        if (playerContext == null)
+            playerContext = GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerContext>();
+
         PowerSlider.Disable();
         HealthSlider.ChangeValue(playerContext.PlayerController.MaxHealth);
         healthText.text = playerContext.PlayerController.MaxHealth + "/" + playerContext.PlayerController.MaxHealth;

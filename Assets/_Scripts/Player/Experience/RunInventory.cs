@@ -22,11 +22,14 @@ public class RunInventory : MonoBehaviour
 
     private void Awake()
     {
-        if (playerContext == null)
-            playerContext = GetComponent<PlayerContext>();
-
         if (runtimeItemsRoot == null)
             runtimeItemsRoot = transform;
+    }
+
+    private void Start()
+    {
+        if (playerContext == null)
+            playerContext = GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerContext>();
     }
 
     public bool HasFreeSlot()

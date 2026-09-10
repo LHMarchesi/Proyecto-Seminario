@@ -15,6 +15,15 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     [SerializeField] public EnemyStats baseStats;
     [SerializeField] public EnemyStats currentStats;
+
+    [Header("Difficulty scaling")]
+    [SerializeField] private float healthPerDifficulty = 5f;
+    [SerializeField] private float damagePerDifficulty = 2f;
+    [SerializeField] private float moveSpeedPerDifficulty = 0.05f;
+    [SerializeField] private float attackSpeedPerDifficulty = 0f;
+
+    // Fuente de verdad durante gameplay. baseStats nunca se modifica.
+    public EnemyStats CurrentStats => currentStats != null ? currentStats : baseStats;
     [Header("VFX")]
     [Header("Combat VFX")]
     [SerializeField]
@@ -96,39 +105,97 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     public virtual void Initialize(EnemySpawner spawner = null)
     {
-        currentStats = ScriptableObject.Instantiate(baseStats); 
-
         this.spawner = spawner;
-        playerEXP = GameObject.Find("ExperienceManager").GetComponent<ExperienceManager>();
+        InitializeRuntimeStats(0f);
 
-
-        //maxHealth = currentStats.maxHealth;
-        //moveSpeed = currentStats.moveSpeed;
-        //attackDamage = currentStats.attackDamage;
-        //attackSpeed = currentStats.attackSpeed;
-        //expDrop = currentStats.expDrop;
-
-        currentHealth = maxHealth;
-
+        GameObject experienceObject = GameObject.Find("ExperienceManager");
+        if (experienceObject != null)
+            playerEXP = experienceObject.GetComponent<ExperienceManager>();
 
         var flock = GetComponent<FlockingBehave>();
         if (flock != null && spawner != null)
         {
-            flock.Initialize(spawner, spawner.cohesionWeight, spawner.separationWeight, spawner.alignmentWeight, spawner.neighborRadius);
+            flock.Initialize(
+                spawner,
+                spawner.cohesionWeight,
+                spawner.separationWeight,
+                spawner.alignmentWeight,
+                spawner.neighborRadius);
+        }
+    }
+
+    // Entrada usada por WaveSpawner3D. No depende del EnemySpawner viejo.
+    public virtual void InitializeForWave(float difficulty, Transform targetOverride = null)
+    {
+        spawner = null;
+
+        if (targetOverride != null)
+            target = targetOverride;
+
+        InitializeRuntimeStats(difficulty);
+    }
+
+    private void InitializeRuntimeStats(float difficulty)
+    {
+        if (baseStats == null)
+        {
+            Debug.LogError($"[{name}] No hay baseStats asignado.", this);
+            return;
         }
 
+        if (currentStats == null || currentStats == baseStats)
+        {
+            currentStats = ScriptableObject.Instantiate(baseStats);
+            currentStats.name = baseStats.name + "_Runtime";
+        }
 
+        ResetRuntimeStatsFromTemplate();
+        ApplyDifficulty(difficulty);
+    }
+
+    private void ResetRuntimeStatsFromTemplate()
+    {
+        if (baseStats == null || currentStats == null)
+            return;
+
+        currentStats.maxHealth = baseStats.maxHealth;
+        currentStats.moveSpeed = baseStats.moveSpeed;
+        currentStats.attackDamage = baseStats.attackDamage;
+        currentStats.attackSpeed = baseStats.attackSpeed;
+        currentStats.expDrop = baseStats.expDrop;
+        currentStats.detectionRange = baseStats.detectionRange;
+        currentStats.attackRange = baseStats.attackRange;
+        currentStats.knockbackAmmount = baseStats.knockbackAmmount;
     }
 
     public void ApplyDifficulty(float difficulty)
     {
-        Debug.Log("Se Aplico dificultad");
+        if (baseStats == null)
+            return;
 
-        attackDamage += 2f * difficulty;
-        maxHealth += 5f * difficulty;
-        moveSpeed += 0.05f * difficulty;
+        if (currentStats == null || currentStats == baseStats)
+        {
+            currentStats = ScriptableObject.Instantiate(baseStats);
+            currentStats.name = baseStats.name + "_Runtime";
+            ResetRuntimeStatsFromTemplate();
+        }
 
-        currentHealth = maxHealth;
+        difficulty = Mathf.Max(0f, difficulty);
+
+        currentStats.maxHealth += healthPerDifficulty * difficulty;
+        currentStats.attackDamage += damagePerDifficulty * difficulty;
+        currentStats.moveSpeed += moveSpeedPerDifficulty * difficulty;
+        currentStats.attackSpeed += attackSpeedPerDifficulty * difficulty;
+
+        // Campos legacy: se mantienen sincronizados por compatibilidad.
+        maxHealth = currentStats.maxHealth;
+        moveSpeed = currentStats.moveSpeed;
+        attackDamage = currentStats.attackDamage;
+        attackSpeed = currentStats.attackSpeed;
+        expDrop = currentStats.expDrop;
+
+        currentHealth = currentStats.maxHealth;
+        lastDamageTime = -Mathf.Infinity;
     }
 
     protected virtual void Update()
@@ -327,7 +394,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
 
     public virtual void Spawn(Transform spawnPos)
     {
-        currentHealth = baseStats.maxHealth;
+        currentHealth = CurrentStats != null ? CurrentStats.maxHealth : 0f;
         transform.position = spawnPos.position;
         gameObject.SetActive(true); // Para pooling
     }
@@ -346,7 +413,8 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         if (target == null) return;
 
         Vector3 direction = (target.position - transform.position).normalized;
-        transform.Translate(direction * baseStats.moveSpeed * Time.deltaTime, Space.World);
+        float speed = CurrentStats != null ? CurrentStats.moveSpeed : 0f;
+        transform.Translate(direction * speed * Time.deltaTime, Space.World);
     }
 
     protected void GetKnockback(float knockbackAmount)

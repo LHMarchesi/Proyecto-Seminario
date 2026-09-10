@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79123d4d2d9bc1f40be456d4de8b8246, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowElectricityStun: 1
 --- !u!1001 &9006182404824240715
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -651,7 +652,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseStats: {fileID: 11400000, guid: 9afabbd3f7dfe4544bd0b24f29d936bc, type: 2}
-  currentStats: {fileID: 0}
+  currentStats: {fileID: 11400000, guid: 9afabbd3f7dfe4544bd0b24f29d936bc, type: 2}
   combatVFXAnchor: {fileID: 3756765403906952578}
   floatingTextPrefab: {fileID: 6819794237618631478, guid: 7dbdcd9fe3d929643a0ce3027f1f0253, type: 3}
   damageTextOffset: {x: 0, y: 0.5, z: 0}

@@ -616,7 +616,12 @@ MonoBehaviour:
   minHoldTimeToStartCharge: 0.12
   torqueForce: 30
   maxRetractPower: 50
-  damage: 30
+  damage: 100
+  recallHitRadius: 0.35
+  recallObstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  logRecallDebug: 0
   teleport: 0
   parry: 0
   hitVFXPrefab: {fileID: 5637690044912728766, guid: 1da15afd47886b04f91f42e108d3a9a7, type: 3}
@@ -1222,8 +1227,8 @@ Transform:
   m_GameObject: {fileID: 4279772628873052960}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.0006548255, z: -0, w: -0.9999998}
-  m_LocalPosition: {x: 0, y: 0, z: 17.73}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.63165, y: -1.6122, z: 17.487}
+  m_LocalScale: {x: 1.5586, y: 1.5586, z: 1.5586}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6131913398218203014}
@@ -1302,7 +1307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camHolder: {fileID: 7102955668428886019}
-  defaultPlayerStats: {fileID: 0}
+  defaultPlayerStats: {fileID: 11400000, guid: 8ad56ffaf84276f4a89017ccfbefaae9, type: 2}
   currentSpeed: 0
   currentJumpCharge: 0
 --- !u!114 &6355501335724561448
@@ -2566,8 +2571,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b351f455d1ff93043a0bc89fd44430f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shakePivot: {fileID: 0}
-  kickPivot: {fileID: 0}
+  shakePivot: {fileID: 8452379755174113185}
+  kickPivot: {fileID: 8039127784500638804}
   kickReturnSpeed: 12
 --- !u!1 &7920400491315002235
 GameObject:

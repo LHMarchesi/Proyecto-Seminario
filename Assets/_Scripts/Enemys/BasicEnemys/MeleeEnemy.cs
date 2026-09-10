@@ -14,70 +14,97 @@ public class MeleeEnemy : BaseEnemy
 
     private MeleeEnemyState currentState;
     private float attackCooldown;
+
     [SerializeField] private GameObject DeathEffect;
-    FlockingBehave flockingBehavior;
+
+    [Header("Horde behaviour")]
+    [SerializeField] private bool alwaysChasePlayer = true;
+
+    private FlockingBehave flockingBehavior;
     private bool useFlocking;
 
     public bool Goblin;
     public bool Skeleton;
 
-
     protected override void OnEnable()
     {
         base.OnEnable();
-        currentState = MeleeEnemyState.Idle;
+
+        CancelInvoke(nameof(EndDamageState));
         attackCooldown = 0f;
+
+        currentState =
+            alwaysChasePlayer && target != null
+                ? MeleeEnemyState.Chasing
+                : MeleeEnemyState.Idle;
     }
 
     private void Start()
     {
-        base.OnEnable();
-        
+        // Unity ya llamó OnEnable. No hay que llamar base.OnEnable() otra vez.
         flockingBehavior = GetComponent<FlockingBehave>();
+
         if (flockingBehavior != null)
         {
-            flockingBehavior.SetPlayer(target);
+            if (target != null)
+                flockingBehavior.SetPlayer(target);
+
             useFlocking = true;
         }
 
+        // Compatibilidad con el spawner viejo.
         EnemySpawner enemySpawner = GetComponentInParent<EnemySpawner>();
-        if (enemySpawner != null) { Initialize(enemySpawner); }
+        if (enemySpawner != null && currentStats == null)
+            Initialize(enemySpawner);
+
+        if (alwaysChasePlayer && target != null)
+            currentState = MeleeEnemyState.Chasing;
     }
 
     protected override void Update()
     {
         base.Update();
 
+        if (target == null || CurrentStats == null)
+            return;
+
         if (attackCooldown > 0f)
             attackCooldown -= Time.deltaTime;
 
-        float distance = Vector3.Distance(transform.position, target.position);
+        float distance =
+            Vector3.Distance(transform.position, target.position);
 
         switch (currentState)
         {
             case MeleeEnemyState.Idle:
                 handleAnimations.ChangeAnimationState("Idle_MeleeEnemy");
-                if (distance < baseStats.detectionRange)
+
+                if (alwaysChasePlayer ||
+                    distance < CurrentStats.detectionRange)
+                {
                     currentState = MeleeEnemyState.Chasing;
+                }
                 break;
 
             case MeleeEnemyState.Chasing:
-                if (distance > baseStats.detectionRange)
+                if (!alwaysChasePlayer &&
+                    distance > CurrentStats.detectionRange)
                 {
                     currentState = MeleeEnemyState.Idle;
                 }
-                else if (distance <= baseStats.attackRange)
+                else if (distance <= CurrentStats.attackRange)
                 {
                     currentState = MeleeEnemyState.Attacking;
                 }
                 break;
 
             case MeleeEnemyState.Attacking:
-                if (distance > baseStats.attackRange)
+                if (distance > CurrentStats.attackRange)
                     currentState = MeleeEnemyState.Chasing;
                 else
                     Attack();
                 break;
+
             case MeleeEnemyState.Damaged:
                 break;
         }
@@ -89,39 +116,64 @@ public class MeleeEnemy : BaseEnemy
 
         currentState = MeleeEnemyState.Damaged;
         handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
-        GetKnockback(baseStats.knockbackAmmount * 2);
-        Invoke(nameof(EndDamageState), handleAnimations.GetCurrentAnimationLength());
-        PlayHurtEffect();
 
+        if (CurrentStats != null)
+            GetKnockback(CurrentStats.knockbackAmmount * 2f);
+
+        CancelInvoke(nameof(EndDamageState));
+        Invoke(nameof(EndDamageState), handleAnimations.GetCurrentAnimationLength());
+
+        PlayHurtEffect();
         ShowDamageNumber(damage, feedbackType);
     }
 
-
     private void EndDamageState()
     {
-        currentState = MeleeEnemyState.Chasing;
+        if (IsDead())
+            return;
+
+        currentState =
+            target != null
+                ? MeleeEnemyState.Chasing
+                : MeleeEnemyState.Idle;
     }
+
     private void ChaseTarget()
     {
-        handleAnimations.ChangeAnimationState("Chasing_MeleeEnemy");
+        if (target == null || CurrentStats == null)
+            return;
 
-        if (useFlocking)
+        Vector3 direction = target.position - transform.position;
+        direction.y = 0f;
+
+        if (useFlocking && flockingBehavior != null)
         {
-            Vector3 direction = flockingBehavior.GetFlockingDirection();
-            direction.y = 0f;
+            Vector3 flockDirection = flockingBehavior.GetFlockingDirection();
+            flockDirection.y = 0f;
 
-            // Normalizar y mover
-            direction.Normalize();
+            // Fallback: si flocking devuelve cero, perseguimos directo al jugador.
+            if (flockDirection.sqrMagnitude > 0.001f)
+                direction = flockDirection;
+        }
 
-            rb.MovePosition(rb.position + direction * baseStats.moveSpeed * Time.fixedDeltaTime);
-            FaceTarget();
+        if (direction.sqrMagnitude <= 0.001f)
+            return;
+
+        direction.Normalize();
+
+        if (rb != null)
+        {
+            rb.MovePosition(
+                rb.position +
+                direction * CurrentStats.moveSpeed * Time.fixedDeltaTime);
         }
         else
         {
-            MoveTowardsTarget();
-            FaceTarget();
+            transform.position +=
+                direction * CurrentStats.moveSpeed * Time.fixedDeltaTime;
         }
-        // Mirar hacia la dirección de movimiento
+
+        FaceDirection(direction);
     }
 
     private void FixedUpdate()
@@ -135,73 +187,85 @@ public class MeleeEnemy : BaseEnemy
         if (direction.sqrMagnitude > 0.01f)
         {
             Quaternion lookRot = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5f);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                lookRot,
+                Time.deltaTime * 5f);
         }
     }
 
     protected override void Attack()
     {
+        if (target == null || CurrentStats == null)
+            return;
+
         FaceTarget();
         handleAnimations.ChangeAnimationState("Attack_MeleeEnemy");
-        if (attackCooldown > 0f) return;
-        attackCooldown = 1f / baseStats.attackSpeed;
-        //audioSource.PlayOneShot(attackSound);
+
+        if (attackCooldown > 0f)
+            return;
+
+        attackCooldown = 1f / Mathf.Max(0.01f, CurrentStats.attackSpeed);
     }
 
     public void TryDealDamageToPlayer()
     {
-        float distance;
-        distance = Vector2.Distance(transform.position, target.position);
-        if (distance < baseStats.attackRange)
+        if (target == null || CurrentStats == null)
+            return;
+
+        float distance =
+            Vector2.Distance(transform.position, target.position);
+
+        if (distance < CurrentStats.attackRange)
         {
             PlayerController player = target.GetComponent<PlayerController>();
-            player.TakeDamage(attackDamage);
+            if (player != null)
+                player.TakeDamage(CurrentStats.attackDamage);
         }
-
     }
+
     public void PlayHurtEffect()
     {
-        if(Goblin == true)
+        if (Goblin)
         {
-            string[] attackSounds = { "GoblinDeath1", "GoblinDeath2", "GoblinDeath3" };
-
-            int index = UnityEngine.Random.Range(0, attackSounds.Length);
-
-            SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
+            string[] sounds = { "GoblinDeath1", "GoblinDeath2", "GoblinDeath3" };
+            int index = UnityEngine.Random.Range(0, sounds.Length);
+            SoundManagerOcta.Instance.PlaySound(sounds[index]);
         }
-        else if(Skeleton == true)
+        else if (Skeleton)
         {
-
-            string[] attackSounds = { "SkeletonDeath1", "SkeletonDeath2", "SkeletonDeath3" };
-
-            int index = UnityEngine.Random.Range(0, attackSounds.Length);
-
-            SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
+            string[] sounds = { "SkeletonDeath1", "SkeletonDeath2", "SkeletonDeath3" };
+            int index = UnityEngine.Random.Range(0, sounds.Length);
+            SoundManagerOcta.Instance.PlaySound(sounds[index]);
         }
     }
 
     public void PlayDeathEffect()
     {
-        if (Skeleton == true)
+        if (Skeleton)
         {
-
-            string[] attackSounds = { "SkeletonDeath1", "SkeletonDeath2" };
-
-            int index = UnityEngine.Random.Range(0, attackSounds.Length);
-
-            SoundManagerOcta.Instance.PlaySound(attackSounds[index]);
+            string[] sounds = { "SkeletonDeath1", "SkeletonDeath2" };
+            int index = UnityEngine.Random.Range(0, sounds.Length);
+            SoundManagerOcta.Instance.PlaySound(sounds[index]);
         }
     }
 
     protected override void Die(float xpDrop)
     {
-        // if (flockManager != null)
-        //     flockManager.Unregister(this);
+        if (DeathEffect != null)
+        {
+            GameObject effect =
+                Instantiate(DeathEffect, transform.position, Quaternion.identity);
+            Destroy(effect, 3f);
+        }
 
-        base.Die(baseStats.expDrop);
-        GameObject GO = Instantiate(DeathEffect, transform.position, Quaternion.identity); // Instantiate effect
-        Destroy(GO, 3);
         PlayDeathEffect();
 
+        float finalXP =
+            CurrentStats != null
+                ? CurrentStats.expDrop
+                : xpDrop;
+
+        base.Die(finalXP);
     }
 }
