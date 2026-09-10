@@ -23,6 +23,7 @@ public class ChargingJumpState : PlayerState
                 playerContext.PlayerController.DoJump(playerContext.PlayerController.currentJumpCharge);
                 playerContext.PlayerController.currentJumpCharge = 0;
                 stateMachine.ChangeState(stateMachine.jumpState);
+                return;
             }
             else
             {
@@ -33,7 +34,7 @@ public class ChargingJumpState : PlayerState
 
             // Consumimos la señal de jumpReleased si existía
             playerContext.HandleInputs.ConsumeJumpReleased();
-            return; // importante: salimos del Update
+            return; 
         }
 
         // --- Normal: mientras carga ---
@@ -44,14 +45,15 @@ public class ChargingJumpState : PlayerState
                 playerContext.PlayerController.DoJump(playerContext.PlayerController.currentJumpCharge);
                 playerContext.PlayerController.currentJumpCharge = 0;
                 stateMachine.ChangeState(stateMachine.jumpState);
+                return;
             }
             else
             {
                 playerContext.PlayerController.currentJumpCharge = 0;
                 stateMachine.ChangeState(stateMachine.idleState);
             }
-
             playerContext.HandleInputs.ConsumeJumpReleased();
+            return;
         }
     }
 }

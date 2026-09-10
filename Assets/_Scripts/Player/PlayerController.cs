@@ -3,7 +3,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
-    [SerializeField] public PlayerStats playerStats;
+    [SerializeField] private PlayerStats defaultPlayerStats;
+    public PlayerStats playerStats { get; private set; }
 
     private PlayerContext playerContext;
     private Rigidbody rb;
@@ -19,18 +20,24 @@ public class PlayerController : MonoBehaviour, IDamageable
     public float CurrentHealth { get => currentHealth; private set { } }
     public int MaxHealth { get => playerStats.maxHealth; private set { } }
     public float RunningSpeed { get => playerStats.runningSpeed; private set { } }
-    public float WalkingSpeed { get => playerStats.runningSpeed; private set { } }
+    public float WalkingSpeed { get => playerStats.walkingSpeed; private set { } }
 
     public float currentJumpCharge = 0f;
 
     private bool isChargingJump;
 
-    void Awake()
+    private void Awake()
     {
+        playerStats = Instantiate(defaultPlayerStats);
+
         rb = GetComponent<Rigidbody>();
         playerContext = GetComponent<PlayerContext>();
+
         currentHealth = playerStats.maxHealth;
+        currentSpeed = playerStats.runningSpeed;
+
         canTakeDamage = true;
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -167,7 +174,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         return hit;
     }
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, DamageFeedbackType feedbackType = DamageFeedbackType.Normal)
     {
         if (!canTakeDamage) return;
 

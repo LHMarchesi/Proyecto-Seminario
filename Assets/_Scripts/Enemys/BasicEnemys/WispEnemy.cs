@@ -115,9 +115,9 @@ public class WispEnemy : BaseEnemy
         proj.transform.rotation = Quaternion.LookRotation(directionToTarget);
     }
 
-    protected override void OnDamage(float damage)
+    protected override void OnDamage(float damage, DamageFeedbackType feedbackType)
     {
-        base.OnDamage(damage);
+        base.OnDamage(damage, feedbackType);
         GetKnockback(baseStats.knockbackAmmount);
         rb.isKinematic = true;
         handleAnimations.ChangeAnimationState("Damage_Wisp");

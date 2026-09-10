@@ -38,6 +38,7 @@ public class StartThrowingState : PlayerState
 
             stateMachine.ChangeState(stateMachine.throwState);
             UIManager.Instance.PowerSlider.Disable(); // Disable UI 
+            return;
         }
     }
 

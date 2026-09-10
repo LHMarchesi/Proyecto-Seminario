@@ -79,12 +79,13 @@ public class RangedEnemy : BaseEnemy
         }
     }
 
-    protected override void OnDamage(float damage)
+    protected override void OnDamage(float damage, DamageFeedbackType feedbackType)
     {
         Invoke(nameof(EndDamageState), 0.1f);
-        base.OnDamage(damage);
+        base.OnDamage(damage, feedbackType);
         //  handleAnimations.ChangeAnimationState("TakeDamage_RangedEnemy");
         GetKnockback(baseStats.knockbackAmmount);
+        ShowDamageNumber(damage, feedbackType);
     }
 
     private void EndDamageState()

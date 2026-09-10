@@ -17,7 +17,6 @@ public class MeleeEnemy : BaseEnemy
     [SerializeField] private GameObject DeathEffect;
     FlockingBehave flockingBehavior;
     private bool useFlocking;
-    public GameObject FloatingTextPrefab;
 
     public bool Goblin;
     public bool Skeleton;
@@ -84,9 +83,9 @@ public class MeleeEnemy : BaseEnemy
         }
     }
 
-    protected override void OnDamage(float damage)
+    protected override void OnDamage(float damage, DamageFeedbackType feedbackType)
     {
-        base.OnDamage(damage);
+        base.OnDamage(damage, feedbackType);
 
         currentState = MeleeEnemyState.Damaged;
         handleAnimations.ChangeAnimationState("TakeDamage_MeleeEnemy");
@@ -94,11 +93,7 @@ public class MeleeEnemy : BaseEnemy
         Invoke(nameof(EndDamageState), handleAnimations.GetCurrentAnimationLength());
         PlayHurtEffect();
 
-        if (FloatingTextPrefab != null)
-        {
-            var go = Instantiate(FloatingTextPrefab, transform.position, Quaternion.identity, transform);
-            go.GetComponent<TextMesh>().text = damage.ToString();
-        }
+        ShowDamageNumber(damage, feedbackType);
     }
 
 

@@ -84,7 +84,7 @@ public class DragonBoss : BaseEnemy
         Attacking,
         Damaged
     }
-    protected override void OnDamage(float damage)
+    protected override void OnDamage(float damage, DamageFeedbackType feedbackType)
     {
         float effectiveDamage = Mathf.Max(0, damage - currentArmor);
         currentHealth -= effectiveDamage;

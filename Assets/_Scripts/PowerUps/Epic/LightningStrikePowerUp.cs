@@ -2,53 +2,63 @@ using UnityEngine;
 
 public class LightningStrikePowerUp : BasePowerUp
 {
-    // Prefab (Efecto)
     [SerializeField] private LightingStrikeStats stats;
     [SerializeField] private float verticalOffset;
+    [SerializeField] private float upgradeDamageIncrease = 5f;
+    [SerializeField] private float cooldownReductionPerLevel = 0.2f;
+    [SerializeField] private float minimumCooldown = 0.1f;
 
     private float lastStrikeTime = -Mathf.Infinity;
 
-    protected override void ApplyEffect()
+    private void Awake()
     {
-        // Se subscribe al evento en el Mjolnir que detecta cuando colisiona con un enemigo
-        playerContext.Mjolnir.OnHitEnemy += SpawnLightningEffect;
-        playerContext.Mjolnir.OnHitEnemy += AddAditionalDamage;
-
-        UIManager.Instance.RegisterHability("Lightning", stats.lightningIconSprite);
+        stats = CreateRuntimeStatsCopy(stats);
     }
 
-    void SpawnLightningEffect(Collider enemyCollider)
+    protected override void ApplyEffect()
     {
+        if (playerContext == null || playerContext.Mjolnir == null)
+            return;
+
+        playerContext.Mjolnir.OnHitEnemy += HandleLightningHit;
+    }
+
+    private void HandleLightningHit(Collider enemyCollider)
+    {
+        if (stats == null || enemyCollider == null)
+            return;
+
         if (Time.time - lastStrikeTime < stats.cooldown)
             return;
 
         lastStrikeTime = Time.time;
 
-        if (enemyCollider == null) return;
+        IDamageable damageable = enemyCollider.GetComponentInParent<IDamageable>();
+        damageable?.TakeDamage(stats.additionalDamage);
 
-        Vector3 effectPosition = enemyCollider.bounds.center + Vector3.up * verticalOffset; // Lo posiciona en el centro
-        Quaternion effectRotation = Quaternion.identity;
-        Instantiate(stats.lightningEffectPrefab, effectPosition, effectRotation); // Lo instancia
+        Vector3 effectPosition = enemyCollider.bounds.center + Vector3.up * verticalOffset;
+
+        if (stats.lightningEffectPrefab != null)
+            Instantiate(stats.lightningEffectPrefab, effectPosition, Quaternion.identity);
 
         SoundManagerOcta.Instance.PlaySound("LightningStrike");
 
-        UIManager.Instance.TriggerHabilityCooldown("Lightning", stats.cooldown);    //Triiger Cooldown
-    }
-
-    void AddAditionalDamage(Collider enemyCollider)
-    {
-        if (Time.time - lastStrikeTime < stats.cooldown)
-            return;
-
-        if (enemyCollider == null) return;
-
-        IDamageable damageable = enemyCollider.GetComponent<IDamageable>();
-        damageable?.TakeDamage(stats.additionalDamage);
+        if (UIManager.Instance != null)
+            UIManager.Instance.TriggerHabilityCooldown("Lightning", stats.cooldown);
     }
 
     protected override void Upgrade()
     {
-        stats.additionalDamage += 5f;
-        stats.cooldown = Mathf.Max(0.1f, stats.cooldown - 0.2f);
+        if (stats == null)
+            return;
+
+        stats.additionalDamage += upgradeDamageIncrease;
+        stats.cooldown = Mathf.Max(minimumCooldown, stats.cooldown - cooldownReductionPerLevel);
+    }
+
+    private void OnDestroy()
+    {
+        if (playerContext != null && playerContext.Mjolnir != null)
+            playerContext.Mjolnir.OnHitEnemy -= HandleLightningHit;
     }
 }

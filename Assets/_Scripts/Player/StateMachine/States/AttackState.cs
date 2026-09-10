@@ -17,7 +17,10 @@ public class AttackState : PlayerState
         playerContext.HandleAttack.Attack(playerContext.PlayerController.playerStats.basicMaxDamage,
                playerContext.PlayerController.playerStats.basicAttackRadius,
                playerContext.PlayerController.playerStats.basicAttackShakeDuration,
-               playerContext.PlayerController.playerStats.basicAttackShakeMagnitude);
+               playerContext.PlayerController.playerStats.basicAttackShakeMagnitude,
+               playerContext.PlayerController.playerStats.basicAttackKickPitch,
+               playerContext.PlayerController.playerStats.basicAttackKickYaw,
+               playerContext.PlayerController.playerStats.basicHitStopDuration, MeleeAttackType.Attack1);
 
         if (playerContext.Mjolnir.IsHeld())
         {
@@ -38,13 +41,16 @@ public class AttackState : PlayerState
         if (timer >= attackDuration)
         {
             stateMachine.ChangeState(stateMachine.idleState);
+            return;
         }
         else if (!queuedNextAttack && playerContext.HandleInputs.TryConsumeTap() && timer > 0.4f)
         {
             queuedNextAttack = true;
         }
 
-        if (queuedNextAttack)
+        if (queuedNextAttack) { 
             stateMachine.ChangeState(stateMachine.secondAttackState);
+            return;
+        }
     }
 }
