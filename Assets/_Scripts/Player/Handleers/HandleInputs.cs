@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class HandleInputs : MonoBehaviour
 {
     public PlayerInput playerInput;
+
     private Vector2 move, look;
     private float isThrowing, isCatching, isRunning, isJumping, isDashing;
 
@@ -14,21 +15,34 @@ public class HandleInputs : MonoBehaviour
     private float holdThreshold = 0.4f;
 
     private bool attackTapped;
-
-    // --- Jump charge ---
-    private bool isChargingJump;
-    private bool jumpReleased;
     private bool holdReleased;
     private bool attackHeld;
 
-    public void OnMove(InputAction.CallbackContext context) => move = context.ReadValue<Vector2>();
-    public void OnLook(InputAction.CallbackContext context) => look = context.ReadValue<Vector2>();
-    public void OnThrowing(InputAction.CallbackContext context) => isThrowing = context.ReadValue<float>();
-    public void OnCatching(InputAction.CallbackContext context) => isCatching = context.ReadValue<float>();
-    public void OnRunning(InputAction.CallbackContext context) => isRunning = context.ReadValue<float>();
-    public void OnDash(InputAction.CallbackContext context) => isDashing = context.ReadValue<float>();
+    // --- Jump ---
+    private bool normalJumpPressed;
+    private bool isChargingJump;
+    private bool jumpReleased;
+    private bool jumpStartedAsCharge;
+    private bool jumpHeld;
 
-    // --- Ataque ---
+    public void OnMove(InputAction.CallbackContext context)
+        => move = context.ReadValue<Vector2>();
+
+    public void OnLook(InputAction.CallbackContext context)
+        => look = context.ReadValue<Vector2>();
+
+    public void OnThrowing(InputAction.CallbackContext context)
+        => isThrowing = context.ReadValue<float>();
+
+    public void OnCatching(InputAction.CallbackContext context)
+        => isCatching = context.ReadValue<float>();
+
+    public void OnRunning(InputAction.CallbackContext context)
+        => isRunning = context.ReadValue<float>();
+
+    public void OnDash(InputAction.CallbackContext context)
+        => isDashing = context.ReadValue<float>();
+
     public void OnAttack(InputAction.CallbackContext context)
     {
         if (context.started)
@@ -39,53 +53,79 @@ public class HandleInputs : MonoBehaviour
         else if (context.canceled)
         {
             attackHeld = false;
+
             float heldTime = Time.time - attackStartTime;
 
             if (heldTime < holdThreshold)
-            {
                 attackTapped = true;
-            }
             else
-            {
                 holdReleased = true;
-            }
         }
     }
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (!IsRunning())
+        if (context.started)
         {
-            isJumping = context.ReadValue<float>();
-        }
-        else
-        {
-            if (context.started)
+            jumpHeld = true;
+
+            // Cada press empieza limpio.
+            jumpReleased = false;
+            normalJumpPressed = false;
+
+            if (IsRunning())
             {
+                // El modo se decide acá y no vuelve a cambiar hasta soltar Jump.
+                jumpStartedAsCharge = true;
                 isChargingJump = true;
+
+                // Un charged jump nunca debe dejar activo el salto normal.
+                isJumping = 0f;
             }
-            else if (context.canceled)
+            else
             {
+                jumpStartedAsCharge = false;
                 isChargingJump = false;
-                jumpReleased = true;
+
+                // Edge de salto normal.
+                isJumping = 1f;
+                normalJumpPressed = true;
             }
+
+            return;
         }
-        // (opcional) si quer detectar performed para salto inmediato, pos manejarlo aqu
+
+        if (context.canceled)
+        {
+            jumpHeld = false;
+
+            // SIEMPRE limpiar el salto normal.
+            // Antes esto dependía del estado actual de Shift y podía quedar en 1 para siempre.
+            isJumping = 0f;
+            normalJumpPressed = false;
+
+            if (jumpStartedAsCharge)
+                jumpReleased = true;
+
+            isChargingJump = false;
+            jumpStartedAsCharge = false;
+        }
     }
 
-
-
-    // --- Métodos de consumo ---
     public bool TryConsumeTap()
     {
-        if (!attackTapped) return false;
+        if (!attackTapped)
+            return false;
+
         attackTapped = false;
         return true;
     }
 
     public bool TryConsumeHoldReleased()
     {
-        if (!holdReleased) return false;
+        if (!holdReleased)
+            return false;
+
         holdReleased = false;
         return true;
     }
@@ -99,38 +139,78 @@ public class HandleInputs : MonoBehaviour
         holdReleased = false;
     }
 
-    // Jump charge
-    public bool IsChargingJump() => isChargingJump;
-
-    // devuelve true una vez cuando se consumió el release del salto
-    public bool JumpReleased()                          //////////
+    // Salto normal: sólo una vez por press.
+    public bool TryConsumeJumpPressed()
     {
-        if (jumpReleased)
-        {
-            return true;
-        }
-        return false;
+        if (!normalJumpPressed)
+            return false;
+
+        normalJumpPressed = false;
+        return true;
     }
 
+    public bool IsChargingJump() => isChargingJump;
 
-    // El estado que maneja el release debe llamar esto para consumir el flag
-    public void ConsumeJumpReleased() => jumpReleased = false;
+    public bool JumpReleased() => jumpReleased;
 
-    // --- Otros getters ---
+    public void ConsumeJumpReleased()
+        => jumpReleased = false;
+
+    // Se llama cuando el charged jump termina o es interrumpido.
+    public void FinishChargedJumpInput()
+    {
+        isChargingJump = false;
+        jumpStartedAsCharge = false;
+        jumpReleased = false;
+
+        isJumping = 0f;
+        normalJumpPressed = false;
+    }
+
+    public void ResetJumpFlags()
+    {
+        isJumping = 0f;
+        normalJumpPressed = false;
+        isChargingJump = false;
+        jumpReleased = false;
+        jumpStartedAsCharge = false;
+        jumpHeld = false;
+    }
+
+    public bool IsJumpHeld() => jumpHeld;
+
+    // Legacy, por compatibilidad con cualquier script externo.
+    public bool IsJumping() => isJumping > 0.5f;
+
     public Vector2 GetMoveVector2() => move;
     public Vector2 GetLookVector2() => look;
 
-    public bool IsThrowing() => isThrowing == 1f;
-    public bool IsCatching() => isCatching == 1f;
-    public bool IsRunning() => isRunning == 1f;
-    public bool IsJumping() => isJumping == 1f;
-    public bool IsDashing() => isDashing == 1f;
+    public bool IsThrowing() => isThrowing > 0.5f;
+    public bool IsCatching() => isCatching > 0.5f;
+    public bool IsRunning() => isRunning > 0.5f;
+    public bool IsDashing() => isDashing > 0.5f;
 
     public void SetPaused(bool paused)
     {
         if (paused)
+        {
+            ResetJumpFlags();
             playerInput.DeactivateInput();
+        }
         else
+        {
             playerInput.ActivateInput();
+        }
+    }
+
+    private void OnDisable()
+    {
+        ResetJumpFlags();
+        ResetAttackFlags();
+
+        isThrowing = 0f;
+        isCatching = 0f;
+        isRunning = 0f;
+        isDashing = 0f;
     }
 }

@@ -3,11 +3,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private GameObject camHolder;
-    [SerializeField] private PlayerStats defaultPlayerStats;
-    public PlayerStats playerStats { get; private set; }
+    [SerializeField] public PlayerStats playerStats;
 
     private PlayerContext playerContext;
     private Rigidbody rb;
+    private Collider playerCollider;
     private float currentHealth;
     public float currentSpeed;
     private float lookRotation;
@@ -20,24 +20,32 @@ public class PlayerController : MonoBehaviour, IDamageable
     public float CurrentHealth { get => currentHealth; private set { } }
     public int MaxHealth { get => playerStats.maxHealth; private set { } }
     public float RunningSpeed { get => playerStats.runningSpeed; private set { } }
-    public float WalkingSpeed { get => playerStats.walkingSpeed; private set { } }
+    public float WalkingSpeed { get => playerStats.runningSpeed; private set { } }
+
+    [Header("Charged Jump")]
+    [SerializeField, Min(0.05f)]
+    private float chargedJumpFullChargeTime = 0.8f;
+
+    [Header("Ground Check")]
+    [SerializeField] private LayerMask groundMask;
+    [SerializeField, Min(0.01f)] private float groundedExtraDistance = 0.12f;
+    [SerializeField, Range(0.2f, 1f)] private float groundSphereRadiusFactor = 0.8f;
 
     public float currentJumpCharge = 0f;
 
     private bool isChargingJump;
+    private float jumpChargeElapsed;
 
-    private void Awake()
+    void Awake()
     {
-        playerStats = Instantiate(defaultPlayerStats);
-
         rb = GetComponent<Rigidbody>();
+        playerCollider = GetComponent<Collider>();
         playerContext = GetComponent<PlayerContext>();
 
+        if (groundMask.value == 0)
+            groundMask = LayerMask.GetMask("Ground");
         currentHealth = playerStats.maxHealth;
-        currentSpeed = playerStats.runningSpeed;
-
         canTakeDamage = true;
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -129,20 +137,50 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public void ChargingJump()
     {
-        if (!IsGrounded()) return;
+        if (!IsGrounded())
+            return;
 
-        
-        isChargingJump = true;
-        //SoundManagerOcta.Instance.PlaySound("ChargeJump");
-        currentJumpCharge += playerStats.chargeSpeed * Time.fixedDeltaTime;
-        currentJumpCharge = Mathf.Clamp(currentJumpCharge, playerStats.minJumpForce, playerStats.maxJumpForce);
+        if (!isChargingJump)
+        {
+            isChargingJump = true;
+            jumpChargeElapsed = 0f;
+            currentJumpCharge = playerStats.minJumpForce;
+        }
 
-        float finalForce = Mathf.Max(currentJumpCharge, playerStats.minJumpForce);
+        jumpChargeElapsed += Time.deltaTime;
+
+        float charge01 = Mathf.Clamp01(
+            jumpChargeElapsed /
+            Mathf.Max(0.05f, chargedJumpFullChargeTime)
+        );
+
+        currentJumpCharge = Mathf.Lerp(
+            playerStats.minJumpForce,
+            playerStats.maxJumpForce,
+            charge01
+        );
     }
+
+    public void StopChargingJump()
+    {
+        isChargingJump = false;
+        jumpChargeElapsed = 0f;
+        currentJumpCharge = 0f;
+    }
+
     public void DoJump(float force)
     {
+        isChargingJump = false;
+        jumpChargeElapsed = 0f;
+
+        float finalForce = Mathf.Clamp(
+            force,
+            playerStats.minJumpForce,
+            playerStats.maxJumpForce
+        );
+
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // reset Y
-        rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+        rb.AddForce(Vector3.up * finalForce, ForceMode.Impulse);
         SoundManagerOcta.Instance.PlaySound("PlayerJump");
     }
     public bool IsFalling()
@@ -165,16 +203,55 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public bool IsGrounded()
     {
-        Vector3 boxCenter = transform.position + Vector3.down * 2f;
-        Vector3 boxHalfExtents = new Vector3(0.3f, 0.1f, 0.3f); // ajustalo según el tamaño de tu personaje
-        bool hit = Physics.CheckBox(boxCenter, boxHalfExtents, Quaternion.identity, LayerMask.GetMask("Ground"));
+        int mask = groundMask.value != 0
+            ? groundMask.value
+            : LayerMask.GetMask("Ground");
 
-        Debug.DrawLine(boxCenter + Vector3.left * boxHalfExtents.x, boxCenter + Vector3.right * boxHalfExtents.x, Color.red, 0.1f);
-        Debug.DrawLine(boxCenter + Vector3.forward * boxHalfExtents.z, boxCenter + Vector3.back * boxHalfExtents.z, Color.red, 0.1f);
+        if (playerCollider == null)
+        {
+            // Fallback por si el collider no está en el mismo GameObject.
+            return Physics.Raycast(
+                transform.position,
+                Vector3.down,
+                2.2f + groundedExtraDistance,
+                mask,
+                QueryTriggerInteraction.Ignore
+            );
+        }
 
-        return hit;
+        Bounds bounds = playerCollider.bounds;
+
+        float radius = Mathf.Max(
+            0.05f,
+            Mathf.Min(bounds.extents.x, bounds.extents.z) *
+            groundSphereRadiusFactor
+        );
+
+        float castDistance = Mathf.Max(
+            0.02f,
+            bounds.extents.y - radius + groundedExtraDistance
+        );
+
+        bool grounded = Physics.SphereCast(
+            bounds.center,
+            radius,
+            Vector3.down,
+            out RaycastHit hit,
+            castDistance,
+            mask,
+            QueryTriggerInteraction.Ignore
+        );
+
+        Debug.DrawRay(
+            bounds.center,
+            Vector3.down * castDistance,
+            grounded ? Color.green : Color.red
+        );
+
+        return grounded;
     }
-    public void TakeDamage(float damage, DamageFeedbackType feedbackType = DamageFeedbackType.Normal)
+
+    public void TakeDamage(float damage, DamageFeedbackType type = DamageFeedbackType.Normal)
     {
         if (!canTakeDamage) return;
 
@@ -189,7 +266,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public void AddHealth(int health)
     {
-        if(currentHealth >= playerStats.maxHealth)
+        if (currentHealth >= playerStats.maxHealth)
         {
             return;
         }
@@ -205,7 +282,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     public void AddMaxHealth(int health)
     {
         currentHealth += health;
-        playerStats.maxHealth += health; 
+        playerStats.maxHealth += health;
         UIManager.Instance.OnPlayerAddHealth(); // Flash verde en UI
     }
 
@@ -215,7 +292,10 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     public void AddMaxJumpForce(float force)
     {
-        playerStats.minJumpForce += force;
+        playerStats.maxJumpForce += force;
+
+        if (playerStats.maxJumpForce < playerStats.minJumpForce)
+            playerStats.maxJumpForce = playerStats.minJumpForce;
     }
     protected virtual void Die()
     {

@@ -1,59 +1,50 @@
-using System.Diagnostics;
-
 public class ChargingJumpState : PlayerState
 {
-    public ChargingJumpState(PlayerStateMachine stateMachine, PlayerContext playerContext)
+    public ChargingJumpState(
+        PlayerStateMachine stateMachine,
+        PlayerContext playerContext)
         : base(stateMachine, playerContext) { }
 
     public override void Enter()
     {
         playerContext.HandleAnimations.ChangeAnimationState("ChargueJump");
+
+        playerContext.PlayerController.currentJumpCharge =
+            playerContext.PlayerController.playerStats.minJumpForce;
+
+        // Nunca heredar un release anterior.
+        playerContext.HandleInputs.ConsumeJumpReleased();
     }
 
     public override void Update()
     {
         playerContext.PlayerController.ChargingJump();
 
-        // --- Si deja de correr, cancelar carga o forzar salto ---
-        if (!playerContext.HandleInputs.IsRunning())
-        {
-            // Si ya tiene una buena carga, salta
-            if (playerContext.PlayerController.currentJumpCharge >= 30f)
-            {
-                playerContext.PlayerController.DoJump(playerContext.PlayerController.currentJumpCharge);
-                playerContext.PlayerController.currentJumpCharge = 0;
-                stateMachine.ChangeState(stateMachine.jumpState);
-                return;
-            }
-            else
-            {
-                // Si no llegó al mínimo, cancelar la carga
-                playerContext.PlayerController.currentJumpCharge = 0;
-                stateMachine.ChangeState(stateMachine.idleState);
-            }
+        bool releasedJump =
+            playerContext.HandleInputs.JumpReleased();
 
-            // Consumimos la señal de jumpReleased si existía
-            playerContext.HandleInputs.ConsumeJumpReleased();
-            return; 
-        }
+        bool releasedRun =
+            !playerContext.HandleInputs.IsRunning();
 
-        // --- Normal: mientras carga ---
-        if (playerContext.HandleInputs.JumpReleased())
-        {
-            if (playerContext.PlayerController.currentJumpCharge >= 30f)
-            {
-                playerContext.PlayerController.DoJump(playerContext.PlayerController.currentJumpCharge);
-                playerContext.PlayerController.currentJumpCharge = 0;
-                stateMachine.ChangeState(stateMachine.jumpState);
-                return;
-            }
-            else
-            {
-                playerContext.PlayerController.currentJumpCharge = 0;
-                stateMachine.ChangeState(stateMachine.idleState);
-            }
-            playerContext.HandleInputs.ConsumeJumpReleased();
+        if (!releasedJump && !releasedRun)
             return;
-        }
+
+        float force =
+            playerContext.PlayerController.currentJumpCharge;
+
+        // Limpiamos el input ANTES de cambiar de estado.
+        // Esto también cubre soltar Shift antes que Space.
+        playerContext.HandleInputs.FinishChargedJumpInput();
+
+        playerContext.PlayerController.DoJump(force);
+
+        stateMachine.ChangeState(stateMachine.jumpState);
+    }
+
+    public override void Exit()
+    {
+        // Si otro sistema interrumpe la carga tampoco queda ningún flag vivo.
+        playerContext.HandleInputs.FinishChargedJumpInput();
+        playerContext.PlayerController.StopChargingJump();
     }
 }
