@@ -24,6 +24,12 @@ public class WaveSpawner3D : MonoBehaviour
     public float navMeshMaxDistance = 3f;
     public int navMeshAreaMask = NavMesh.AllAreas;
 
+    [Header("Difficulty over time")]
+    public bool scaleEnemiesOverTime = true;
+    [Min(0f)] public float difficultyStartDelay = 0f;
+    [Min(0f)] public float difficultyPerMinute = 1f;
+    [SerializeField] private bool logEnemyDifficulty;
+
     [Header("Waves")]
     public List<Wave> waves = new List<Wave>();
     public int startWaveIndex = 0;
@@ -36,15 +42,23 @@ public class WaveSpawner3D : MonoBehaviour
     private float nextSpawnTime;
     private float waveEndTime;
     private bool waveCompleted;
+    private float runStartTime;
+
+    // 1 = ritmo normal. 0.5 = spawnea aproximadamente la mitad de seguido.
+    private float runtimeSpawnRateMultiplier = 1f;
+
+    public float RuntimeSpawnRateMultiplier => runtimeSpawnRateMultiplier;
 
     public event Action<int> OnWaveStarted;
     public event Action<int> OnWaveCompleted;
     public event Action OnAllWavesCompleted;
 
-   
+
 
     private void Start()
     {
+        runStartTime = Time.time;
+
         if (player == null && !string.IsNullOrEmpty(playerTag))
         {
             GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
@@ -79,7 +93,8 @@ public class WaveSpawner3D : MonoBehaviour
             Time.time >= nextSpawnTime)
         {
             SpawnEnemy(wave);
-            nextSpawnTime = Time.time + wave.spawnInterval;
+            nextSpawnTime =
+                Time.time + GetEffectiveSpawnInterval(wave);
         }
 
         bool allEnemiesSpawned = spawnedThisWave >= wave.enemyCount;
@@ -125,7 +140,9 @@ public class WaveSpawner3D : MonoBehaviour
 
         waveEndTime = Time.time + wave.waveDuration;
         nextSpawnTime = Time.time +
-                        (wave.spawnAllAtOnce ? 0f : wave.spawnInterval);
+                        (wave.spawnAllAtOnce
+                            ? 0f
+                            : GetEffectiveSpawnInterval(wave));
 
         if (wave.spawnAllAtOnce)
         {
@@ -173,23 +190,95 @@ public class WaveSpawner3D : MonoBehaviour
             spawnRotation
         );
 
+        BaseEnemy enemy =
+            enemyObject.GetComponent<BaseEnemy>();
+
+        if (enemy == null)
+        {
+            Debug.LogWarning(
+                $"[{name}] El prefab {selectedEnemy.prefab.name} no tiene BaseEnemy en el root."
+            );
+
+            Destroy(enemyObject);
+            return;
+        }
+
+        float difficulty = GetCurrentDifficulty();
+
+        // Inicializa stats y target antes del primer Update del enemigo.
+        enemy.InitializeForWave(difficulty, player);
+        enemy.OnDeath += HandleEnemyDeath;
+
         spawnedThisWave++;
         livingEnemies++;
 
-        RegisterEnemyDeath(enemyObject);
+        if (logEnemyDifficulty && enemy.CurrentStats != null)
+        {
+            Debug.Log(
+                $"[{name}] Spawn {enemy.name} | difficulty {difficulty:F2} | " +
+                $"HP {enemy.CurrentStats.maxHealth} | " +
+                $"DMG {enemy.CurrentStats.attackDamage} | " +
+                $"Speed {enemy.CurrentStats.moveSpeed}"
+            );
+        }
     }
 
-    private void RegisterEnemyDeath(GameObject enemyObject)
+    public float GetCurrentDifficulty()
     {
-        if (enemyObject == null)
-            return;
+        if (!scaleEnemiesOverTime)
+            return 0f;
 
-        // Compatible con el BaseEnemy de tu proyecto.
-        BaseEnemy enemy = enemyObject.GetComponent<BaseEnemy>();
-        enemy.Initialize();
+        float elapsed =
+            Mathf.Max(
+                0f,
+                Time.time -
+                runStartTime -
+                difficultyStartDelay);
 
-        if (enemy != null)
-            enemy.OnDeath += HandleEnemyDeath;
+        return (elapsed / 60f) *
+               Mathf.Max(0f, difficultyPerMinute);
+    }
+
+    // 1f = normal.
+    // 0.5f = aproximadamente la mitad de frecuencia.
+    // 2f = el doble de frecuencia.
+    public void SetSpawnRateMultiplier(float multiplier)
+    {
+        runtimeSpawnRateMultiplier =
+            Mathf.Clamp(multiplier, 0.05f, 10f);
+
+        // Si estamos en una wave progresiva, aplicamos el cambio
+        // también al próximo spawn y no sólo a los siguientes.
+        if (currentWaveIndex >= 0 &&
+            currentWaveIndex < waves.Count)
+        {
+            Wave wave = waves[currentWaveIndex];
+
+            if (wave != null &&
+                !wave.spawnAllAtOnce &&
+                spawnedThisWave < wave.enemyCount)
+            {
+                nextSpawnTime =
+                    Time.time + GetEffectiveSpawnInterval(wave);
+            }
+        }
+    }
+
+    public void ResetSpawnRateMultiplier()
+    {
+        SetSpawnRateMultiplier(1f);
+    }
+
+    private float GetEffectiveSpawnInterval(Wave wave)
+    {
+        if (wave == null)
+            return 0.5f;
+
+        float baseInterval =
+            Mathf.Max(0.01f, wave.spawnInterval);
+
+        return baseInterval /
+               Mathf.Max(0.05f, runtimeSpawnRateMultiplier);
     }
 
     private void HandleEnemyDeath()

@@ -1,448 +1,965 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class DragonBoss : BaseEnemy
+public class FinalDragonBoss : BaseEnemy
 {
+    [Header("Fight")]
+    [SerializeField] private string bossDisplayName = "Dragon";
     [SerializeField] private GameObject finalDoor;
+    [SerializeField] private GameObject deathVFX;
+    [SerializeField, Min(0f)] private float deathVFXLifetime = 4f;
 
+    [Header("Fixed positions")]
+    [Tooltip("Punto donde queda el dragon durante la Fase 1. Puede quedar null.")]
+    [SerializeField] private Transform flightAnchor;
+    [Tooltip("Punto central donde combate en tierra. Puede quedar null.")]
+    [SerializeField] private Transform groundAnchor;
+    [SerializeField, Min(0f)] private float landingDuration = 1.25f;
 
-    [Header("-----------Basic Settings----------------")]
-    [Header("Entry scene range")]
-    [SerializeField] private float entryScene_Range;
+    [Header("Animations")]
+    [SerializeField] private string flightAnimation = "";
+    [SerializeField] private string landingAnimation = "";
+    [SerializeField] private string idleAnimation = "Idle_Boss";
+    [SerializeField] private string clawAnimation = "";
+    [SerializeField] private string jumpSlamAnimation = "";
+    [SerializeField] private string rangedAttackAnimation = "";
+    [SerializeField] private string enrageAnimation = "";
 
-    [Header("Defense Settings")]
-    [SerializeField] private float baseArmor;           // Armadura inicial
-    [SerializeField] private float armorPhase2Bonus;   // Bonus de fase 2
-    [SerializeField] private float armorPhase3Bonus;   // Bonus de fase 3
-    [Header("")]
-    [Header("-----------Phase 1----------------")]
-    [Header("------Range Attack Settings")]
-    [SerializeField] private Transform firePoint;
-    [SerializeField] private float projectileSpeed;
+    [Header("Phase 1")]
+    [SerializeField, Min(1f)] private float phase1Duration = 22f;
+
+    [Header("Phase 2 -> 3")]
+    [SerializeField, Range(0.05f, 0.95f)]
+    private float phase3HealthPercent = 0.35f;
+    [SerializeField, Min(0f)]
+    private float minimumPhase2Duration = 8f;
+
+    [Header("Ground combat")]
+    [SerializeField, Min(0.1f)] private float phase2AttackCooldown = 2.2f;
+    [SerializeField, Min(0.1f)] private float phase3AttackCooldown = 1.45f;
+
+    [Tooltip("Por encima de esta distancia usa proyectiles. Por debajo usa Claw o Slam.")]
+    [SerializeField, Min(0.5f)] private float rangedAttackDistance = 8f;
+
+    [SerializeField, Range(0f, 1f)] private float clawChanceWhenClose = 0.65f;
+    [SerializeField, Min(0f)] private float turnSpeed = 5f;
+
+    [Header("Phase 3 speed")]
+    [Tooltip("Acelera animaciones, windups, recoveries, giro y proyectiles en Fase 3.")]
+    [SerializeField, Min(1f)] private float phase3SpeedMultiplier = 1.30f;
+
+    [Header("Claw")]
+    [SerializeField] private Transform clawHitPoint;
+    [SerializeField, Min(0.1f)] private float clawRange = 5f;
+    [SerializeField, Min(0.1f)] private float clawHitRadius = 2.25f;
+    [SerializeField, Min(0f)] private float clawDamage = 18f;
+    [SerializeField, Min(0f)] private float clawWindup = 0.55f;
+    [SerializeField, Min(0f)] private float clawRecovery = 0.65f;
+    [SerializeField, Min(0f)] private float clawHorizontalKnockback = 6f;
+    [SerializeField, Min(0f)] private float clawVerticalKnockback = 1.5f;
+    [SerializeField] private GameObject clawImpactVFX;
+    [SerializeField, Min(0f)] private float clawVFXLifetime = 2f;
+
+    [Header("Jump Slam")]
+    [SerializeField, Min(0.1f)] private float slamRadius = 7f;
+    [SerializeField, Min(0f)] private float slamDamage = 22f;
+    [SerializeField, Min(0f)] private float slamWindup = 0.85f;
+    [SerializeField, Min(0f)] private float slamRecovery = 0.9f;
+    [SerializeField, Min(0f)] private float slamHorizontalKnockback = 8f;
+    [SerializeField, Min(0f)] private float slamVerticalKnockback = 3f;
+    [SerializeField] private GameObject slamWarningPrefab;
+    [SerializeField] private GameObject slamImpactVFX;
+    [SerializeField, Min(0f)] private float slamVFXLifetime = 2.5f;
+
+    [Header("Ranged Projectile")]
+    [Tooltip("Prefab visual del proyectil. DragonBossProjectile se agrega automaticamente si falta.")]
     [SerializeField] private GameObject projectilePrefab;
-    [SerializeField] private float rangeAttack_Range;
-    [SerializeField] private float rangeAttack_Cooldown;
-    [SerializeField] private float rangeAttack_Damage;
-    [SerializeField] private int shotgunPellets = 3;
-    [SerializeField] private float shotgunSpreadAngle = 25f;
-    [SerializeField] private float shotgunProjectileSpeed = 20f;
+    [SerializeField] private Transform projectileSpawnPoint;
+    [SerializeField, Min(0f)] private float projectileAimHeight = 1.1f;
+    [SerializeField, Min(0f)] private float projectileDamage = 14f;
+    [SerializeField, Min(0.1f)] private float projectileSpeed = 18f;
+    [SerializeField, Min(0.05f)] private float projectileHitRadius = 0.55f;
+    [SerializeField, Min(0.1f)] private float projectileLifetime = 4f;
+    [SerializeField, Min(0f)] private float projectileWindup = 0.65f;
+    [SerializeField, Min(0f)] private float projectileRecovery = 0.55f;
+    [SerializeField, Min(0f)] private float projectileHorizontalKnockback = 4f;
+    [SerializeField, Min(0f)] private float projectileVerticalKnockback = 1f;
+    [SerializeField] private GameObject projectileImpactVFX;
+    [SerializeField, Min(0f)] private float projectileImpactVFXLifetime = 2f;
 
-    [Header("")]
-    [Header("------Melee Attack Settings")]
-    [SerializeField] private float meleeAreaAttack_Range;
-    [SerializeField] private BossHitbox meleeAreaAttack_HitBox;
-    [SerializeField] private float meleeAreaAttack_Damage;
-    [SerializeField] private float meleeAreaAttack_Cooldown;
-    [SerializeField] private float meleeAreaAttack_Duration;
-    [SerializeField] private float meleeAreaAttack_Delay;
-    [SerializeField] private float meleeAreaAttack_HorizontalKnockback;
-    [SerializeField] private float meleeAreaAttack_VerticalKnockback;
+    [Header("Meteor - shared")]
+    [SerializeField] private LayerMask groundMask;
+    [SerializeField] private LayerMask playerMask = ~0;
+    [SerializeField] private GameObject meteorWarningPrefab;
+    [SerializeField] private GameObject meteorVisualPrefab;
+    [SerializeField] private GameObject meteorImpactVFX;
+    [SerializeField, Min(0.1f)] private float meteorWarningTime = 1.1f;
+    [SerializeField, Min(0.1f)] private float meteorRadius = 2.2f;
+    [SerializeField, Min(0f)] private float meteorDamage = 16f;
+    [SerializeField, Min(0f)] private float meteorHeight = 16f;
+    [SerializeField, Min(0f)] private float meteorHorizontalKnockback = 4f;
+    [SerializeField, Min(0f)] private float meteorVerticalKnockback = 1f;
+    [SerializeField, Min(0f)] private float meteorSpawnGap = 0.12f;
+    [SerializeField, Min(0f)] private float meteorRandomRadius = 7f;
 
-    [Header("----------------------------------")]
-    [Header("")]
-    [Header("-----------Phase 3----------------")]
-    [Header("------Slam Attack")]
-    [SerializeField] private float slamAttack_Radius;
-    [SerializeField] private float slamAttack_Damage;
-    [SerializeField] private GameObject slamEffectPrefab;
-    [SerializeField] private GameObject rotatingBurstProjectilePrefab;
-    [SerializeField] private Transform specialFirePoint;
-    [SerializeField] private float specialAttack_Cooldown = 10f;
+    [Header("Meteor - Phase 1")]
+    [SerializeField, Min(1)] private int phase1MeteorCount = 4;
+    [SerializeField, Min(0.1f)] private float phase1MeteorInterval = 2.4f;
 
-    private float specialAttack_CurrentCooldown = 0f;
+    [Header("Meteor - Phase 2")]
+    [Tooltip("0 desactiva los meteoritos durante la Fase 2.")]
+    [SerializeField, Min(0f)] private float phase2MeteorInterval = 5f;
+    [SerializeField, Min(1)] private int phase2MeteorCount = 1;
 
-    [Header("")]
-    [Header("------Melee Attack Settings")]
-    [SerializeField] private float meleeAttack_Range;
-    [SerializeField] private BossHitbox meleeAttack_HitBox;
-    [SerializeField] private float meleeAttack_Damage;
-    [SerializeField] private float meleeAttack_Cooldown;
-    [SerializeField] private float meleeAttack_Duration;
-    [SerializeField] private float meleeAttack_Delay;
-    [SerializeField] private float meleeAttack_HorizontalKnockback;
-    [SerializeField] private float meleeAttack_VerticalKnockback;
+    [Header("Meteor - Phase 3")]
+    [SerializeField, Min(1)] private int phase3MeteorCount = 3;
+    [SerializeField, Min(0.1f)] private float phase3MeteorInterval = 2.8f;
 
-    private BossState currentState;
+    [Header("Phase 3 feedback")]
+    [SerializeField] private GameObject enrageVFX;
+    [SerializeField, Min(0f)] private float enrageVFXLifetime = 3f;
 
-    private int currentPhase = 1;
-    private float rangeAttack_CurrentCooldown;
-    private float meleeAreaAttack_CurrentCooldown;
-    private float meleeAttack_CurrentCooldown;
-    private SkinnedMeshRenderer bossRenderer;
-    bool fase3startedEntry = false;
-    private bool fase3Active = false;
-    private float currentArmor;
+    [Header("Diagnostics")]
+    [SerializeField] private bool logBoss;
 
+    public event Action<int> OnPhaseChanged;
+    public event Action OnBossDefeated;
 
-    private enum BossState
+    public int CurrentPhase => currentPhase;
+    public bool FightActive => fightActive;
+
+    private int currentPhase;
+    private bool fightActive;
+    private bool transitioning;
+    private bool isAttacking;
+    private bool hasDied;
+    private float phase2StartedAt;
+
+    private Coroutine meteorLoop;
+    private Coroutine combatLoop;
+    private Animator dragonAnimator;
+
+    private readonly Collider[] playerHits = new Collider[32];
+
+    protected override void OnEnable()
     {
-        Entry,
-        Idle,
-        Attacking,
-        Damaged
-    }
-    protected override void OnDamage(float damage, DamageFeedbackType feedbackType)
-    {
-        float effectiveDamage = Mathf.Max(0, damage - currentArmor);
-        currentHealth -= effectiveDamage;
+        base.OnEnable();
 
-        if (currentHealth < 0)
-        {
-            Die(baseStats.expDrop);
-        }
-        else
-        {
-            UIManager.Instance.SetBossHealth(currentHealth);
-        }
-    }
+        fightActive = false;
+        transitioning = false;
+        isAttacking = false;
+        hasDied = false;
+        currentPhase = 0;
 
-    protected override void Die(float experience)
-    {
-        Destroy(gameObject);
-        finalDoor.SetActive(true);
-        UIManager.Instance.DisableBossName();
-    }
+        dragonAnimator = GetComponentInChildren<Animator>();
 
-    public void Start()
-    {
-        handleAnimations = GetComponent<HandleAnimations>();
-        target = GameObject.FindGameObjectWithTag("Player").transform;
-        bossRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
-        bossRenderer.gameObject.SetActive(false);
-
-        currentState = BossState.Entry;
-        rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
-
-        currentHealth = baseStats.maxHealth;
-        projectilePoolManager = new PoolManager<Projectile>(projectilePrefab.GetComponent<Projectile>(), poolSize, transform);
+        if (dragonAnimator != null)
+            dragonAnimator.speed = 1f;
     }
 
     protected override void Update()
     {
-        if (rangeAttack_CurrentCooldown > 0f)
-            rangeAttack_CurrentCooldown -= Time.deltaTime;
+        base.Update();
 
-        if (meleeAreaAttack_CurrentCooldown > 0f)
-            meleeAreaAttack_CurrentCooldown -= Time.deltaTime;
+        if (!fightActive || hasDied || target == null)
+            return;
 
-        if (meleeAttack_CurrentCooldown > 0f)
-            meleeAttack_CurrentCooldown -= Time.deltaTime;
+        UpdateBossUI();
 
-        if (specialAttack_CurrentCooldown > 0f)
-            specialAttack_CurrentCooldown -= Time.deltaTime;
+        if (currentPhase >= 2 && !isAttacking && !transitioning)
+            RotateTowardsPlayer();
 
-        if (target == null) return;
-
-        HandlePhases();
-
-        float distance = Vector3.Distance(transform.position, target.position);
-
-        switch (currentState)
+        if (currentPhase == 2 &&
+            Time.time >= phase2StartedAt + minimumPhase2Duration &&
+            GetHealthPercent() <= phase3HealthPercent)
         {
-            case BossState.Entry:
-                if (distance < entryScene_Range)
-                {
-                    handleAnimations.ChangeAnimationState("Entry_Boss");
-                    bossRenderer.gameObject.SetActive(true);
-                    UIManager.Instance.SetBossHealth(currentHealth);
-                    UIManager.Instance.SetBossName("Dragon Boss");
-
-                    StartCoroutine(WaitForEntryAnimation());
-                }
-                break;
-
-
-            case BossState.Idle:
-                handleAnimations.ChangeAnimationState("Idle_Boss");
-                if (distance < rangeAttack_Range)
-                    currentState = BossState.Attacking;
-                break;
-
-            case BossState.Attacking:
-                float dist = Vector3.Distance(transform.position, target.position);
-
-                if (distance > rangeAttack_Range)
-                {
-                    currentState = BossState.Idle;
-                }
-                else
-                {
-                    HandleAttackByPhase(distance);
-                }
-                break;
-
-            case BossState.Damaged:
-
-                break;
+            EnterPhase3();
         }
     }
 
-    private IEnumerator WaitForEntryAnimation()
+    // El boss se instancia como prefab, por eso los puntos de la arena
+    // deben poder venir desde un objeto de escena como DragonBossAltar.
+    public void ConfigureArenaAnchors(
+        Transform externalFlightAnchor,
+        Transform externalGroundAnchor)
     {
-        yield return null; // Espera un frame para asegurar que la animación empezó
+        if (externalFlightAnchor != null)
+            flightAnchor = externalFlightAnchor;
 
-        float animLength = handleAnimations.GetCurrentAnimationLength();
-        yield return new WaitForSecondsRealtime(animLength);
-        currentState = BossState.Idle;
+        if (externalGroundAnchor != null)
+            groundAnchor = externalGroundAnchor;
     }
 
-
-    PoolManager<Projectile> projectilePoolManager;
-    private int poolSize = 7;
-    public void PerformRangeAttack() // Usado en animation event instancia un proyectil
+    // El boss NO empieza automáticamente.
+    // DragonBossAltar es quien debe llamar este método después de la interacción con E.
+    public void BeginBossFight()
     {
-        Vector3 directionToTarget = (target.position - firePoint.position).normalized;
-
-        GameObject projectile = projectilePoolManager.Get().gameObject;
-        Projectile projectileScript = projectile.GetComponent<Projectile>();
-        projectileScript.Initialize(directionToTarget * projectileSpeed, rangeAttack_Damage, projectilePoolManager, firePoint.transform);
+        BeginBossFightWithDifficulty(0f);
     }
 
-    private void PerformShotgunAttack()
+    // Puede llamarse desde el altar si despues quieren pasar Threat/dificultad.
+    public void BeginBossFightWithDifficulty(float difficulty)
     {
-        Vector3 forward = firePoint.forward;
+        if (fightActive || hasDied)
+            return;
 
-        for (int i = 0; i < shotgunPellets; i++)
+        if (target == null)
         {
-            float angle = UnityEngine.Random.Range(-shotgunSpreadAngle, shotgunSpreadAngle);
-            Vector3 dir = Quaternion.Euler(0, angle, 0) * forward;
-
-            GameObject projectile = projectilePoolManager.Get().gameObject;
-            Projectile projScript = projectile.GetComponent<Projectile>();
-
-            projectile.transform.position = firePoint.position;
-            projectile.transform.rotation = Quaternion.LookRotation(dir);
-
-            projScript.Initialize(
-                dir.normalized * shotgunProjectileSpeed,
-                rangeAttack_Damage,
-                projectilePoolManager,
-                firePoint
-            );
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+                target = player.transform;
         }
-    }
 
-    private IEnumerator PerformPhase3SpecialAttack()
-    {
-        // Esperar al timing correcto de la animación
-        yield return new WaitForSeconds(0.5f);
+        InitializeForWave(difficulty, target);
 
-        GameObject obj = Instantiate(rotatingBurstProjectilePrefab, specialFirePoint.position, specialFirePoint.rotation);
-
-    }
-
-    private void HandlePhases()
-    {
-        float healthPercent = currentHealth / baseStats.maxHealth;
-
-        if (healthPercent <= 0.5f && currentPhase < 3)
-            currentPhase = 3;
-        else if (healthPercent <= 0.8f && currentPhase < 2)
-            currentPhase = 2;
-    }
-
-    private void HandleAttackByPhase(float distance)
-    {
-        switch (currentPhase)
+        if (flightAnchor != null)
         {
-            case 1:
-                Phase1Attack(distance);
-                break;
-
-            case 2:
-                Phase2Attack(distance);
-                break;
-
-            case 3:
-                Phase3Attack(distance);
-                break;
+            transform.position = flightAnchor.position;
+            transform.rotation = flightAnchor.rotation;
         }
+
+        fightActive = true;
+        currentPhase = 1;
+
+        SetAnimation(flightAnimation);
+        UpdateBossUI();
+
+        OnPhaseChanged?.Invoke(currentPhase);
+        Log("Fase 1 iniciada");
+
+        meteorLoop = StartCoroutine(MeteorLoop());
+        combatLoop = StartCoroutine(GroundCombatLoop());
+
+        StartCoroutine(Phase1Timer());
     }
 
-    // ------------------ FASE 1 ------------------
-    private void Phase1Attack(float distance)
+    private IEnumerator Phase1Timer()
     {
-        // MELEE
-        if (distance < meleeAreaAttack_Range && meleeAreaAttack_CurrentCooldown <= 0f)
-        {
-            handleAnimations.ChangeAnimationState("MeleeAttack_Boss", true);
-            DoMeleeAttack(meleeAreaAttack_HitBox, meleeAreaAttack_Damage, meleeAreaAttack_Delay, meleeAreaAttack_Duration, meleeAreaAttack_HorizontalKnockback, meleeAreaAttack_VerticalKnockback);
+        yield return new WaitForSeconds(phase1Duration);
 
-            meleeAreaAttack_CurrentCooldown = meleeAreaAttack_Cooldown;
-            rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
-        }
-        else if (rangeAttack_CurrentCooldown <= 0f)
-        {
-            // RANDOMLY CHOOSE BETWEEN NORMAL SHOT OR SHOTGUN
-            int r = UnityEngine.Random.Range(0, 2);
+        if (!fightActive || hasDied || currentPhase != 1)
+            yield break;
 
-            if (r == 0)
+        yield return StartCoroutine(TransitionToPhase2());
+    }
+
+    private IEnumerator TransitionToPhase2()
+    {
+        transitioning = true;
+        Log("Aterrizando -> Fase 2");
+
+        SetAnimation(landingAnimation);
+
+        Vector3 startPosition = transform.position;
+        Quaternion startRotation = transform.rotation;
+
+        Vector3 endPosition =
+            groundAnchor != null
+                ? groundAnchor.position
+                : transform.position;
+
+        Quaternion endRotation =
+            groundAnchor != null
+                ? groundAnchor.rotation
+                : transform.rotation;
+
+        if (landingDuration > 0f && groundAnchor != null)
+        {
+            float elapsed = 0f;
+
+            while (elapsed < landingDuration)
             {
-                // NORMAL RANGE ATTACK
-                handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
+                float t = Mathf.Clamp01(elapsed / landingDuration);
+                t = t * t * (3f - 2f * t);
+
+                transform.position =
+                    Vector3.Lerp(startPosition, endPosition, t);
+
+                transform.rotation =
+                    Quaternion.Slerp(startRotation, endRotation, t);
+
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            transform.position = endPosition;
+            transform.rotation = endRotation;
+        }
+        else if (groundAnchor != null)
+        {
+            transform.position = endPosition;
+            transform.rotation = endRotation;
+        }
+
+        currentPhase = 2;
+        phase2StartedAt = Time.time;
+        transitioning = false;
+
+        SetAnimation(idleAnimation);
+
+        OnPhaseChanged?.Invoke(currentPhase);
+        Log("Fase 2 iniciada");
+    }
+
+    private void EnterPhase3()
+    {
+        if (currentPhase >= 3 || hasDied)
+            return;
+
+        currentPhase = 3;
+
+        if (dragonAnimator == null)
+            dragonAnimator = GetComponentInChildren<Animator>();
+
+        if (dragonAnimator != null)
+            dragonAnimator.speed = GetCombatSpeedMultiplier();
+
+        if (!isAttacking)
+            SetAnimation(enrageAnimation);
+
+        if (enrageVFX != null)
+        {
+            GameObject vfx = Instantiate(
+                enrageVFX,
+                CombatVFXPosition,
+                Quaternion.identity);
+
+            if (enrageVFXLifetime > 0f)
+                Destroy(vfx, enrageVFXLifetime);
+        }
+
+        OnPhaseChanged?.Invoke(currentPhase);
+        Log("Fase 3 iniciada");
+    }
+
+    private IEnumerator GroundCombatLoop()
+    {
+        while (fightActive && !hasDied)
+        {
+            if (currentPhase < 2 || transitioning)
+            {
+                yield return null;
+                continue;
+            }
+
+            float cooldown =
+                currentPhase >= 3
+                    ? phase3AttackCooldown
+                    : phase2AttackCooldown;
+
+            yield return new WaitForSeconds(cooldown);
+
+            if (!fightActive || hasDied ||
+                currentPhase < 2 || transitioning)
+            {
+                continue;
+            }
+
+            yield return StartCoroutine(PerformGroundAttack());
+        }
+    }
+
+    private IEnumerator PerformGroundAttack()
+    {
+        if (target == null)
+            yield break;
+
+        isAttacking = true;
+        FacePlayerImmediate();
+
+        float distance =
+            Vector3.Distance(
+                transform.position,
+                target.position);
+
+        // Lejos: siempre proyectil.
+        if (distance > rangedAttackDistance)
+        {
+            yield return StartCoroutine(
+                RangedProjectileAttack());
+        }
+        // Cerca: Claw o Slam.
+        else if (UnityEngine.Random.value <= clawChanceWhenClose)
+        {
+            yield return StartCoroutine(
+                ClawAttack());
+        }
+        else
+        {
+            yield return StartCoroutine(
+                JumpSlamAttack());
+        }
+
+        isAttacking = false;
+        SetAnimation(idleAnimation);
+    }
+
+    private IEnumerator ClawAttack()
+    {
+        SetAnimation(clawAnimation);
+
+        if (clawWindup > 0f)
+            yield return new WaitForSeconds(
+                GetScaledCombatTime(clawWindup));
+
+        Vector3 hitCenter =
+            clawHitPoint != null
+                ? clawHitPoint.position
+                : transform.position +
+                  transform.forward * Mathf.Max(1f, clawRange * 0.65f);
+
+        DealDamageToPlayerInSphere(
+            hitCenter,
+            clawHitRadius,
+            clawDamage,
+            clawHorizontalKnockback,
+            clawVerticalKnockback);
+
+        SpawnVFX(
+            clawImpactVFX,
+            hitCenter,
+            clawVFXLifetime);
+
+        if (clawRecovery > 0f)
+            yield return new WaitForSeconds(
+                GetScaledCombatTime(clawRecovery));
+    }
+
+    private IEnumerator JumpSlamAttack()
+    {
+        SetAnimation(jumpSlamAnimation);
+
+        GameObject warning =
+            SpawnGroundWarning(
+                slamWarningPrefab,
+                transform.position,
+                slamRadius);
+
+        if (slamWindup > 0f)
+            yield return new WaitForSeconds(
+                GetScaledCombatTime(slamWindup));
+
+        Vector3 impactPoint =
+            ProjectToGround(transform.position);
+
+        if (warning != null)
+            Destroy(warning);
+
+        SpawnVFX(
+            slamImpactVFX,
+            impactPoint,
+            slamVFXLifetime);
+
+        DealDamageToPlayerInSphere(
+            impactPoint,
+            slamRadius,
+            slamDamage,
+            slamHorizontalKnockback,
+            slamVerticalKnockback);
+
+        if (slamRecovery > 0f)
+            yield return new WaitForSeconds(
+                GetScaledCombatTime(slamRecovery));
+    }
+
+    private IEnumerator RangedProjectileAttack()
+    {
+        SetAnimation(rangedAttackAnimation);
+
+        if (projectileWindup > 0f)
+        {
+            yield return new WaitForSeconds(
+                GetScaledCombatTime(projectileWindup));
+        }
+
+        // Re-apunta justo antes de disparar.
+        FacePlayerImmediate();
+        SpawnProjectile();
+
+        if (projectileRecovery > 0f)
+        {
+            yield return new WaitForSeconds(
+                GetScaledCombatTime(projectileRecovery));
+        }
+    }
+
+    private void SpawnProjectile()
+    {
+        if (target == null)
+            return;
+
+        if (projectilePrefab == null)
+        {
+            Log("Projectile Prefab no asignado.");
+            return;
+        }
+
+        Vector3 spawnPosition =
+            projectileSpawnPoint != null
+                ? projectileSpawnPoint.position
+                : transform.position +
+                  transform.forward * 2.5f +
+                  Vector3.up * 1.5f;
+
+        Vector3 aimPosition =
+            target.position +
+            Vector3.up * projectileAimHeight;
+
+        Vector3 direction =
+            aimPosition - spawnPosition;
+
+        if (direction.sqrMagnitude <= 0.001f)
+            direction = transform.forward;
+
+        direction.Normalize();
+
+        GameObject projectileObject =
+            Instantiate(
+                projectilePrefab,
+                spawnPosition,
+                Quaternion.LookRotation(direction));
+
+        DragonBossProjectile projectile =
+            projectileObject.GetComponent<DragonBossProjectile>();
+
+        if (projectile == null)
+            projectile =
+                projectileObject.AddComponent<DragonBossProjectile>();
+
+        projectile.Initialize(
+            direction,
+            projectileSpeed * GetCombatSpeedMultiplier(),
+            projectileDamage,
+            projectileHitRadius,
+            projectileLifetime,
+            playerMask,
+            projectileHorizontalKnockback,
+            projectileVerticalKnockback,
+            projectileImpactVFX,
+            projectileImpactVFXLifetime);
+    }
+
+    private float GetCombatSpeedMultiplier()
+    {
+        return currentPhase >= 3
+            ? Mathf.Max(1f, phase3SpeedMultiplier)
+            : 1f;
+    }
+
+    private float GetScaledCombatTime(float baseTime)
+    {
+        return baseTime /
+               GetCombatSpeedMultiplier();
+    }
+
+    private IEnumerator MeteorLoop()
+    {
+        while (fightActive && !hasDied)
+        {
+            if (transitioning || target == null)
+            {
+                yield return null;
+                continue;
+            }
+
+            int count = GetMeteorCount();
+            float interval = GetMeteorInterval();
+
+            if (count <= 0 || interval <= 0f)
+            {
+                yield return null;
+                continue;
+            }
+
+            yield return StartCoroutine(SpawnMeteorVolley(count));
+
+            yield return new WaitForSeconds(interval);
+        }
+    }
+
+    private IEnumerator SpawnMeteorVolley(int count)
+    {
+        if (target == null)
+            yield break;
+
+        Vector3 playerPosition = target.position;
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 candidate;
+
+            // El primer meteorito siempre obliga al jugador a moverse.
+            if (i == 0)
+            {
+                candidate = playerPosition;
             }
             else
             {
-                // SHOTGUN ATTACK
-                handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
-                StartCoroutine(DelayedShotgun());
+                Vector2 random =
+                    UnityEngine.Random.insideUnitCircle *
+                    meteorRandomRadius;
+
+                candidate =
+                    playerPosition +
+                    new Vector3(random.x, 0f, random.y);
             }
 
-            rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
+            Vector3 groundPoint =
+                ProjectToGround(candidate);
+
+            CreateMeteorHazard(groundPoint);
+
+            if (meteorSpawnGap > 0f && i < count - 1)
+                yield return new WaitForSeconds(meteorSpawnGap);
         }
     }
 
-    private IEnumerator DelayedShotgun()
+    private void CreateMeteorHazard(Vector3 groundPoint)
     {
-        yield return new WaitForSeconds(0.25f); // delay opcional, ajustable
-        PerformShotgunAttack();
+        GameObject hazardObject =
+            new GameObject("Dragon_Meteor_Hazard");
+
+        hazardObject.transform.position = groundPoint;
+
+        DragonMeteorHazard hazard =
+            hazardObject.AddComponent<DragonMeteorHazard>();
+
+        hazard.Initialize(
+            groundPoint,
+            playerMask,
+            meteorWarningPrefab,
+            meteorVisualPrefab,
+            meteorImpactVFX,
+            meteorWarningTime,
+            meteorRadius,
+            meteorDamage,
+            meteorHeight,
+            meteorHorizontalKnockback,
+            meteorVerticalKnockback);
     }
 
-    // ------------------ FASE 2 ------------------
-    private void Phase2Attack(float distance)
+    private int GetMeteorCount()
     {
-        if (distance < meleeAreaAttack_Range && meleeAreaAttack_CurrentCooldown <= 0f)
-        {
-            handleAnimations.ChangeAnimationState("MeleeAttack_Boss");
-            DoMeleeAttack(meleeAreaAttack_HitBox, meleeAreaAttack_Damage, meleeAreaAttack_Delay, meleeAreaAttack_Duration, meleeAreaAttack_HorizontalKnockback, meleeAreaAttack_VerticalKnockback);
-            meleeAreaAttack_CurrentCooldown = meleeAreaAttack_Cooldown;
-            rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
-        }
-        else if (rangeAttack_CurrentCooldown <= 0f)
-        {
-            handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
-            StartCoroutine(MultipleShot());
-            rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
-        }
+        if (currentPhase == 1)
+            return phase1MeteorCount;
+
+        if (currentPhase == 2)
+            return phase2MeteorInterval > 0f
+                ? phase2MeteorCount
+                : 0;
+
+        if (currentPhase >= 3)
+            return phase3MeteorCount;
+
+        return 0;
     }
 
-    private IEnumerator MultipleShot()
+    private float GetMeteorInterval()
     {
-        PerformRangeAttack();
-        yield return new WaitForSeconds(0.3f);
-        PerformRangeAttack();
-        yield return new WaitForSeconds(0.3f);
-        PerformRangeAttack();
-        yield return new WaitForSeconds(0.3f);
-        PerformRangeAttack();
-        yield return new WaitForSeconds(0.3f);
-        PerformRangeAttack();
+        if (currentPhase == 1)
+            return phase1MeteorInterval;
+
+        if (currentPhase == 2)
+            return phase2MeteorInterval;
+
+        if (currentPhase >= 3)
+            return phase3MeteorInterval;
+
+        return 0f;
     }
 
-    // ------------------ FASE 3 ------------------
-
-
-
-    private void Phase3Attack(float distance)
+    private void DealDamageToPlayerInSphere(
+        Vector3 center,
+        float radius,
+        float damage,
+        float horizontalKnockback,
+        float verticalKnockback)
     {
-        if (!fase3startedEntry)
-        {
-            fase3startedEntry = true;
-            StartCoroutine(Phase3EntryRoutine());
-            return; // evitar seguir ejecutando ataques
-        }
+        int hitCount =
+            Physics.OverlapSphereNonAlloc(
+                center,
+                radius,
+                playerHits,
+                playerMask,
+                QueryTriggerInteraction.Collide);
 
-        if (fase3Active)
+        PlayerController damagedPlayer = null;
+
+        for (int i = 0; i < hitCount; i++)
         {
-            if (distance < meleeAttack_Range && meleeAttack_CurrentCooldown <= 0f)
+            Collider col = playerHits[i];
+
+            if (col == null)
+                continue;
+
+            PlayerController player =
+                col.GetComponentInParent<PlayerController>();
+
+            if (player == null || player == damagedPlayer)
+                continue;
+
+            damagedPlayer = player;
+            player.TakeDamage(damage);
+
+            Rigidbody playerBody =
+                player.GetComponent<Rigidbody>();
+
+            if (playerBody != null &&
+                (horizontalKnockback > 0f ||
+                 verticalKnockback > 0f))
             {
-                FaceTarget();
-                handleAnimations.ChangeAnimationState("MeleeAttack2");
-                DoMeleeAttack(meleeAttack_HitBox, meleeAttack_Damage, meleeAttack_Delay, meleeAttack_Duration, meleeAttack_HorizontalKnockback, meleeAttack_VerticalKnockback);
-                meleeAttack_CurrentCooldown = meleeAttack_Cooldown;
-                rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
-            }
-            else if (rangeAttack_CurrentCooldown <= 0f)
-            {
+                Vector3 direction =
+                    player.transform.position - center;
 
-                FaceTarget();
-                handleAnimations.ChangeAnimationState("RangeAttack_Boss", true);
-                rangeAttack_CurrentCooldown = rangeAttack_Cooldown;
+                direction.y = 0f;
 
+                if (direction.sqrMagnitude < 0.001f)
+                    direction = transform.forward;
+
+                direction.Normalize();
+
+                Vector3 force =
+                    direction * horizontalKnockback +
+                    Vector3.up * verticalKnockback;
+
+                playerBody.AddForce(
+                    force,
+                    ForceMode.Impulse);
             }
-            if (specialAttack_CurrentCooldown <= 0f)
-            {
-                FaceTarget();
-                handleAnimations.ChangeAnimationState("SpecialAttack_Boss", true);
-                StartCoroutine(PerformPhase3SpecialAttack());
-                specialAttack_CurrentCooldown = specialAttack_Cooldown;
-            }
+
+            break;
         }
-
-    }
-    [SerializeField] Transform thirdFaseSpawnPoint;
-    private IEnumerator Phase3EntryRoutine()
-    {
-        handleAnimations.ChangeAnimationState("EntryFase3_Boss", true);
-
-        float animLength = handleAnimations.GetCurrentAnimationLength();
-        yield return new WaitForSecondsRealtime(animLength);
-
-        transform.position = thirdFaseSpawnPoint.position;
-        FaceTarget();
-        handleAnimations.ChangeAnimationState("Entry_Boss", true);
-        rangeAttack_Cooldown = 2f;
-        float animmLength = handleAnimations.GetCurrentAnimationLength();
-        yield return new WaitForSecondsRealtime(animmLength);
-
-        fase3Active = true; // ✅ Ahora sí puede atacar
-        currentState = BossState.Idle;
     }
 
-
-    public void PerformSlamAttack()
+    private Vector3 ProjectToGround(Vector3 position)
     {
-        // Detectar al jugador dentro del radio
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, slamAttack_Radius);
-        foreach (var hit in hitColliders)
+        int mask =
+            groundMask.value != 0
+                ? groundMask.value
+                : LayerMask.GetMask("Ground");
+
+        Vector3 rayStart =
+            position + Vector3.up * 25f;
+
+        if (Physics.Raycast(
+            rayStart,
+            Vector3.down,
+            out RaycastHit hit,
+            60f,
+            mask,
+            QueryTriggerInteraction.Ignore))
         {
-            if (hit.TryGetComponent<IDamageable>(out IDamageable damageable))
-            {
-                damageable.TakeDamage(slamAttack_Damage);
-            }
+            return hit.point;
         }
-         Instantiate(slamEffectPrefab, transform.position, Quaternion.identity);
+
+        return new Vector3(
+            position.x,
+            transform.position.y,
+            position.z);
     }
 
-
-    private void OnDrawGizmos()
+    private GameObject SpawnGroundWarning(
+        GameObject prefab,
+        Vector3 position,
+        float radius)
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, rangeAttack_Range);
+        if (prefab == null)
+            return null;
 
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, meleeAreaAttack_Range);
+        Vector3 groundPoint =
+            ProjectToGround(position);
 
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, meleeAttack_Range);
+        GameObject warning =
+            Instantiate(
+                prefab,
+                groundPoint + Vector3.up * 0.02f,
+                Quaternion.identity);
 
+        Vector3 scale = warning.transform.localScale;
+        float diameter = radius * 2f;
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, entryScene_Range);
+        warning.transform.localScale =
+            new Vector3(
+                diameter,
+                scale.y,
+                diameter);
+
+        return warning;
     }
 
-
-    public void DoMeleeAttack(BossHitbox hitbox, float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
+    private void RotateTowardsPlayer()
     {
-        StartCoroutine(meleeHitboxRoutine(hitbox, dmg, delay, duration, knockbackHorizontal, knockbackVertical));
+        Vector3 direction =
+            target.position - transform.position;
+
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude <= 0.001f)
+            return;
+
+        Quaternion targetRotation =
+            Quaternion.LookRotation(direction.normalized);
+
+        transform.rotation =
+            Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                turnSpeed *
+                GetCombatSpeedMultiplier() *
+                Time.deltaTime);
     }
 
-    private IEnumerator meleeHitboxRoutine(BossHitbox hitbox, float dmg, float delay, float duration, float knockbackHorizontal, float knockbackVertical)
+    private void FacePlayerImmediate()
     {
+        if (target == null)
+            return;
 
-        hitbox.SetDamage(dmg, knockbackHorizontal, knockbackVertical);  // Setea damage y knocback
+        Vector3 direction =
+            target.position - transform.position;
 
-        if (delay > 0f)
-            yield return new WaitForSeconds(delay); // Espera por el delay, en base a la animacion
+        direction.y = 0f;
 
-        hitbox.EnableHitbox();
+        if (direction.sqrMagnitude > 0.001f)
+            transform.rotation =
+                Quaternion.LookRotation(direction.normalized);
+    }
 
-        if (duration > 0f)
-            yield return new WaitForSeconds(duration); // Espera por la duracion del ataque
+    private void SetAnimation(string animationName)
+    {
+        if (handleAnimations == null ||
+            string.IsNullOrWhiteSpace(animationName))
+        {
+            return;
+        }
 
-        hitbox.DisableHitbox();
+        handleAnimations.ChangeAnimationState(
+            animationName,
+            true);
+    }
+
+    private void SpawnVFX(
+        GameObject prefab,
+        Vector3 position,
+        float lifetime)
+    {
+        if (prefab == null)
+            return;
+
+        GameObject vfx =
+            Instantiate(
+                prefab,
+                position,
+                Quaternion.identity);
+
+        if (lifetime > 0f)
+            Destroy(vfx, lifetime);
+    }
+
+    private float GetHealthPercent()
+    {
+        float max =
+            CurrentStats != null
+                ? CurrentStats.maxHealth
+                : maxHealth;
+
+        if (max <= 0f)
+            return 0f;
+
+        return Mathf.Clamp01(currentHealth / max);
+    }
+
+    protected override void OnDamage(
+        float damage,
+        DamageFeedbackType feedbackType)
+    {
+        if (hasDied)
+            return;
+
+        base.OnDamage(damage, feedbackType);
+
+        ShowDamageNumber(
+            damage,
+            feedbackType);
+
+        if (!IsDead())
+            UpdateBossUI();
+    }
+
+    protected override void Die(float experienceDroped = 0f)
+    {
+        if (hasDied)
+            return;
+
+        hasDied = true;
+        fightActive = false;
+        isAttacking = false;
+
+        if (dragonAnimator != null)
+            dragonAnimator.speed = 1f;
+
+        StopAllCoroutines();
+
+        if (finalDoor != null)
+            finalDoor.SetActive(true);
+
+        if (deathVFX != null)
+        {
+            GameObject vfx =
+                Instantiate(
+                    deathVFX,
+                    CombatVFXPosition,
+                    Quaternion.identity);
+
+            if (deathVFXLifetime > 0f)
+                Destroy(vfx, deathVFXLifetime);
+        }
+
+        if (UIManager.Instance != null)
+            UIManager.Instance.DisableBossName();
+
+        OnBossDefeated?.Invoke();
+
+        // Importante para Poison/Fire/otros efectos que escuchan OnDeath.
+        OnDeath?.Invoke();
+
+        gameObject.SetActive(false);
+    }
+
+    private void UpdateBossUI()
+    {
+        if (UIManager.Instance == null)
+            return;
+
+        UIManager.Instance.SetBossName(
+            bossDisplayName);
+
+        UIManager.Instance.SetBossHealth(
+            currentHealth);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Vector3 clawCenter =
+            clawHitPoint != null
+                ? clawHitPoint.position
+                : transform.position +
+                  transform.forward * Mathf.Max(1f, clawRange * 0.65f);
+
+        Gizmos.DrawWireSphere(
+            clawCenter,
+            clawHitRadius);
+
+        Gizmos.DrawWireSphere(
+            transform.position,
+            slamRadius);
+    }
+
+    private void Log(string message)
+    {
+        if (logBoss)
+            Debug.Log(
+                "[FinalDragonBoss] " + message,
+                this);
     }
 }
