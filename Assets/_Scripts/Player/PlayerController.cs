@@ -42,15 +42,17 @@ public class PlayerController : MonoBehaviour, IDamageable
         playerCollider = GetComponent<Collider>();
         playerContext = GetComponent<PlayerContext>();
 
-        // PlayerStats es un ScriptableObject. Creamos una copia runtime para que
-        // las runas afecten sólo a esta run y nunca modifiquen el asset base.
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+
         if (playerStats != null)
             playerStats = Instantiate(playerStats);
 
         if (groundMask.value == 0)
             groundMask = LayerMask.GetMask("Ground");
+
         currentHealth = playerStats.maxHealth;
         canTakeDamage = true;
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
