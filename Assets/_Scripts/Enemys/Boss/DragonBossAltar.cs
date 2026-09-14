@@ -11,10 +11,16 @@ public class DragonBossAltar : MonoBehaviour
     [Tooltip("Hijo del prefab del altar. Punto donde se instancia inicialmente el dragon.")]
     [SerializeField] private Transform bossSpawnPoint;
 
-    [Tooltip("Hijo del prefab del altar. Punto de vuelo usado durante Fase 1.")]
+    [Tooltip("Anchor aereo dedicado para la Fase 3. Tambien funciona como fallback si no hay Flight Points.")]
     [SerializeField] private Transform bossFlightAnchor;
 
-    [Tooltip("Hijo del prefab del altar. Punto de tierra para Fase 2 y 3.")]
+    [Tooltip("Padre opcional con FlightPoint_01, FlightPoint_02, etc. como hijos directos.")]
+    [SerializeField] private Transform bossFlightPointsRoot;
+
+    [Tooltip("Opcional. Si asignas este array manualmente, tiene prioridad sobre Flight Points Root.")]
+    [SerializeField] private Transform[] bossFlightPoints;
+
+    [Tooltip("Hijo del prefab del altar. Punto de tierra para Fase 2 y Fase 4.")]
     [SerializeField] private Transform bossGroundAnchor;
 
     [Header("Interaction")]
@@ -56,11 +62,11 @@ public class DragonBossAltar : MonoBehaviour
 
     public bool HasBeenActivated => activated;
     public bool PlayerIsInRange => playerIsInRange;
-    public FinalDragonBoss SpawnedBoss => spawnedBoss;
+    public DragonBoss SpawnedBoss => spawnedBoss;
 
     private bool activated;
     private bool playerIsInRange;
-    private FinalDragonBoss spawnedBoss;
+    private DragonBoss spawnedBoss;
     private Coroutine activationRoutine;
     private Transform player;
     private float nextPlayerSearchTime;
@@ -114,11 +120,23 @@ public class DragonBossAltar : MonoBehaviour
                 this);
         }
 
+        Transform[] configuredFlightPoints =
+            GetConfiguredFlightPoints();
+
+        if ((configuredFlightPoints == null ||
+             configuredFlightPoints.Length == 0) &&
+            bossFlightAnchor == null)
+        {
+            Debug.LogWarning(
+                "[DragonBossAltar] No hay Flight Points ni Boss Flight Anchor.",
+                this);
+        }
+
         if (bossFlightAnchor == null)
         {
             Debug.LogWarning(
                 "[DragonBossAltar] Falta Boss Flight Anchor. " +
-                "Crea un Empty hijo del prefab llamado, por ejemplo, FlightAnchor.",
+                "La Fase 3 usara el primer Flight Point como fallback.",
                 this);
         }
 
@@ -266,18 +284,27 @@ public class DragonBossAltar : MonoBehaviour
 
     private void SpawnBoss()
     {
+        Transform[] configuredFlightPoints =
+            GetConfiguredFlightPoints();
+
+        Transform firstFlightPoint =
+            configuredFlightPoints != null &&
+            configuredFlightPoints.Length > 0
+                ? configuredFlightPoints[0]
+                : bossFlightAnchor;
+
         Vector3 position =
             bossSpawnPoint != null
                 ? bossSpawnPoint.position
-                : (bossFlightAnchor != null
-                    ? bossFlightAnchor.position
+                : (firstFlightPoint != null
+                    ? firstFlightPoint.position
                     : transform.position);
 
         Quaternion rotation =
             bossSpawnPoint != null
                 ? bossSpawnPoint.rotation
-                : (bossFlightAnchor != null
-                    ? bossFlightAnchor.rotation
+                : (firstFlightPoint != null
+                    ? firstFlightPoint.rotation
                     : Quaternion.identity);
 
         GameObject bossObject =
@@ -287,7 +314,7 @@ public class DragonBossAltar : MonoBehaviour
                 rotation);
 
         spawnedBoss =
-            bossObject.GetComponent<FinalDragonBoss>();
+            bossObject.GetComponent<DragonBoss>();
 
         if (spawnedBoss == null)
         {
@@ -300,9 +327,15 @@ public class DragonBossAltar : MonoBehaviour
         }
 
         // Los anchors son objetos DE LA ESCENA, no referencias guardadas en el prefab.
+        // FlightAnchor queda separado de los Flight Points:
+        // Fase 1 usa la ruta de Flight Points.
+        // Fase 3 usa este anchor aereo dedicado.
         spawnedBoss.ConfigureArenaAnchors(
             bossFlightAnchor,
             bossGroundAnchor);
+
+        spawnedBoss.ConfigureFlightPoints(
+            configuredFlightPoints);
 
         float difficulty =
             GetBossDifficulty();
@@ -321,6 +354,70 @@ public class DragonBossAltar : MonoBehaviour
                     : "N/A"),
                 this);
         }
+    }
+
+    private Transform[] GetConfiguredFlightPoints()
+    {
+        int explicitValidCount = 0;
+
+        if (bossFlightPoints != null)
+        {
+            for (int i = 0; i < bossFlightPoints.Length; i++)
+            {
+                if (bossFlightPoints[i] != null)
+                    explicitValidCount++;
+            }
+        }
+
+        if (explicitValidCount > 0)
+        {
+            Transform[] result =
+                new Transform[explicitValidCount];
+
+            int writeIndex = 0;
+
+            for (int i = 0; i < bossFlightPoints.Length; i++)
+            {
+                if (bossFlightPoints[i] == null)
+                    continue;
+
+                result[writeIndex] =
+                    bossFlightPoints[i];
+
+                writeIndex++;
+            }
+
+            return result;
+        }
+
+        if (bossFlightPointsRoot != null &&
+            bossFlightPointsRoot.childCount > 0)
+        {
+            Transform[] result =
+                new Transform[
+                    bossFlightPointsRoot.childCount];
+
+            for (int i = 0;
+                 i < bossFlightPointsRoot.childCount;
+                 i++)
+            {
+                result[i] =
+                    bossFlightPointsRoot
+                        .GetChild(i);
+            }
+
+            return result;
+        }
+
+        if (bossFlightAnchor != null)
+        {
+            return new Transform[]
+            {
+                bossFlightAnchor
+            };
+        }
+
+        return new Transform[0];
     }
 
     private float GetBossDifficulty()
@@ -412,46 +509,5 @@ public class DragonBossAltar : MonoBehaviour
     public void SetBossPrefab(GameObject prefab)
     {
         bossPrefab = prefab;
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Transform point =
-            interactionPoint != null
-                ? interactionPoint
-                : transform;
-
-        Gizmos.DrawWireSphere(
-            point.position,
-            interactionRadius);
-
-        if (bossSpawnPoint != null)
-        {
-            Gizmos.DrawWireSphere(
-                bossSpawnPoint.position,
-                1.25f);
-        }
-
-        if (bossFlightAnchor != null)
-        {
-            Gizmos.DrawWireSphere(
-                bossFlightAnchor.position,
-                1.5f);
-        }
-
-        if (bossGroundAnchor != null)
-        {
-            Gizmos.DrawWireSphere(
-                bossGroundAnchor.position,
-                2f);
-        }
-
-        if (bossFlightAnchor != null &&
-            bossGroundAnchor != null)
-        {
-            Gizmos.DrawLine(
-                bossFlightAnchor.position,
-                bossGroundAnchor.position);
-        }
     }
 }

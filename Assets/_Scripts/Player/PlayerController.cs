@@ -42,6 +42,11 @@ public class PlayerController : MonoBehaviour, IDamageable
         playerCollider = GetComponent<Collider>();
         playerContext = GetComponent<PlayerContext>();
 
+        // PlayerStats es un ScriptableObject. Creamos una copia runtime para que
+        // las runas afecten sólo a esta run y nunca modifiquen el asset base.
+        if (playerStats != null)
+            playerStats = Instantiate(playerStats);
+
         if (groundMask.value == 0)
             groundMask = LayerMask.GetMask("Ground");
         currentHealth = playerStats.maxHealth;
@@ -281,15 +286,40 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void AddMaxHealth(int health)
     {
+        if (health <= 0)
+            return;
+
         currentHealth += health;
         playerStats.maxHealth += health;
-        UIManager.Instance.OnPlayerAddHealth(); // Flash verde en UI
+
+        if (UIManager.Instance != null)
+            UIManager.Instance.OnPlayerAddHealth();
     }
 
     public void AddMaxDamage(float damage)
     {
+        if (damage <= 0f)
+            return;
+
         playerStats.basicMaxDamage += damage;
     }
+
+    public void AddMoveSpeed(float speed)
+    {
+        if (speed <= 0f)
+            return;
+
+        playerStats.runningSpeed += speed;
+
+        // Aunque el movimiento actual usa runningSpeed como velocidad objetivo,
+        // mantenemos maxSpeed acompasado para no dejar stats contradictorias.
+        playerStats.maxSpeed += speed;
+
+        // Si Thor ya estaba caminando/corriendo, la mejora se siente de inmediato.
+        if (currentSpeed > 0f)
+            currentSpeed += speed;
+    }
+
     public void AddMaxJumpForce(float force)
     {
         playerStats.maxJumpForce += force;

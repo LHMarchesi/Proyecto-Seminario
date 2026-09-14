@@ -15,6 +15,16 @@ public class DragonMeteorHazard : MonoBehaviour
     private float horizontalKnockback;
     private float verticalKnockback;
 
+    private AudioClip fallSound;
+    private AudioClip impactSound;
+    private float fallVolume;
+    private float impactVolume;
+    private float audioSpatialBlend;
+    private float audioMinDistance;
+    private float audioMaxDistance;
+
+    private AudioSource fallAudioSource;
+
     private Vector3 impactPoint;
     private GameObject warningInstance;
     private GameObject meteorVisualInstance;
@@ -22,6 +32,7 @@ public class DragonMeteorHazard : MonoBehaviour
     private readonly Collider[] hits =
         new Collider[24];
 
+    // Overload legacy para no romper llamadas antiguas.
     public void Initialize(
         Vector3 point,
         LayerMask players,
@@ -34,6 +45,47 @@ public class DragonMeteorHazard : MonoBehaviour
         float visualHeight,
         float horizontalForce,
         float verticalForce)
+    {
+        Initialize(
+            point,
+            players,
+            warning,
+            meteorVisual,
+            impactVFX,
+            telegraphTime,
+            impactRadius,
+            impactDamage,
+            visualHeight,
+            horizontalForce,
+            verticalForce,
+            null,
+            null,
+            0f,
+            0f,
+            1f,
+            4f,
+            45f);
+    }
+
+    public void Initialize(
+        Vector3 point,
+        LayerMask players,
+        GameObject warning,
+        GameObject meteorVisual,
+        GameObject impactVFX,
+        float telegraphTime,
+        float impactRadius,
+        float impactDamage,
+        float visualHeight,
+        float horizontalForce,
+        float verticalForce,
+        AudioClip fallingClip,
+        AudioClip impactClip,
+        float fallingVolume,
+        float hitVolume,
+        float spatialBlend,
+        float minimumDistance,
+        float maximumDistance)
     {
         impactPoint = point;
         playerMask = players;
@@ -48,6 +100,14 @@ public class DragonMeteorHazard : MonoBehaviour
         horizontalKnockback = Mathf.Max(0f, horizontalForce);
         verticalKnockback = Mathf.Max(0f, verticalForce);
 
+        fallSound = fallingClip;
+        impactSound = impactClip;
+        fallVolume = Mathf.Clamp01(fallingVolume);
+        impactVolume = Mathf.Clamp01(hitVolume);
+        audioSpatialBlend = Mathf.Clamp01(spatialBlend);
+        audioMinDistance = Mathf.Max(0.1f, minimumDistance);
+        audioMaxDistance = Mathf.Max(audioMinDistance, maximumDistance);
+
         transform.position = impactPoint;
 
         StartCoroutine(HazardRoutine());
@@ -57,6 +117,7 @@ public class DragonMeteorHazard : MonoBehaviour
     {
         SpawnWarning();
         SpawnMeteorVisual();
+        StartFallSound();
 
         float elapsed = 0f;
 
@@ -149,9 +210,67 @@ public class DragonMeteorHazard : MonoBehaviour
             Destroy(vfx, 3f);
         }
 
+        PlayImpactSound();
         DealDamage();
 
         Destroy(gameObject);
+    }
+
+    private void StartFallSound()
+    {
+        if (fallSound == null ||
+            fallVolume <= 0f)
+        {
+            return;
+        }
+
+        fallAudioSource =
+            gameObject.AddComponent<AudioSource>();
+
+        fallAudioSource.playOnAwake = false;
+        fallAudioSource.clip = fallSound;
+        fallAudioSource.volume = fallVolume;
+        fallAudioSource.spatialBlend = audioSpatialBlend;
+        fallAudioSource.minDistance = audioMinDistance;
+        fallAudioSource.maxDistance = audioMaxDistance;
+        fallAudioSource.rolloffMode = AudioRolloffMode.Linear;
+
+        // El AudioSource vive en el hazard, que esta colocado en el punto
+        // de impacto. El clip funciona como aviso espacial del meteorito.
+        fallAudioSource.Play();
+    }
+
+    private void PlayImpactSound()
+    {
+        if (impactSound == null ||
+            impactVolume <= 0f)
+        {
+            return;
+        }
+
+        GameObject audioObject =
+            new GameObject(
+                "DragonMeteor_ImpactAudio");
+
+        audioObject.transform.position =
+            impactPoint;
+
+        AudioSource source =
+            audioObject.AddComponent<AudioSource>();
+
+        source.playOnAwake = false;
+        source.clip = impactSound;
+        source.volume = impactVolume;
+        source.spatialBlend = audioSpatialBlend;
+        source.minDistance = audioMinDistance;
+        source.maxDistance = audioMaxDistance;
+        source.rolloffMode = AudioRolloffMode.Linear;
+
+        source.Play();
+
+        Destroy(
+            audioObject,
+            impactSound.length + 0.15f);
     }
 
     private void DealDamage()

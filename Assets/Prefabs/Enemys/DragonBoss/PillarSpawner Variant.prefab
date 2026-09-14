@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &472170345165639460
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2167698410167791324}
+  m_Layer: 0
+  m_Name: FlightAnchor (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2167698410167791324
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 472170345165639460}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 539.00006, y: 132.20001, z: 267.00003}
+  m_LocalScale: {x: 1.764011, y: 1.764011, z: 1.764011}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7215336439557583724}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &813165250430595696
 GameObject:
   m_ObjectHideFlags: 0
@@ -25,7 +56,7 @@ Transform:
   m_GameObject: {fileID: 813165250430595696}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.54232, y: 5.390982, z: -38.967175}
+  m_LocalPosition: {x: -1.77, y: 17.97, z: -0.42}
   m_LocalScale: {x: 1.7640108, y: 1.7640108, z: 1.7640108}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56,11 +87,42 @@ Transform:
   m_GameObject: {fileID: 1098580639617179555}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.54232, y: -0.8112798, z: -36.956028}
+  m_LocalPosition: {x: -1.77, y: -0.8112798, z: 4.1}
   m_LocalScale: {x: 1.7640108, y: 1.7640108, z: 1.7640108}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7132206939297972815}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1879051097367270227
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8345615630791159002}
+  m_Layer: 0
+  m_Name: FlightAnchor (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8345615630791159002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1879051097367270227}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -2.8300002, y: 132.20001, z: 267.00003}
+  m_LocalScale: {x: 1.764011, y: 1.764011, z: 1.764011}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7215336439557583724}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2716687996581016418
 GameObject:
@@ -87,10 +149,45 @@ Transform:
   m_GameObject: {fileID: 2716687996581016418}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.54232, y: 23.966017, z: -38.967175}
-  m_LocalScale: {x: 1.7640108, y: 1.7640108, z: 1.7640108}
+  m_LocalPosition: {x: -2.8300002, y: 132.20001, z: -279.00003}
+  m_LocalScale: {x: 1.764011, y: 1.764011, z: 1.764011}
   m_ConstrainProportionsScale: 0
   m_Children: []
+  m_Father: {fileID: 7215336439557583724}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5260917483116504848
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7215336439557583724}
+  m_Layer: 10
+  m_Name: FlightPointsRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7215336439557583724
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5260917483116504848}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4465770812617430005}
+  - {fileID: 8345615630791159002}
+  - {fileID: 2167698410167791324}
+  - {fileID: 4589975701746064304}
   m_Father: {fileID: 7132206939297972815}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6412421142133433276
@@ -124,6 +221,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7132206939297972815}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8879293490280897870
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4589975701746064304}
+  m_Layer: 0
+  m_Name: FlightAnchor (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4589975701746064304
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8879293490280897870}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 539.00006, y: 132.20001, z: -277.00003}
+  m_LocalScale: {x: 1.764011, y: 1.764011, z: 1.764011}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7215336439557583724}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &3778199147409986985
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -134,15 +262,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.57511
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.42390633
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 16.43
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
       propertyPath: m_LocalRotation.w
@@ -172,6 +300,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6413862713140205737, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 98.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6413862713140205737, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 105.16
+      objectReference: {fileID: 0}
     - target: {fileID: 9020160763774116252, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
       propertyPath: m_Name
       value: PillarSpawner Variant
@@ -190,10 +326,10 @@ PrefabInstance:
       addedObject: {fileID: 3790368523067085340}
     - targetCorrespondingSourceObject: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4465770812617430005}
+      addedObject: {fileID: 2080458850978021144}
     - targetCorrespondingSourceObject: {fileID: 6238730642195011558, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2080458850978021144}
+      addedObject: {fileID: 7215336439557583724}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9020160763774116252, guid: adeeee0fc249a0a4da93cd8952883000, type: 3}
       insertIndex: -1
@@ -219,10 +355,12 @@ MonoBehaviour:
   bossPrefab: {fileID: 1104344644623454446, guid: 52121269830e01d428427b024e4297cb, type: 3}
   bossSpawnPoint: {fileID: 3790368523067085340}
   bossFlightAnchor: {fileID: 4465770812617430005}
+  bossFlightPointsRoot: {fileID: 7215336439557583724}
+  bossFlightPoints: []
   bossGroundAnchor: {fileID: 2080458850978021144}
   playerTag: Player
   interactionPoint: {fileID: 0}
-  interactionRadius: 3
+  interactionRadius: 8.54
   activationDelay: 0.5
   interactionPrompt: {fileID: 1636869154057174432, guid: ecc22d85d9d89624ca8dbb516559d204, type: 3}
   waveSpawner: {fileID: 0}

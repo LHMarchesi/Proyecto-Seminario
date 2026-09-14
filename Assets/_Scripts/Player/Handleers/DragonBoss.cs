@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class FinalDragonBoss : BaseEnemy
+public class DragonBoss : BaseEnemy
 {
     [Header("Fight")]
     [SerializeField] private string bossDisplayName = "Dragon";
@@ -11,11 +11,58 @@ public class FinalDragonBoss : BaseEnemy
     [SerializeField, Min(0f)] private float deathVFXLifetime = 4f;
 
     [Header("Fixed positions")]
-    [Tooltip("Punto donde queda el dragon durante la Fase 1. Puede quedar null.")]
+    [Tooltip("Fallback legacy para Fase 1 si no se configuraron Flight Points.")]
     [SerializeField] private Transform flightAnchor;
+
+    [Tooltip("Puntos que el dragon recorre durante la Fase 1. Normalmente los envia DragonBossAltar.")]
+    [SerializeField] private Transform[] flightPoints;
+
     [Tooltip("Punto central donde combate en tierra. Puede quedar null.")]
     [SerializeField] private Transform groundAnchor;
+
     [SerializeField, Min(0f)] private float landingDuration = 1.25f;
+
+    [Header("Boss Intro")]
+    [Tooltip("Animacion opcional para el rugido inicial. Si queda vacio usa Flight.")]
+    [SerializeField] private string introRoarAnimation = "";
+
+    [SerializeField] private AudioClip introRoarSound;
+    [SerializeField, Range(0f, 1f)] private float introRoarVolume = 1f;
+
+    [Tooltip("0 = rugido global/2D. Recomendado para la entrada del boss.")]
+    [SerializeField, Range(0f, 1f)] private float introRoarSpatialBlend = 0f;
+
+    [Tooltip("Tiempo breve antes de comenzar el bombardeo y el vuelo continuo.")]
+    [SerializeField, Min(0f)] private float introDuration = 0.9f;
+
+    [Tooltip("Delay desde que empieza el rugido hasta que se dispara el screen shake.")]
+    [SerializeField, Min(0f)] private float introShakeDelay = 0f;
+
+    [SerializeField, Min(0f)] private float introShakeDuration = 0.7f;
+    [SerializeField, Min(0f)] private float introShakeMagnitude = 0.18f;
+
+    [Header("Boss Audio")]
+    [SerializeField] private AudioClip rangedAttackSound;
+    [SerializeField, Range(0f, 1f)] private float rangedAttackVolume = 0.9f;
+
+    [Tooltip("Se elige uno al azar cada vez que el boss recibe dano, respetando el cooldown.")]
+    [SerializeField] private AudioClip[] damageSounds;
+    [SerializeField, Range(0f, 1f)] private float damageSoundVolume = 0.85f;
+    [SerializeField, Min(0f)] private float damageSoundCooldown = 0.18f;
+    [SerializeField, Range(0.1f, 3f)] private float damagePitchMin = 0.92f;
+    [SerializeField, Range(0.1f, 3f)] private float damagePitchMax = 1.08f;
+
+    [Tooltip("0 = 2D, 1 = completamente 3D.")]
+    [SerializeField, Range(0f, 1f)] private float bossAudioSpatialBlend = 1f;
+    [SerializeField, Min(0.1f)] private float bossAudioMinDistance = 4f;
+    [SerializeField, Min(0.1f)] private float bossAudioMaxDistance = 45f;
+
+    [Header("Phase 1 - Flight movement")]
+    [Tooltip("Velocidad constante del dragon mientras recorre los Flight Points.")]
+    [SerializeField, Min(0.1f)] private float phase1FlightSpeed = 9f;
+
+    [Tooltip("Velocidad con la que el dragon gira hacia la direccion de vuelo.")]
+    [SerializeField, Min(0.1f)] private float phase1FlightTurnSpeed = 4f;
 
     [Header("Animations")]
     [SerializeField] private string flightAnimation = "";
@@ -35,8 +82,20 @@ public class FinalDragonBoss : BaseEnemy
     [SerializeField, Min(0f)]
     private float minimumPhase2Duration = 8f;
 
+    [Header("Phase 3 - Air Assault")]
+    [Tooltip("Tiempo que permanece en el Flight Anchor usando proyectiles + meteoritos.")]
+    [SerializeField, Min(1f)] private float phase3AirDuration = 27.5f;
+
+    [Tooltip("Tiempo que tarda en subir desde Ground Anchor hasta Flight Anchor.")]
+    [SerializeField, Min(0f)] private float phase3TakeoffDuration = 1.5f;
+
+    [Tooltip("Tiempo que tarda en volver al Ground Anchor para comenzar Fase 4.")]
+    [SerializeField, Min(0f)] private float phase3ReturnDuration = 1.5f;
+
     [Header("Ground combat")]
     [SerializeField, Min(0.1f)] private float phase2AttackCooldown = 2.2f;
+
+    [Tooltip("Cooldown usado por la Fase 3 aerea y la Fase 4 final.")]
     [SerializeField, Min(0.1f)] private float phase3AttackCooldown = 1.45f;
 
     [Tooltip("Por encima de esta distancia usa proyectiles. Por debajo usa Claw o Slam.")]
@@ -45,8 +104,8 @@ public class FinalDragonBoss : BaseEnemy
     [SerializeField, Range(0f, 1f)] private float clawChanceWhenClose = 0.65f;
     [SerializeField, Min(0f)] private float turnSpeed = 5f;
 
-    [Header("Phase 3 speed")]
-    [Tooltip("Acelera animaciones, windups, recoveries, giro y proyectiles en Fase 3.")]
+    [Header("Phase 3 / 4 speed")]
+    [Tooltip("Acelera animaciones, windups, recoveries, giro y proyectiles en Fases 3 y 4.")]
     [SerializeField, Min(1f)] private float phase3SpeedMultiplier = 1.30f;
 
     [Header("Claw")]
@@ -103,9 +162,21 @@ public class FinalDragonBoss : BaseEnemy
     [SerializeField, Min(0f)] private float meteorSpawnGap = 0.12f;
     [SerializeField, Min(0f)] private float meteorRandomRadius = 7f;
 
-    [Header("Meteor - Phase 1")]
-    [SerializeField, Min(1)] private int phase1MeteorCount = 4;
-    [SerializeField, Min(0.1f)] private float phase1MeteorInterval = 2.4f;
+    [Header("Meteor - Audio")]
+    [Tooltip("Whoosh/caida que empieza junto al telegraph.")]
+    [SerializeField] private AudioClip meteorFallSound;
+    [SerializeField, Range(0f, 1f)] private float meteorFallVolume = 0.75f;
+
+    [Tooltip("Impacto grave que se reproduce cuando el meteorito toca el suelo.")]
+    [SerializeField] private AudioClip meteorImpactSound;
+    [SerializeField, Range(0f, 1f)] private float meteorImpactVolume = 0.95f;
+
+    [Header("Meteor - Phase 1 - Continuous stream")]
+    [Tooltip("Tiempo entre cada meteorito durante toda la Fase 1. No depende de los Flight Points.")]
+    [SerializeField, Min(0.1f)] private float phase1MeteorStreamInterval = 0.75f;
+
+    [Tooltip("Probabilidad de que un meteorito apunte exactamente a la posicion actual del jugador. El resto cae cerca.")]
+    [SerializeField, Range(0f, 1f)] private float phase1TargetedMeteorChance = 0.55f;
 
     [Header("Meteor - Phase 2")]
     [Tooltip("0 desactiva los meteoritos durante la Fase 2.")]
@@ -119,6 +190,13 @@ public class FinalDragonBoss : BaseEnemy
     [Header("Phase 3 feedback")]
     [SerializeField] private GameObject enrageVFX;
     [SerializeField, Min(0f)] private float enrageVFXLifetime = 3f;
+
+    [Tooltip("Sonido que marca el comienzo de la Fase 3 aerea.")]
+    [SerializeField] private AudioClip phase3TransitionSound;
+    [SerializeField, Range(0f, 1f)] private float phase3TransitionVolume = 1f;
+
+    [Tooltip("0 = global/2D. Recomendado para comunicar claramente el cambio de fase.")]
+    [SerializeField, Range(0f, 1f)] private float phase3TransitionSpatialBlend = 0f;
 
     [Header("Diagnostics")]
     [SerializeField] private bool logBoss;
@@ -138,7 +216,12 @@ public class FinalDragonBoss : BaseEnemy
 
     private Coroutine meteorLoop;
     private Coroutine combatLoop;
+    private Coroutine phase1FlightLoop;
+    private Coroutine phase3Routine;
     private Animator dragonAnimator;
+
+    private float nextDamageSoundTime;
+    private int lastDamageSoundIndex = -1;
 
     private readonly Collider[] playerHits = new Collider[32];
 
@@ -151,6 +234,8 @@ public class FinalDragonBoss : BaseEnemy
         isAttacking = false;
         hasDied = false;
         currentPhase = 0;
+        nextDamageSoundTime = 0f;
+        lastDamageSoundIndex = -1;
 
         dragonAnimator = GetComponentInChildren<Animator>();
 
@@ -171,10 +256,15 @@ public class FinalDragonBoss : BaseEnemy
             RotateTowardsPlayer();
 
         if (currentPhase == 2 &&
+            !isAttacking &&
+            !transitioning &&
+            phase3Routine == null &&
             Time.time >= phase2StartedAt + minimumPhase2Duration &&
             GetHealthPercent() <= phase3HealthPercent)
         {
-            EnterPhase3();
+            phase3Routine =
+                StartCoroutine(
+                    EnterPhase3Routine());
         }
     }
 
@@ -189,6 +279,52 @@ public class FinalDragonBoss : BaseEnemy
 
         if (externalGroundAnchor != null)
             groundAnchor = externalGroundAnchor;
+    }
+
+    // Los Flight Points viven dentro del prefab del altar, porque el altar
+    // es instanciado por TerrainGenerator. El boss recibe esas referencias
+    // una vez creado en runtime.
+    public void ConfigureFlightPoints(
+        Transform[] externalFlightPoints)
+    {
+        if (externalFlightPoints == null ||
+            externalFlightPoints.Length == 0)
+        {
+            return;
+        }
+
+        int validCount = 0;
+
+        for (int i = 0; i < externalFlightPoints.Length; i++)
+        {
+            if (externalFlightPoints[i] != null)
+                validCount++;
+        }
+
+        if (validCount == 0)
+            return;
+
+        flightPoints = new Transform[validCount];
+
+        int writeIndex = 0;
+
+        for (int i = 0; i < externalFlightPoints.Length; i++)
+        {
+            if (externalFlightPoints[i] == null)
+                continue;
+
+            flightPoints[writeIndex] =
+                externalFlightPoints[i];
+
+            writeIndex++;
+        }
+
+        // Conservamos el anchor viejo como fallback/primer punto.
+        if (flightAnchor == null &&
+            flightPoints.Length > 0)
+        {
+            flightAnchor = flightPoints[0];
+        }
     }
 
     // El boss NO empieza automáticamente.
@@ -213,25 +349,321 @@ public class FinalDragonBoss : BaseEnemy
 
         InitializeForWave(difficulty, target);
 
-        if (flightAnchor != null)
+        Transform initialFlightPoint =
+            GetFlightPoint(0);
+
+        if (initialFlightPoint != null)
         {
-            transform.position = flightAnchor.position;
-            transform.rotation = flightAnchor.rotation;
+            transform.position =
+                initialFlightPoint.position;
+
+            transform.rotation =
+                initialFlightPoint.rotation;
+        }
+        else if (flightAnchor != null)
+        {
+            transform.position =
+                flightAnchor.position;
+
+            transform.rotation =
+                flightAnchor.rotation;
         }
 
         fightActive = true;
         currentPhase = 1;
 
-        SetAnimation(flightAnimation);
         UpdateBossUI();
 
         OnPhaseChanged?.Invoke(currentPhase);
+        Log("Boss iniciado -> Rugido");
+
+        StartCoroutine(BossIntroRoutine());
+    }
+
+    private IEnumerator BossIntroRoutine()
+    {
+        if (!string.IsNullOrWhiteSpace(introRoarAnimation))
+            SetAnimation(introRoarAnimation);
+        else
+            SetAnimation(flightAnimation);
+
+        PlayBossSound(
+            introRoarSound,
+            introRoarVolume,
+            1f,
+            CombatVFXPosition,
+            introRoarSpatialBlend);
+
+        if (CameraManager.Instance != null &&
+            introShakeDuration > 0f &&
+            introShakeMagnitude > 0f)
+        {
+            StartCoroutine(
+                IntroShakeRoutine());
+        }
+
+        if (introDuration > 0f)
+            yield return new WaitForSeconds(introDuration);
+
+        if (!fightActive ||
+            hasDied ||
+            currentPhase != 1)
+        {
+            yield break;
+        }
+
+        SetAnimation(flightAnimation);
         Log("Fase 1 iniciada");
 
-        meteorLoop = StartCoroutine(MeteorLoop());
-        combatLoop = StartCoroutine(GroundCombatLoop());
+        phase1FlightLoop =
+            StartCoroutine(Phase1FlightRoutine());
 
+        // Vuelo y meteoritos corren en paralelo durante toda la Fase 1.
+        meteorLoop =
+            StartCoroutine(MeteorLoop());
+
+        combatLoop =
+            StartCoroutine(GroundCombatLoop());
+
+        // El timer empieza despues del rugido, para no quitar tiempo jugable
+        // a la fase de bombardeo.
         StartCoroutine(Phase1Timer());
+    }
+
+    private IEnumerator IntroShakeRoutine()
+    {
+        if (introShakeDelay > 0f)
+        {
+            yield return new WaitForSeconds(
+                introShakeDelay);
+        }
+
+        if (!fightActive ||
+            hasDied)
+        {
+            yield break;
+        }
+
+        if (CameraManager.Instance == null ||
+            introShakeDuration <= 0f ||
+            introShakeMagnitude <= 0f)
+        {
+            yield break;
+        }
+
+        CameraManager.Instance.DoScreenShake(
+            introShakeDuration,
+            introShakeMagnitude);
+    }
+
+    private IEnumerator Phase1FlightRoutine()
+    {
+        int pointCount =
+            GetFlightPointCount();
+
+        // Con un solo punto no hay ruta que recorrer, pero el MeteorLoop
+        // sigue funcionando normalmente durante toda la Fase 1.
+        if (pointCount <= 1)
+        {
+            while (fightActive &&
+                   !hasDied &&
+                   currentPhase == 1 &&
+                   !transitioning)
+            {
+                yield return null;
+            }
+
+            phase1FlightLoop = null;
+            yield break;
+        }
+
+        int currentIndex =
+            FindClosestFlightPointIndex(
+                transform.position);
+
+        while (fightActive &&
+               !hasDied &&
+               currentPhase == 1 &&
+               !transitioning)
+        {
+            int nextIndex =
+                (currentIndex + 1) %
+                pointCount;
+
+            Transform destination =
+                GetFlightPoint(nextIndex);
+
+            if (destination == null)
+            {
+                currentIndex = nextIndex;
+                yield return null;
+                continue;
+            }
+
+            // No hay pausa al llegar: cuando termina este tramo,
+            // inmediatamente empieza el siguiente.
+            yield return StartCoroutine(
+                MoveToFlightPoint(
+                    destination));
+
+            currentIndex = nextIndex;
+        }
+
+        phase1FlightLoop = null;
+    }
+
+    private IEnumerator MoveToFlightPoint(
+        Transform destination)
+    {
+        if (destination == null)
+            yield break;
+
+        float speed =
+            Mathf.Max(
+                0.1f,
+                phase1FlightSpeed);
+
+        float turn =
+            Mathf.Max(
+                0.1f,
+                phase1FlightTurnSpeed);
+
+        const float arrivalDistance = 0.05f;
+        float arrivalDistanceSqr =
+            arrivalDistance * arrivalDistance;
+
+        while ((destination.position - transform.position)
+               .sqrMagnitude > arrivalDistanceSqr)
+        {
+            if (!fightActive ||
+                hasDied ||
+                currentPhase != 1 ||
+                transitioning)
+            {
+                yield break;
+            }
+
+            Vector3 direction =
+                destination.position -
+                transform.position;
+
+            if (direction.sqrMagnitude > 0.0001f)
+            {
+                Quaternion targetRotation =
+                    Quaternion.LookRotation(
+                        direction.normalized,
+                        Vector3.up);
+
+                transform.rotation =
+                    Quaternion.Slerp(
+                        transform.rotation,
+                        targetRotation,
+                        turn * Time.deltaTime);
+            }
+
+            transform.position =
+                Vector3.MoveTowards(
+                    transform.position,
+                    destination.position,
+                    speed * Time.deltaTime);
+
+            yield return null;
+        }
+
+        // Ajustamos solamente posicion. No forzamos la rotacion del punto,
+        // para que el giro continue fluido hacia el siguiente nodo.
+        transform.position =
+            destination.position;
+    }
+
+    private int GetFlightPointCount()
+    {
+        int count = 0;
+
+        if (flightPoints != null)
+        {
+            for (int i = 0; i < flightPoints.Length; i++)
+            {
+                if (flightPoints[i] != null)
+                    count++;
+            }
+        }
+
+        if (count > 0)
+            return count;
+
+        return flightAnchor != null
+            ? 1
+            : 0;
+    }
+
+    private Transform GetFlightPoint(
+        int validIndex)
+    {
+        if (validIndex < 0)
+            return null;
+
+        int currentValid = 0;
+
+        if (flightPoints != null)
+        {
+            for (int i = 0; i < flightPoints.Length; i++)
+            {
+                Transform point =
+                    flightPoints[i];
+
+                if (point == null)
+                    continue;
+
+                if (currentValid == validIndex)
+                    return point;
+
+                currentValid++;
+            }
+        }
+
+        if (currentValid == 0 &&
+            validIndex == 0)
+        {
+            return flightAnchor;
+        }
+
+        return null;
+    }
+
+    private int FindClosestFlightPointIndex(
+        Vector3 position)
+    {
+        int pointCount =
+            GetFlightPointCount();
+
+        if (pointCount <= 1)
+            return 0;
+
+        int bestIndex = 0;
+        float bestDistance =
+            float.PositiveInfinity;
+
+        for (int i = 0; i < pointCount; i++)
+        {
+            Transform point =
+                GetFlightPoint(i);
+
+            if (point == null)
+                continue;
+
+            float sqrDistance =
+                (point.position - position)
+                .sqrMagnitude;
+
+            if (sqrDistance < bestDistance)
+            {
+                bestDistance = sqrDistance;
+                bestIndex = i;
+            }
+        }
+
+        return bestIndex;
     }
 
     private IEnumerator Phase1Timer()
@@ -247,6 +679,13 @@ public class FinalDragonBoss : BaseEnemy
     private IEnumerator TransitionToPhase2()
     {
         transitioning = true;
+
+        if (phase1FlightLoop != null)
+        {
+            StopCoroutine(phase1FlightLoop);
+            phase1FlightLoop = null;
+        }
+
         Log("Aterrizando -> Fase 2");
 
         SetAnimation(landingAnimation);
@@ -302,12 +741,19 @@ public class FinalDragonBoss : BaseEnemy
         Log("Fase 2 iniciada");
     }
 
-    private void EnterPhase3()
+    private IEnumerator EnterPhase3Routine()
     {
-        if (currentPhase >= 3 || hasDied)
-            return;
+        if (currentPhase >= 3 ||
+            hasDied ||
+            !fightActive)
+        {
+            phase3Routine = null;
+            yield break;
+        }
 
         currentPhase = 3;
+        transitioning = true;
+        isAttacking = false;
 
         if (dragonAnimator == null)
             dragonAnimator = GetComponentInChildren<Animator>();
@@ -315,22 +761,195 @@ public class FinalDragonBoss : BaseEnemy
         if (dragonAnimator != null)
             dragonAnimator.speed = GetCombatSpeedMultiplier();
 
-        if (!isAttacking)
-            SetAnimation(enrageAnimation);
+        PlayBossSound(
+            phase3TransitionSound,
+            phase3TransitionVolume,
+            1f,
+            CombatVFXPosition,
+            phase3TransitionSpatialBlend);
 
         if (enrageVFX != null)
         {
-            GameObject vfx = Instantiate(
-                enrageVFX,
-                CombatVFXPosition,
-                Quaternion.identity);
+            GameObject vfx =
+                Instantiate(
+                    enrageVFX,
+                    CombatVFXPosition,
+                    Quaternion.identity);
 
             if (enrageVFXLifetime > 0f)
-                Destroy(vfx, enrageVFXLifetime);
+                Destroy(
+                    vfx,
+                    enrageVFXLifetime);
         }
 
         OnPhaseChanged?.Invoke(currentPhase);
-        Log("Fase 3 iniciada");
+        Log("Fase 3 iniciada -> Air Assault");
+
+        Transform airAnchor =
+            flightAnchor != null
+                ? flightAnchor
+                : GetFlightPoint(0);
+
+        SetAnimation(flightAnimation);
+
+        if (airAnchor != null)
+        {
+            yield return StartCoroutine(
+                MoveBossToAnchor(
+                    airAnchor,
+                    phase3TakeoffDuration));
+        }
+
+        if (!fightActive ||
+            hasDied ||
+            currentPhase != 3)
+        {
+            phase3Routine = null;
+            yield break;
+        }
+
+        transitioning = false;
+
+        // Durante este tiempo GroundCombatLoop sólo permite Ranged
+        // y MeteorLoop usa la configuración de meteoritos de Fase 3.
+        if (phase3AirDuration > 0f)
+        {
+            float elapsed = 0f;
+
+            while (elapsed < phase3AirDuration)
+            {
+                if (!fightActive ||
+                    hasDied ||
+                    currentPhase != 3)
+                {
+                    phase3Routine = null;
+                    yield break;
+                }
+
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        yield return StartCoroutine(
+            TransitionToPhase4());
+
+        phase3Routine = null;
+    }
+
+    private IEnumerator TransitionToPhase4()
+    {
+        if (!fightActive ||
+            hasDied)
+        {
+            yield break;
+        }
+
+        transitioning = true;
+        isAttacking = false;
+
+        Log("Fase 3 terminada -> Volviendo a tierra");
+
+        SetAnimation(landingAnimation);
+
+        if (groundAnchor != null)
+        {
+            yield return StartCoroutine(
+                MoveBossToAnchor(
+                    groundAnchor,
+                    phase3ReturnDuration));
+        }
+
+        if (!fightActive ||
+            hasDied)
+        {
+            yield break;
+        }
+
+        currentPhase = 4;
+        transitioning = false;
+
+        if (dragonAnimator == null)
+            dragonAnimator = GetComponentInChildren<Animator>();
+
+        if (dragonAnimator != null)
+            dragonAnimator.speed = GetCombatSpeedMultiplier();
+
+        SetAnimation(idleAnimation);
+
+        OnPhaseChanged?.Invoke(currentPhase);
+        Log("Fase 4 iniciada -> Final Ground Combat");
+    }
+
+    private IEnumerator MoveBossToAnchor(
+        Transform destination,
+        float duration)
+    {
+        if (destination == null)
+            yield break;
+
+        Vector3 startPosition =
+            transform.position;
+
+        Quaternion startRotation =
+            transform.rotation;
+
+        Vector3 endPosition =
+            destination.position;
+
+        Quaternion endRotation =
+            destination.rotation;
+
+        if (duration <= 0f)
+        {
+            transform.position =
+                endPosition;
+
+            transform.rotation =
+                endRotation;
+
+            yield break;
+        }
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (!fightActive ||
+                hasDied)
+            {
+                yield break;
+            }
+
+            float t =
+                Mathf.Clamp01(
+                    elapsed / duration);
+
+            t =
+                t * t *
+                (3f - 2f * t);
+
+            transform.position =
+                Vector3.Lerp(
+                    startPosition,
+                    endPosition,
+                    t);
+
+            transform.rotation =
+                Quaternion.Slerp(
+                    startRotation,
+                    endRotation,
+                    t);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position =
+            endPosition;
+
+        transform.rotation =
+            endRotation;
     }
 
     private IEnumerator GroundCombatLoop()
@@ -373,13 +992,19 @@ public class FinalDragonBoss : BaseEnemy
                 transform.position,
                 target.position);
 
-        // Lejos: siempre proyectil.
-        if (distance > rangedAttackDistance)
+        // Fase 3 es exclusivamente aerea:
+        // desde el Flight Anchor sólo usa proyectiles.
+        if (currentPhase == 3)
         {
             yield return StartCoroutine(
                 RangedProjectileAttack());
         }
-        // Cerca: Claw o Slam.
+        // Fase 2 y Fase 4 mantienen el combate terrestre normal.
+        else if (distance > rangedAttackDistance)
+        {
+            yield return StartCoroutine(
+                RangedProjectileAttack());
+        }
         else if (UnityEngine.Random.value <= clawChanceWhenClose)
         {
             yield return StartCoroutine(
@@ -392,7 +1017,11 @@ public class FinalDragonBoss : BaseEnemy
         }
 
         isAttacking = false;
-        SetAnimation(idleAnimation);
+
+        if (currentPhase == 3)
+            SetAnimation(flightAnimation);
+        else
+            SetAnimation(idleAnimation);
     }
 
     private IEnumerator ClawAttack()
@@ -514,6 +1143,12 @@ public class FinalDragonBoss : BaseEnemy
 
         direction.Normalize();
 
+        PlayBossSound(
+            rangedAttackSound,
+            rangedAttackVolume,
+            1f,
+            spawnPosition);
+
         GameObject projectileObject =
             Instantiate(
                 projectilePrefab,
@@ -557,7 +1192,28 @@ public class FinalDragonBoss : BaseEnemy
     {
         while (fightActive && !hasDied)
         {
-            if (transitioning || target == null)
+            if (transitioning ||
+                target == null)
+            {
+                yield return null;
+                continue;
+            }
+
+            // Fase 1: flujo independiente y constante de meteoritos.
+            // El dragon puede estar en mitad de un tramo entre Flight Points.
+            if (currentPhase == 1)
+            {
+                SpawnPhase1Meteor();
+
+                yield return new WaitForSeconds(
+                    Mathf.Max(
+                        0.1f,
+                        phase1MeteorStreamInterval));
+
+                continue;
+            }
+
+            if (currentPhase < 2)
             {
                 yield return null;
                 continue;
@@ -572,10 +1228,41 @@ public class FinalDragonBoss : BaseEnemy
                 continue;
             }
 
-            yield return StartCoroutine(SpawnMeteorVolley(count));
+            yield return StartCoroutine(
+                SpawnMeteorVolley(count));
 
             yield return new WaitForSeconds(interval);
         }
+    }
+
+    private void SpawnPhase1Meteor()
+    {
+        if (target == null)
+            return;
+
+        Vector3 candidate =
+            target.position;
+
+        // Parte de los meteoritos obliga a moverse de la posicion actual;
+        // el resto crea presion alrededor para que el patron no sea monotono.
+        if (UnityEngine.Random.value >
+            phase1TargetedMeteorChance)
+        {
+            Vector2 random =
+                UnityEngine.Random.insideUnitCircle *
+                meteorRandomRadius;
+
+            candidate +=
+                new Vector3(
+                    random.x,
+                    0f,
+                    random.y);
+        }
+
+        Vector3 groundPoint =
+            ProjectToGround(candidate);
+
+        CreateMeteorHazard(groundPoint);
     }
 
     private IEnumerator SpawnMeteorVolley(int count)
@@ -636,14 +1323,18 @@ public class FinalDragonBoss : BaseEnemy
             meteorDamage,
             meteorHeight,
             meteorHorizontalKnockback,
-            meteorVerticalKnockback);
+            meteorVerticalKnockback,
+            meteorFallSound,
+            meteorImpactSound,
+            meteorFallVolume,
+            meteorImpactVolume,
+            bossAudioSpatialBlend,
+            bossAudioMinDistance,
+            bossAudioMaxDistance);
     }
 
     private int GetMeteorCount()
     {
-        if (currentPhase == 1)
-            return phase1MeteorCount;
-
         if (currentPhase == 2)
             return phase2MeteorInterval > 0f
                 ? phase2MeteorCount
@@ -657,9 +1348,6 @@ public class FinalDragonBoss : BaseEnemy
 
     private float GetMeteorInterval()
     {
-        if (currentPhase == 1)
-            return phase1MeteorInterval;
-
         if (currentPhase == 2)
             return phase2MeteorInterval;
 
@@ -878,6 +1566,8 @@ public class FinalDragonBoss : BaseEnemy
 
         base.OnDamage(damage, feedbackType);
 
+        PlayDamageSound();
+
         ShowDamageNumber(
             damage,
             feedbackType);
@@ -926,6 +1616,172 @@ public class FinalDragonBoss : BaseEnemy
         gameObject.SetActive(false);
     }
 
+    private void PlayDamageSound()
+    {
+        if (damageSounds == null ||
+            damageSounds.Length == 0 ||
+            Time.time < nextDamageSoundTime)
+        {
+            return;
+        }
+
+        int validCount = 0;
+
+        for (int i = 0; i < damageSounds.Length; i++)
+        {
+            if (damageSounds[i] != null)
+                validCount++;
+        }
+
+        if (validCount == 0)
+            return;
+
+        int selectedIndex = -1;
+
+        // Evita repetir exactamente el mismo clip si hay mas de uno disponible.
+        if (validCount > 1)
+        {
+            for (int attempt = 0; attempt < 8; attempt++)
+            {
+                int candidate =
+                    UnityEngine.Random.Range(
+                        0,
+                        damageSounds.Length);
+
+                if (damageSounds[candidate] != null &&
+                    candidate != lastDamageSoundIndex)
+                {
+                    selectedIndex = candidate;
+                    break;
+                }
+            }
+        }
+
+        if (selectedIndex < 0)
+        {
+            for (int i = 0; i < damageSounds.Length; i++)
+            {
+                if (damageSounds[i] != null)
+                {
+                    selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (selectedIndex < 0)
+            return;
+
+        lastDamageSoundIndex =
+            selectedIndex;
+
+        nextDamageSoundTime =
+            Time.time +
+            Mathf.Max(
+                0f,
+                damageSoundCooldown);
+
+        float minimumPitch =
+            Mathf.Min(
+                damagePitchMin,
+                damagePitchMax);
+
+        float maximumPitch =
+            Mathf.Max(
+                damagePitchMin,
+                damagePitchMax);
+
+        float pitch =
+            UnityEngine.Random.Range(
+                minimumPitch,
+                maximumPitch);
+
+        PlayBossSound(
+            damageSounds[selectedIndex],
+            damageSoundVolume,
+            pitch,
+            CombatVFXPosition);
+    }
+
+    private void PlayBossSound(
+        AudioClip clip,
+        float volume,
+        float pitch,
+        Vector3 position)
+    {
+        PlayBossSound(
+            clip,
+            volume,
+            pitch,
+            position,
+            bossAudioSpatialBlend);
+    }
+
+    private void PlayBossSound(
+        AudioClip clip,
+        float volume,
+        float pitch,
+        Vector3 position,
+        float spatialBlend)
+    {
+        if (clip == null ||
+            volume <= 0f)
+        {
+            return;
+        }
+
+        GameObject audioObject =
+            new GameObject(
+                "DragonBoss_Audio_" +
+                clip.name);
+
+        audioObject.transform.position =
+            position;
+
+        AudioSource source =
+            audioObject.AddComponent<AudioSource>();
+
+        source.playOnAwake = false;
+        source.clip = clip;
+        source.volume =
+            Mathf.Clamp01(volume);
+
+        source.pitch =
+            Mathf.Clamp(
+                pitch,
+                0.1f,
+                3f);
+
+        source.spatialBlend =
+            Mathf.Clamp01(
+                spatialBlend);
+
+        source.minDistance =
+            Mathf.Max(
+                0.1f,
+                bossAudioMinDistance);
+
+        source.maxDistance =
+            Mathf.Max(
+                source.minDistance,
+                bossAudioMaxDistance);
+
+        source.rolloffMode =
+            AudioRolloffMode.Linear;
+
+        source.Play();
+
+        float lifetime =
+            clip.length /
+            Mathf.Max(
+                0.1f,
+                Mathf.Abs(source.pitch));
+
+        Destroy(
+            audioObject,
+            lifetime + 0.15f);
+    }
+
     private void UpdateBossUI()
     {
         if (UIManager.Instance == null)
@@ -953,6 +1809,35 @@ public class FinalDragonBoss : BaseEnemy
         Gizmos.DrawWireSphere(
             transform.position,
             slamRadius);
+
+        int pointCount =
+            GetFlightPointCount();
+
+        for (int i = 0; i < pointCount; i++)
+        {
+            Transform point =
+                GetFlightPoint(i);
+
+            if (point == null)
+                continue;
+
+            Gizmos.DrawWireSphere(
+                point.position,
+                1.25f);
+
+            Transform next =
+                GetFlightPoint(
+                    (i + 1) %
+                    pointCount);
+
+            if (next != null &&
+                next != point)
+            {
+                Gizmos.DrawLine(
+                    point.position,
+                    next.position);
+            }
+        }
     }
 
     private void Log(string message)
