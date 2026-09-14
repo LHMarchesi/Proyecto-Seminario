@@ -26,7 +26,7 @@ public class TerrainGenerator : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         Instantiate(playerPrefab, GetGridElement(mapSize / 2, mapSize / 2).transform.position + Vector3.up * 10f, Quaternion.identity);
-    }    
+    }
 
     private void GenerateTerrain(int startX, int startZ)
     {
@@ -37,9 +37,38 @@ public class TerrainGenerator : MonoBehaviour
         {
             ExpandElement();
         }
-        CreateWalls();        
+
+        SpawnPilar();
+
+        CreateWalls();
     }
-    
+
+    private void SpawnPilar()
+    {
+        List<GridElement> availableElements = new List<GridElement>();
+
+        for (int x = 0; x < mapSize; x++)
+        {
+            for (int z = 0; z < mapSize; z++)
+            {
+                GridElement element = gridElements[x, z];
+
+                if (element != null && !element.IsSlope)
+                {
+                    availableElements.Add(element);
+                }
+            }
+        }
+
+        if (availableElements.Count == 0)
+            return;
+
+        GridElement randomElement =
+            availableElements[Random.Range(0, availableElements.Count)];
+
+        objectSpawner.SpawnPilar(randomElement);
+    }
+
     public GridElement GetGridElement(int x, int z)
     {
         if (x < 0 || x >= mapSize || z < 0 || z >= mapSize) return null;        

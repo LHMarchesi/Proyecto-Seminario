@@ -5,22 +5,31 @@ public class ObjectSpawner : MonoBehaviour
     [SerializeField] private GameObject[] treePrefabs;
     [SerializeField] private GameObject[] stonePrefabs;
     [SerializeField] private GameObject[] logPrefabs;
+    [SerializeField] private GameObject pillarPrefab;
+    [SerializeField] private GameObject runePrefab;
+
+    private bool pillarSpawned = false;
 
     public void SpawnRandomObject(GridElement gridElement)
     {
         float objectToSpawn = Random.Range(0, 1f);
-            if (objectToSpawn > 0.75f)
-            {
-                SpawnTree(gridElement);
-            }
-            else if (objectToSpawn > 0.5f)
-            {
-                SpawnStone(gridElement);
-            }
-            else if (objectToSpawn > 0.4f)
-            {
-                SpawnLog(gridElement);
-            }
+
+        if (objectToSpawn > 0.75f)
+        {
+            SpawnTree(gridElement);
+        }
+        else if (objectToSpawn > 0.5f)
+        {
+            SpawnStone(gridElement);
+        }
+        else if (objectToSpawn > 0.4f)
+        {
+            SpawnLog(gridElement);
+        }
+        else if (objectToSpawn > 0.6f)
+        {
+            SpawnRune(gridElement);
+        }
     }
 
     private GameObject SpawnRandomElementFromArray(GridElement gridElement, GameObject[] objectArray, float localScale, Vector3 localPosition, Vector3 localEulerAngles)
@@ -43,13 +52,63 @@ public class ObjectSpawner : MonoBehaviour
     {        
         Vector3 position = new Vector3(Random.Range(-0.25f, 0.25f), 0.25f, Random.Range(-0.25f, 0.25f));
         Vector3 rotation = new Vector3(0, Random.Range(0, 360f), 0);
-        SpawnRandomElementFromArray(gridElement, stonePrefabs, Random.Range(0.25f, 0.5f), position, rotation);                
+        SpawnRandomElementFromArray(gridElement, stonePrefabs, Random.Range(0.25f, 0.5f), position, rotation);
     }
 
     private void SpawnLog(GridElement gridElement)
-    {        
+    {
         Vector3 position = new Vector3(Random.Range(-0.25f, 0.25f), 0.32f, Random.Range(-0.25f, 0.25f));
         Vector3 rotation = new Vector3(0, Random.Range(0, 360f), 0);
-        SpawnRandomElementFromArray(gridElement, logPrefabs, Random.Range(0.1f, 0.25f), position, rotation);        
+        SpawnRandomElementFromArray(gridElement, logPrefabs, Random.Range(0.1f, 0.25f), position, rotation);
+    }
+
+    private void SpawnRune(GridElement gridElement)
+    {
+        if (runePrefab == null)
+            return;
+
+        Vector3 position = new Vector3(
+            Random.Range(-0.25f, 0.25f),
+            0.25f,
+            Random.Range(-0.25f, 0.25f));
+
+        Vector3 rotation = new Vector3(
+            0,
+            Random.Range(0, 360f),
+            0);
+
+        GameObject spawnedRune = Instantiate(
+            runePrefab,
+            gridElement.transform.position,
+            Quaternion.identity,
+            gridElement.transform);
+
+        spawnedRune.transform.localPosition = position;
+        spawnedRune.transform.localEulerAngles = rotation;
+    }
+
+    public void SpawnPilar(GridElement gridElement)
+    {
+        if (pillarPrefab == null)
+            return;
+
+        Vector3 position = new Vector3(
+            Random.Range(-0.25f, 0.25f),
+            0.25f,
+            Random.Range(-0.25f, 0.25f));
+
+        Vector3 rotation = new Vector3(
+            0,
+            Random.Range(0, 360f),
+            0);
+
+        GameObject spawnedPilar = Instantiate(
+            pillarPrefab,
+            gridElement.transform.position,
+            Quaternion.identity,
+            gridElement.transform);
+
+        spawnedPilar.transform.localPosition = position;
+        spawnedPilar.transform.localEulerAngles = rotation;
     }
 }
