@@ -58,6 +58,7 @@ public class FlexibleUIButton : MonoBehaviour
                 switch (parameter)
                 {
                     case "MainMenu":
+                        Time.timeScale = 1;
                         TransitionManager.Instance.PlayTransitionAndLoadScene(TransitionType.FadeIn, 0);
                         GameManager.Instance.ChangeState(new MainMenuState());
                         break;

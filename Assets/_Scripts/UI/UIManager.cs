@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -64,7 +65,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private SliderPassValue bossHealth;
     [SerializeField] private TextMeshProUGUI bossNameTxt;
 
-    private Image PauseScreen;
+    [Header("Pause")]
+    [Tooltip("Asigna el GameObject RAIZ del menu de pausa. Es preferible a depender del Tag.")]
+    [SerializeField] private GameObject pauseScreen;
+
+    [Tooltip("Nombre exacto de la escena del menu principal.")]
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
+
     [SerializeField] private GameObject LoseScreen;
     [SerializeField] private GameObject WinScreen;
 
@@ -121,9 +128,18 @@ public class UIManager : MonoBehaviour
                 playerContext.PlayerController.MaxHealth;
         }
 
-        PauseScreen =
-            GameObject.FindGameObjectWithTag("PauseScreen")
-                ?.GetComponent<Image>();
+        // Fallback para escenas viejas.
+        // Recomendado: asignar Pause Screen directamente en Inspector,
+        // especialmente si el objeto empieza desactivado.
+        if (pauseScreen == null)
+        {
+            GameObject taggedPauseScreen =
+                GameObject.FindGameObjectWithTag(
+                    "PauseScreen");
+
+            if (taggedPauseScreen != null)
+                pauseScreen = taggedPauseScreen;
+        }
 
         TogglePauseScreen(false);
     }
@@ -452,10 +468,10 @@ public class UIManager : MonoBehaviour
     public void TogglePauseScreen(
         bool value)
     {
-        if (PauseScreen == null)
-            return;
-
-        PauseScreen.gameObject.SetActive(value);
+        // Aunque el panel no esté asignado, el estado de pausa
+        // debe seguir funcionando correctamente.
+        if (pauseScreen != null)
+            pauseScreen.SetActive(value);
 
         if (value)
         {
@@ -474,6 +490,57 @@ public class UIManager : MonoBehaviour
 
         Time.timeScale =
             value ? 0f : 1f;
+    }
+
+    // Conectar al botón RESUME del menu de pausa.
+    public void ResumeGame()
+    {
+        if (GameManager.Instance != null &&
+            GameManager.Instance.GetCurrentState()
+                is PauseState)
+        {
+            GameManager.Instance.ChangeState(
+                new GameplayState());
+
+            return;
+        }
+
+        // Fallback si por alguna razón no hay GameManager.
+        TogglePauseScreen(false);
+    }
+
+    // Conectar al botón MAIN MENU del menu de pausa.
+    public void ReturnToMainMenu()
+    {
+        // Nunca queremos cargar otra escena con el juego congelado.
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ChangeState(
+                new MainMenuState());
+        }
+        else
+        {
+            Cursor.lockState =
+                CursorLockMode.None;
+
+            Cursor.visible = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(
+                mainMenuSceneName))
+        {
+            SceneManager.LoadScene(
+                mainMenuSceneName);
+        }
+        else
+        {
+            // Fallback seguro para el proyecto actual,
+            // donde el menú históricamente fue Build Index 0.
+            SceneManager.LoadScene(0);
+        }
     }
 
     public void ShowLoseScreenn(
