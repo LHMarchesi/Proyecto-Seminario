@@ -11,6 +11,7 @@ public class WaveSpawner3D : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private TMP_Text waveText;
+    [SerializeField] private TMP_Text waveTimerText;
 
     [Header("Spawn Settings")]
     public SpawnSource spawnSource = SpawnSource.AroundPlayer;
@@ -87,6 +88,16 @@ public class WaveSpawner3D : MonoBehaviour
 
         if (waveText != null)
             waveText.text = $"Wave: {currentWaveIndex + 1}/{waves.Count}";
+
+        if (waveTimerText != null)
+        {
+            float remainingTime = Mathf.Max(0f, waveEndTime - Time.time);
+
+            int minutes = Mathf.FloorToInt(remainingTime / 60f);
+            int seconds = Mathf.FloorToInt(remainingTime % 60f);
+
+            waveTimerText.text = $"Wave Time Left: {minutes:00}:{seconds:00}";
+        }
 
         if (!wave.spawnAllAtOnce &&
             spawnedThisWave < wave.enemyCount &&
