@@ -538,7 +538,7 @@ public class UIManager : MonoBehaviour
             playerContext.PlayerController.CurrentHealth);
 
         healthText.text =
-            playerContext.PlayerController.CurrentHealth +
+            Mathf.CeilToInt(playerContext.PlayerController.CurrentHealth) +
             "/" +
             playerContext.PlayerController.MaxHealth;
 
@@ -557,7 +557,7 @@ public class UIManager : MonoBehaviour
             playerContext.PlayerController.CurrentHealth);
 
         healthText.text =
-            playerContext.PlayerController.CurrentHealth +
+            Mathf.CeilToInt(playerContext.PlayerController.CurrentHealth) +
             "/" +
             playerContext.PlayerController.MaxHealth;
 
