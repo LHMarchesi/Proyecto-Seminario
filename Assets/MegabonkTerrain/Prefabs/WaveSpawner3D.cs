@@ -12,6 +12,7 @@ public class WaveSpawner3D : MonoBehaviour
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private TMP_Text waveText;
     [SerializeField] private TMP_Text waveTimerText;
+    [SerializeField] private TMP_Text difficultyText;
 
     [Header("Spawn Settings")]
     public SpawnSource spawnSource = SpawnSource.AroundPlayer;
@@ -88,6 +89,14 @@ public class WaveSpawner3D : MonoBehaviour
 
         if (waveText != null)
             waveText.text = $"Wave: {currentWaveIndex + 1}/{waves.Count}";
+
+        if (difficultyText != null)
+        {
+            float realDifficulty = GetCurrentDifficulty();
+            float displayedDifficulty = 1f + Mathf.Round(GetCurrentDifficulty());
+
+            difficultyText.text = $"Difficulty: +{displayedDifficulty:0}%";
+        }
 
         if (waveTimerText != null)
         {
