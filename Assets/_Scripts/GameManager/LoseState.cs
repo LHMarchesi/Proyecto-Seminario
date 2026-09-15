@@ -16,6 +16,7 @@ public class LoseState : IGameState
         Cursor.visible = true;
 
         GameManager.Instance.currentState = GameStates.Lose;
+        Time.timeScale = 0;
     }
 
     public void Update()
@@ -25,6 +26,7 @@ public class LoseState : IGameState
 
     public void Exit()
     {
+        Time.timeScale = 1;
         playerContext.HandleInputs.SetPaused(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
