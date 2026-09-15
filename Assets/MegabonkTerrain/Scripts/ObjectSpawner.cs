@@ -69,7 +69,7 @@ public class ObjectSpawner : MonoBehaviour
 
         Vector3 position = new Vector3(
             Random.Range(-0.25f, 0.25f),
-            0.25f,
+            2f,
             Random.Range(-0.25f, 0.25f));
 
         Vector3 rotation = new Vector3(
