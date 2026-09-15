@@ -102,7 +102,7 @@ public class UIManager : MonoBehaviour
             runePickupCanvasGroup.alpha = 0f;
 
         if (SoundManagerOcta.Instance != null)
-            SoundManagerOcta.Instance.PlayMusic("GameTheme");
+            SoundManagerOcta.Instance.PlayMusic("MainTheme");
     }
 
     private void Start()

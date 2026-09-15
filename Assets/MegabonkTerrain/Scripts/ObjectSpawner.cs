@@ -18,17 +18,17 @@ public class ObjectSpawner : MonoBehaviour
         {
             SpawnTree(gridElement);
         }
-        else if (objectToSpawn > 0.5f)
+        else if (objectToSpawn > 0.55f)
         {
             SpawnStone(gridElement);
         }
-        else if (objectToSpawn > 0.4f)
-        {
-            SpawnLog(gridElement);
-        }
-        else if (objectToSpawn > 0.6f)
+        else if (objectToSpawn > 0.50f)
         {
             SpawnRune(gridElement);
+        }
+        else if (objectToSpawn > 0.40f)
+        {
+            SpawnLog(gridElement);
         }
     }
 
@@ -67,24 +67,19 @@ public class ObjectSpawner : MonoBehaviour
         if (runePrefab == null)
             return;
 
-        Vector3 position = new Vector3(
-            Random.Range(-0.25f, 0.25f),
-            2f,
-            Random.Range(-0.25f, 0.25f));
+        Vector3 position = gridElement.transform.position + new Vector3(Random.Range(-0.25f, 0.25f),12f,Random.Range(-0.25f, 0.25f));
 
-        Vector3 rotation = new Vector3(
+        Quaternion rotation = Quaternion.Euler(
             0,
             Random.Range(0, 360f),
             0);
 
         GameObject spawnedRune = Instantiate(
             runePrefab,
-            gridElement.transform.position,
-            Quaternion.identity,
-            gridElement.transform);
+            position,
+            rotation);
 
-        spawnedRune.transform.localPosition = position;
-        spawnedRune.transform.localEulerAngles = rotation;
+        spawnedRune.transform.localScale = runePrefab.transform.localScale;
     }
 
     public void SpawnPilar(GridElement gridElement)

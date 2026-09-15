@@ -94,7 +94,7 @@ public class NPCInteractable : MonoBehaviour
             }
         }
 
-        SoundManagerOcta.Instance.PlayMusic("MainTheme");
+        //SoundManagerOcta.Instance.PlayMusic("MainTheme");
     }
 
     void OnTriggerEnter(Collider other)
