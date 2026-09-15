@@ -92,23 +92,21 @@ public class ObjectSpawner : MonoBehaviour
         if (pillarPrefab == null)
             return;
 
-        Vector3 position = new Vector3(
+        Vector3 position = gridElement.transform.position + new Vector3(
             Random.Range(-0.25f, 0.25f),
-            0.25f,
+            6f,
             Random.Range(-0.25f, 0.25f));
 
-        Vector3 rotation = new Vector3(
+        Quaternion rotation = Quaternion.Euler(
             0,
             Random.Range(0, 360f),
             0);
 
         GameObject spawnedPilar = Instantiate(
             pillarPrefab,
-            gridElement.transform.position,
-            Quaternion.identity,
-            gridElement.transform);
+            position,
+            rotation);
 
-        spawnedPilar.transform.localPosition = position;
-        spawnedPilar.transform.localEulerAngles = rotation;
+        spawnedPilar.transform.localScale = pillarPrefab.transform.localScale;
     }
 }

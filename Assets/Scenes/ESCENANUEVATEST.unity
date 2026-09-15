@@ -498,8 +498,8 @@ MonoBehaviour:
   navMeshAreaMask: -1
   scaleEnemiesOverTime: 1
   difficultyStartDelay: 0
-  difficultyPerMinute: 1
-  logEnemyDifficulty: 0
+  difficultyPerMinute: 2
+  logEnemyDifficulty: 1
   waves:
   - enemyTypes:
     - prefab: {fileID: 5560765500954406363, guid: 3f09c779fb38e554fbfbc3e277114477, type: 3}
@@ -510,7 +510,7 @@ MonoBehaviour:
       weight: 1
     enemyCount: 100000
     spawnAllAtOnce: 0
-    spawnInterval: 2
+    spawnInterval: 0.5
     waveDuration: 0
     endCondition: 1
   startWaveIndex: 0
