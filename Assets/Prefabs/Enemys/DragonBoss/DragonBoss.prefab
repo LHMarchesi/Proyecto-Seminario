@@ -1522,13 +1522,13 @@ MonoBehaviour:
   attackSpeedPerDifficulty: 0
   combatVFXAnchor: {fileID: 0}
   floatingTextPrefab: {fileID: 6819794237618631478, guid: 7dbdcd9fe3d929643a0ce3027f1f0253, type: 3}
-  damageTextOffset: {x: 0, y: 0.5, z: 0}
+  damageTextOffset: {x: 0, y: 2, z: 0}
   normalDamageColor: {r: 1, g: 1, b: 1, a: 1}
   poisonDamageColor: {r: 0.3, g: 1, b: 0.3, a: 1}
   electricityDamageColor: {r: 0.3, g: 0.8, b: 1, a: 1}
   fireDamageColor: {r: 1, g: 0.4, b: 0.1, a: 1}
   popupClusterResetTime: 0.15
-  popupHorizontalSpacing: 0.2
+  popupHorizontalSpacing: 0.9
   popupVerticalSpacing: 0.12
   maxHealth: 3000
   moveSpeed: 0
@@ -1540,6 +1540,10 @@ MonoBehaviour:
   finalDoor: {fileID: 0}
   deathVFX: {fileID: 0}
   deathVFXLifetime: 4
+  deathSound: {fileID: 8300000, guid: 5bafb5fbde15c7f40a81402dad503aec, type: 3}
+  deathSoundVolume: 0.822
+  deathSoundSpatialBlend: 0
+  deathDisappearDelay: 0.38
   flightAnchor: {fileID: 0}
   flightPoints: []
   groundAnchor: {fileID: 0}
@@ -1620,7 +1624,7 @@ MonoBehaviour:
   projectileImpactVFXLifetime: 2
   groundMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 9608
   playerMask:
     serializedVersion: 2
     m_Bits: 256

@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 public class DragonBossAltar : MonoBehaviour
@@ -35,6 +36,14 @@ public class DragonBossAltar : MonoBehaviour
     [Tooltip("Opcional. GameObject UI con texto tipo 'E - Invocar Dragon'.")]
     [SerializeField] private GameObject interactionPrompt;
 
+    [Header("Victory / End Run")]
+    [Tooltip("Prompt opcional que aparece al derrotar al boss. Ej: 'E - Finalizar Run'.")]
+    [SerializeField] private GameObject completionPrompt;
+
+
+    [Tooltip("Pequeno delay opcional despues de presionar E antes de cargar el menu.")]
+    [SerializeField, Min(0f)] private float finishLevelDelay = 0f;
+
     [Header("Difficulty")]
     [Tooltip("Opcional. Si queda null, el altar lo busca automaticamente al ser instanciado.")]
     [SerializeField] private WaveSpawner3D waveSpawner;
@@ -61,13 +70,18 @@ public class DragonBossAltar : MonoBehaviour
     [SerializeField] private bool logDebug;
 
     public bool HasBeenActivated => activated;
+    public bool BossDefeated => bossDefeated;
     public bool PlayerIsInRange => playerIsInRange;
     public DragonBoss SpawnedBoss => spawnedBoss;
 
     private bool activated;
+    private bool bossDefeated;
+    private bool levelFinishStarted;
     private bool playerIsInRange;
+
     private DragonBoss spawnedBoss;
     private Coroutine activationRoutine;
+    private Coroutine finishLevelRoutine;
     private Transform player;
     private float nextPlayerSearchTime;
 
@@ -159,7 +173,12 @@ public class DragonBossAltar : MonoBehaviour
 
     private void Update()
     {
-        if (activated)
+        // Mientras el boss esta vivo el altar queda bloqueado.
+        // Despues de derrotarlo vuelve a aceptar E para finalizar la run.
+        if (activated && !bossDefeated)
+            return;
+
+        if (levelFinishStarted)
             return;
 
         ResolvePlayer();
@@ -173,6 +192,19 @@ public class DragonBossAltar : MonoBehaviour
         if (keyboard != null &&
             keyboard.eKey.wasPressedThisFrame)
         {
+            if (bossDefeated)
+            {
+                if (logDebug)
+                {
+                    Debug.Log(
+                        "[DragonBossAltar] E presionada despues de derrotar al boss. Finalizando run.",
+                        this);
+                }
+
+                FinishLevel();
+                return;
+            }
+
             if (logDebug)
             {
                 Debug.Log(
@@ -337,6 +369,9 @@ public class DragonBossAltar : MonoBehaviour
         spawnedBoss.ConfigureFlightPoints(
             configuredFlightPoints);
 
+        spawnedBoss.OnBossDefeated +=
+            HandleBossDefeated;
+
         float difficulty =
             GetBossDifficulty();
 
@@ -452,8 +487,97 @@ public class DragonBossAltar : MonoBehaviour
 
     private void SetPromptVisible(bool visible)
     {
+        if (bossDefeated)
+        {
+            if (interactionPrompt != null)
+            {
+                // Si no hay prompt final separado usamos el prompt normal como fallback.
+                interactionPrompt.SetActive(
+                    visible &&
+                    completionPrompt == null);
+            }
+
+            if (completionPrompt != null)
+                completionPrompt.SetActive(visible);
+
+            return;
+        }
+
         if (interactionPrompt != null)
             interactionPrompt.SetActive(visible);
+
+        if (completionPrompt != null)
+            completionPrompt.SetActive(false);
+    }
+
+    private void HandleBossDefeated()
+    {
+        if (bossDefeated)
+            return;
+
+        bossDefeated = true;
+
+        if (spawnedBoss != null)
+        {
+            spawnedBoss.OnBossDefeated -=
+                HandleBossDefeated;
+        }
+
+        // Volvemos a encender el visual/runa del altar para comunicar
+        // que hay una ultima interaccion disponible.
+        if (disableAfterActivation != null)
+            disableAfterActivation.SetActive(true);
+
+        ResolvePlayer();
+        UpdatePlayerRange();
+        SetPromptVisible(playerIsInRange);
+
+        if (logDebug)
+        {
+            Debug.Log(
+                "[DragonBossAltar] Boss derrotado. El altar ahora puede finalizar la run.",
+                this);
+        }
+    }
+
+    private void FinishLevel()
+    {
+        if (!bossDefeated ||
+            levelFinishStarted)
+        {
+            return;
+        }
+
+        levelFinishStarted = true;
+        SetPromptVisible(false);
+
+        if (finishLevelRoutine != null)
+            StopCoroutine(finishLevelRoutine);
+
+        finishLevelRoutine =
+            StartCoroutine(
+                FinishLevelRoutine());
+    }
+
+    private IEnumerator FinishLevelRoutine()
+    {
+        // Evita que un pause o slow motion impida completar la transición.
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+
+        if (finishLevelDelay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(
+                finishLevelDelay);
+        }
+
+
+        Cursor.lockState =
+            CursorLockMode.None;
+
+        Cursor.visible = true;
+
+        TransitionManager.Instance.PlayTransitionAndLoadScene(TransitionType.FadeIn, 0);
     }
 
     private void SpawnActivationFeedback()
@@ -488,7 +612,16 @@ public class DragonBossAltar : MonoBehaviour
         }
 
         activated = false;
+        bossDefeated = false;
+        levelFinishStarted = false;
         playerIsInRange = false;
+
+        if (finishLevelRoutine != null)
+        {
+            StopCoroutine(finishLevelRoutine);
+            finishLevelRoutine = null;
+        }
+
         SetPromptVisible(false);
 
         if (waveSpawner != null)
@@ -500,6 +633,12 @@ public class DragonBossAltar : MonoBehaviour
 
     private void OnDisable()
     {
+        if (spawnedBoss != null)
+        {
+            spawnedBoss.OnBossDefeated -=
+                HandleBossDefeated;
+        }
+
         playerIsInRange = false;
         SetPromptVisible(false);
     }

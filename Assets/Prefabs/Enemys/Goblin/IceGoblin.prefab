@@ -653,15 +653,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseStats: {fileID: 11400000, guid: 9afabbd3f7dfe4544bd0b24f29d936bc, type: 2}
   currentStats: {fileID: 11400000, guid: 9afabbd3f7dfe4544bd0b24f29d936bc, type: 2}
+  healthPerDifficulty: 5
+  damagePerDifficulty: 2
+  moveSpeedPerDifficulty: 0.05
+  attackSpeedPerDifficulty: 0
   combatVFXAnchor: {fileID: 3756765403906952578}
   floatingTextPrefab: {fileID: 6819794237618631478, guid: 7dbdcd9fe3d929643a0ce3027f1f0253, type: 3}
-  damageTextOffset: {x: 0, y: 0.5, z: 0}
+  damageTextOffset: {x: 0, y: 0.9, z: 0}
   normalDamageColor: {r: 1, g: 1, b: 1, a: 1}
   poisonDamageColor: {r: 0.3, g: 1, b: 0.3, a: 1}
   electricityDamageColor: {r: 0.3, g: 0.8, b: 1, a: 1}
   fireDamageColor: {r: 1, g: 0.4, b: 0.1, a: 1}
   popupClusterResetTime: 0.15
-  popupHorizontalSpacing: 0.2
+  popupHorizontalSpacing: 0.9
   popupVerticalSpacing: 0.12
   maxHealth: 100
   moveSpeed: 7
@@ -670,6 +674,7 @@ MonoBehaviour:
   expDrop: 0
   currentHealth: 0
   DeathEffect: {fileID: 3217454784262245277, guid: fbc697af87f4c8645a7b3f2bba17ff22, type: 3}
+  alwaysChasePlayer: 1
   Goblin: 1
   Skeleton: 0
 --- !u!114 &7922622726917551631

@@ -10,6 +10,16 @@ public class DragonBoss : BaseEnemy
     [SerializeField] private GameObject deathVFX;
     [SerializeField, Min(0f)] private float deathVFXLifetime = 4f;
 
+    [Header("Death Feedback")]
+    [SerializeField] private AudioClip deathSound;
+    [SerializeField, Range(0f, 1f)] private float deathSoundVolume = 1f;
+
+    [Tooltip("0 = global/2D. Recomendado para que la muerte del boss siempre se escuche.")]
+    [SerializeField, Range(0f, 1f)] private float deathSoundSpatialBlend = 0f;
+
+    [Tooltip("Tiempo antes de ocultar completamente al dragon despues de morir.")]
+    [SerializeField, Min(0f)] private float deathDisappearDelay = 0.15f;
+
     [Header("Fixed positions")]
     [Tooltip("Fallback legacy para Fase 1 si no se configuraron Flight Points.")]
     [SerializeField] private Transform flightAnchor;
@@ -223,6 +233,11 @@ public class DragonBoss : BaseEnemy
     private float nextDamageSoundTime;
     private int lastDamageSoundIndex = -1;
 
+    // Seguridad del loop de combate.
+    // Si por cualquier razón una coroutine de ataque queda interrumpida,
+    // evitamos que isAttacking bloquee el boss para siempre.
+    private float lastCombatProgressTime;
+
     private readonly Collider[] playerHits = new Collider[32];
 
     protected override void OnEnable()
@@ -236,8 +251,21 @@ public class DragonBoss : BaseEnemy
         currentPhase = 0;
         nextDamageSoundTime = 0f;
         lastDamageSoundIndex = -1;
+        lastCombatProgressTime = Time.time;
 
         dragonAnimator = GetComponentInChildren<Animator>();
+
+        // IMPORTANTE:
+        // EnemyStatusEffectController normalmente implementa el stun
+        // deshabilitando el BaseEnemy. En este boss eso deshabilitaria
+        // DragonBoss y rompería el estado de fases al reactivarse.
+        // El boss sigue recibiendo Electricity, VFX y DoT, pero no
+        // el hard-stun que apaga su componente.
+        EnemyStatusEffectController statusEffects =
+            GetComponent<EnemyStatusEffectController>();
+
+        if (statusEffects != null)
+            statusEffects.SetElectricityStunAllowed(false);
 
         if (dragonAnimator != null)
             dragonAnimator.speed = 1f;
@@ -252,11 +280,22 @@ public class DragonBoss : BaseEnemy
 
         UpdateBossUI();
 
-        if (currentPhase >= 2 && !isAttacking && !transitioning)
-            RotateTowardsPlayer();
+        if (currentPhase >= 2 &&
+            !transitioning)
+        {
+            RecoverCombatLoopIfStalled();
+        }
 
-        if (currentPhase == 2 &&
+        if (currentPhase >= 2 &&
             !isAttacking &&
+            !transitioning)
+        {
+            RotateTowardsPlayer();
+        }
+
+        // La transición de fase NO depende de isAttacking.
+        // Si un ataque quedó trabado, la fase igualmente puede avanzar.
+        if (currentPhase == 2 &&
             !transitioning &&
             phase3Routine == null &&
             Time.time >= phase2StartedAt + minimumPhase2Duration &&
@@ -422,8 +461,7 @@ public class DragonBoss : BaseEnemy
         meteorLoop =
             StartCoroutine(MeteorLoop());
 
-        combatLoop =
-            StartCoroutine(GroundCombatLoop());
+        RestartCombatLoop();
 
         // El timer empieza despues del rugido, para no quitar tiempo jugable
         // a la fase de bombardeo.
@@ -734,6 +772,10 @@ public class DragonBoss : BaseEnemy
         currentPhase = 2;
         phase2StartedAt = Time.time;
         transitioning = false;
+        lastCombatProgressTime = Time.time;
+
+        // Garantiza que Fase 2 siempre empieza con un loop limpio.
+        RestartCombatLoop();
 
         SetAnimation(idleAnimation);
 
@@ -753,7 +795,9 @@ public class DragonBoss : BaseEnemy
 
         currentPhase = 3;
         transitioning = true;
-        isAttacking = false;
+
+        // Cortamos cualquier estado de ataque que haya quedado colgado.
+        RestartCombatLoop();
 
         if (dragonAnimator == null)
             dragonAnimator = GetComponentInChildren<Animator>();
@@ -809,6 +853,10 @@ public class DragonBoss : BaseEnemy
         }
 
         transitioning = false;
+        lastCombatProgressTime = Time.time;
+
+        // Arrancamos nuevamente el loop ya posicionados en el aire.
+        RestartCombatLoop();
 
         // Durante este tiempo GroundCombatLoop sólo permite Ranged
         // y MeteorLoop usa la configuración de meteoritos de Fase 3.
@@ -868,6 +916,10 @@ public class DragonBoss : BaseEnemy
 
         currentPhase = 4;
         transitioning = false;
+        lastCombatProgressTime = Time.time;
+
+        // La fase final también arranca desde un scheduler limpio.
+        RestartCombatLoop();
 
         if (dragonAnimator == null)
             dragonAnimator = GetComponentInChildren<Animator>();
@@ -952,6 +1004,80 @@ public class DragonBoss : BaseEnemy
             endRotation;
     }
 
+    private void RestartCombatLoop()
+    {
+        if (combatLoop != null)
+        {
+            StopCoroutine(combatLoop);
+            combatLoop = null;
+        }
+
+        // El loop nuevo siempre empieza desde un estado neutral.
+        isAttacking = false;
+        lastCombatProgressTime = Time.time;
+
+        if (!fightActive ||
+            hasDied)
+        {
+            return;
+        }
+
+        combatLoop =
+            StartCoroutine(
+                GroundCombatLoop());
+    }
+
+    private void RecoverCombatLoopIfStalled()
+    {
+        if (!fightActive ||
+            hasDied ||
+            transitioning ||
+            currentPhase < 2)
+        {
+            return;
+        }
+
+        float cooldown =
+            currentPhase >= 3
+                ? phase3AttackCooldown
+                : phase2AttackCooldown;
+
+        float speed =
+            GetCombatSpeedMultiplier();
+
+        float longestAttack =
+            Mathf.Max(
+                clawWindup + clawRecovery,
+                slamWindup + slamRecovery,
+                projectileWindup + projectileRecovery);
+
+        longestAttack /=
+            Mathf.Max(
+                1f,
+                speed);
+
+        // Dejamos margen suficiente para cualquier ataque normal.
+        float timeout =
+            Mathf.Max(
+                5f,
+                cooldown +
+                longestAttack +
+                2f);
+
+        if (Time.time - lastCombatProgressTime <
+            timeout)
+        {
+            return;
+        }
+
+        Log(
+            "Combat watchdog: el loop no progreso durante " +
+            timeout.ToString("F1") +
+            "s. Reiniciando scheduler.");
+
+        RestartCombatLoop();
+    }
+
     private IEnumerator GroundCombatLoop()
     {
         while (fightActive && !hasDied)
@@ -976,6 +1102,9 @@ public class DragonBoss : BaseEnemy
             }
 
             yield return StartCoroutine(PerformGroundAttack());
+
+            // Si el ataque terminó correctamente, registramos progreso.
+            lastCombatProgressTime = Time.time;
         }
     }
 
@@ -985,6 +1114,8 @@ public class DragonBoss : BaseEnemy
             yield break;
 
         isAttacking = true;
+        lastCombatProgressTime = Time.time;
+
         FacePlayerImmediate();
 
         float distance =
@@ -1583,12 +1714,20 @@ public class DragonBoss : BaseEnemy
 
         hasDied = true;
         fightActive = false;
+        transitioning = false;
         isAttacking = false;
 
         if (dragonAnimator != null)
             dragonAnimator.speed = 1f;
 
         StopAllCoroutines();
+
+        PlayBossSound(
+            deathSound,
+            deathSoundVolume,
+            1f,
+            CombatVFXPosition,
+            deathSoundSpatialBlend);
 
         if (finalDoor != null)
             finalDoor.SetActive(true);
@@ -1608,10 +1747,27 @@ public class DragonBoss : BaseEnemy
         if (UIManager.Instance != null)
             UIManager.Instance.DisableBossName();
 
+        // El altar escucha este evento para habilitar la interacción final.
         OnBossDefeated?.Invoke();
 
         // Importante para Poison/Fire/otros efectos que escuchan OnDeath.
         OnDeath?.Invoke();
+
+        if (deathDisappearDelay <= 0f)
+        {
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            StartCoroutine(
+                DisableAfterDeathRoutine());
+        }
+    }
+
+    private IEnumerator DisableAfterDeathRoutine()
+    {
+        yield return new WaitForSeconds(
+            deathDisappearDelay);
 
         gameObject.SetActive(false);
     }

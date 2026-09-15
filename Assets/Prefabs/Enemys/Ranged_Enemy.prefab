@@ -295,15 +295,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseStats: {fileID: 11400000, guid: cca60d9fcd6806e46ac088b25fa88af2, type: 2}
   currentStats: {fileID: 0}
+  healthPerDifficulty: 5
+  damagePerDifficulty: 2
+  moveSpeedPerDifficulty: 0.05
+  attackSpeedPerDifficulty: 0
   combatVFXAnchor: {fileID: 2419937082021406679}
   floatingTextPrefab: {fileID: 6819794237618631478, guid: 7dbdcd9fe3d929643a0ce3027f1f0253, type: 3}
-  damageTextOffset: {x: 0, y: 0.5, z: 0}
-  normalDamageColor: {r: 0.7416178, g: 0.7660377, b: 0, a: 1}
+  damageTextOffset: {x: 0, y: 0.9, z: 0}
+  normalDamageColor: {r: 1, g: 1, b: 1, a: 1}
   poisonDamageColor: {r: 0.3, g: 1, b: 0.3, a: 1}
   electricityDamageColor: {r: 0.3, g: 0.8, b: 1, a: 1}
   fireDamageColor: {r: 1, g: 0.4, b: 0.1, a: 1}
   popupClusterResetTime: 0.15
-  popupHorizontalSpacing: 0.2
+  popupHorizontalSpacing: 0.9
   popupVerticalSpacing: 0.12
   maxHealth: 70
   moveSpeed: 9
@@ -462,3 +466,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79123d4d2d9bc1f40be456d4de8b8246, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowElectricityStun: 1
