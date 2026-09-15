@@ -14,6 +14,10 @@ public class WaveSpawner3D : MonoBehaviour
     [SerializeField] private TMP_Text waveTimerText;
     [SerializeField] private TMP_Text difficultyText;
 
+    [Header("Final Wave")]
+    [SerializeField] private GameObject finalWaveObject;
+    [SerializeField] private float finalWaveObjectDuration = 8f;
+
     [Header("Spawn Settings")]
     public SpawnSource spawnSource = SpawnSource.AroundPlayer;
     public List<Transform> spawnPoints = new List<Transform>();
@@ -149,6 +153,13 @@ public class WaveSpawner3D : MonoBehaviour
         if (currentWaveIndex >= waves.Count)
         {
             OnAllWavesCompleted?.Invoke();
+
+            if (finalWaveObject != null)
+            {
+                finalWaveObject.SetActive(true);
+                StartCoroutine(HideFinalWaveObject());
+            }
+
             return;
         }
 
@@ -461,6 +472,14 @@ public class WaveSpawner3D : MonoBehaviour
             Gizmos.DrawLine(previous, point);
             previous = point;
         }
+    }
+
+    private IEnumerator HideFinalWaveObject()
+    {
+        yield return new WaitForSeconds(finalWaveObjectDuration);
+
+        if (finalWaveObject != null)
+            finalWaveObject.SetActive(false);
     }
 }
 
