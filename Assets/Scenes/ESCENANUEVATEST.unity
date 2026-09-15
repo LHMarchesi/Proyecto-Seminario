@@ -467,7 +467,6 @@ MonoBehaviour:
   - {fileID: 2907446981062310184, guid: 0f3f82ab5b1e7da409d65eb6ef2df859, type: 3}
   - {fileID: 8320053101431409222, guid: d2e12f6aa4e9d2542be61cc9ed4911b0, type: 3}
   - {fileID: 6693361117810616100, guid: db3b2f2bd44be034caebac28c502e1b4, type: 3}
-  - {fileID: 1551180864635510464, guid: 9dfa7afa5f9990f4a8e0ea47aadc5e1d, type: 3}
   logPrefabs:
   - {fileID: 3153635566644244541, guid: 68ef50d48c8d4204eaa767d9ddb7dd84, type: 3}
   pillarPrefab: {fileID: 5278447973429310517, guid: 4c30da9856164fa46818c71e38a51e5a, type: 3}
@@ -5527,7 +5526,7 @@ MonoBehaviour:
     - "+20% de da\xF1o de explosion."
     - Aumenta la fuerza/knockback de la explosion.
     - permite una segunda explosion durante el Recall.
-    dropChance: 1
+    dropChance: 4.5
   - abilityId: 
     abilityName: Venoumunus
     abilityDescription: Attack1 y Attack2 aplican 1 stack de Poison.
@@ -5540,7 +5539,7 @@ MonoBehaviour:
     - Attack2 aplica 2 stacks directamente.
     - "m\xE1ximo de 4 stacks."
     - cuando un enemigo envenenado muere, propaga Poison a enemigos cercanos.
-    dropChance: 1
+    dropChance: 4.5
   - abilityId: 
     abilityName: Thunder Strike
     abilityDescription: Al impactar un Charged Attack, cae un Lightning Strike sobre
@@ -5569,7 +5568,7 @@ MonoBehaviour:
     - El maximo de Burn aumenta a 4 stacks.
     - "Los enemigos que mueren quemandose explotan, causando da\xF1o alrededor seg\xFAn
       sus stacks de Burn."
-    dropChance: 1
+    dropChance: 4.5
   - abilityId: 
     abilityName: Helverg
     abilityDescription: 
@@ -5583,7 +5582,7 @@ MonoBehaviour:
     - "Mjolnir puede encadenarse hacia 3 enemigos y aumenta en 25% el rango de b\xFAsqueda."
     - "Mjolnir puede encadenarse hacia 3 enemigos y aumenta en 25% el rango de b\xFAsqueda."
     - "Los enemigos alcanzados por los saltos de Mjolnir tambi\xE9n reciben Electricity."
-    dropChance: 1
+    dropChance: 8
   - abilityId: 
     abilityName: ValkyriesDescent
     abilityDescription: "Falling Hammer genera una onda de choque al impactar contra
@@ -5599,7 +5598,7 @@ MonoBehaviour:
     - La onda de choque tambien lanza a los enemigos hacia arriba.
     - "El impacto invoca un rayo adicional que causa da\xF1o el\xE9ctrico y aplica
       Electricity a los enemigos alcanzados."
-    dropChance: 100
+    dropChance: 1
   - abilityId: 
     abilityName: StormRecall
     abilityDescription: 
