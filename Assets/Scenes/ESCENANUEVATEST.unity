@@ -1142,10 +1142,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 'Wave:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b29afba1e6b7bb24e81c78456a798841, type: 2}
+  m_sharedMaterial: {fileID: -296779006309375756, guid: b29afba1e6b7bb24e81c78456a798841, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1783,8 +1783,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.022666667, y: 0.20685187}
   m_AnchorMax: {x: 0.124708325, y: 0.25485188}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 124.08978, y: 0}
+  m_SizeDelta: {x: 248.1797, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &497630738
 MonoBehaviour:
@@ -1806,10 +1806,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 'Wave TIme:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b29afba1e6b7bb24e81c78456a798841, type: 2}
+  m_sharedMaterial: {fileID: -296779006309375756, guid: b29afba1e6b7bb24e81c78456a798841, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5649,6 +5649,10 @@ MonoBehaviour:
   abilityButtonContainer: {fileID: 285410021}
   abilityButtonPrefab: {fileID: 8407598785988740686, guid: a78bb2d338067ae4f81508dc39a0bcf5, type: 3}
   optionsPerLevel: 2
+  optionRevealStartScale: 0.75
+  optionRevealDuration: 0.18
+  optionRevealStagger: 0.08
+  selectionUnlockDelay: 0.15
   healIcon: {fileID: 21300000, guid: 8ddd9ba15131d5f479ddb631473349b4, type: 3}
   healName: Recuperar vida
   healDescription: "Recupera un porcentaje de la vida m\xE1xima."

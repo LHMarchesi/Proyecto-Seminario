@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ExperienceManager : MonoBehaviour
 {
@@ -26,6 +27,19 @@ public class ExperienceManager : MonoBehaviour
     [SerializeField] private GameObject abilityButtonPrefab;
     [SerializeField, Min(1)] private int optionsPerLevel = 2;
 
+    [Header("Level Up - Reveal")]
+    [Tooltip("Escala inicial de cada opcion antes de aparecer.")]
+    [SerializeField, Range(0f, 1f)] private float optionRevealStartScale = 0.75f;
+
+    [Tooltip("Duracion del scale/fade de cada opcion.")]
+    [SerializeField, Min(0f)] private float optionRevealDuration = 0.18f;
+
+    [Tooltip("Tiempo entre la aparicion de una opcion y la siguiente.")]
+    [SerializeField, Min(0f)] private float optionRevealStagger = 0.08f;
+
+    [Tooltip("Delay despues de mostrar todas las opciones antes de habilitar la seleccion.")]
+    [SerializeField, Min(0f)] private float selectionUnlockDelay = 0.15f;
+
     [Header("Fallback de curación")]
     [SerializeField] private Sprite healIcon;
     [SerializeField] private string healName = "Recuperar vida";
@@ -42,6 +56,7 @@ public class ExperienceManager : MonoBehaviour
     private int pendingLevelUps;
     private bool selectionInProgress;
     private bool optionSelected;
+    private bool selectionUnlocked;
 
     public delegate void OnLevelUpEvent();
     public event OnLevelUpEvent OnLevelUp;
@@ -115,6 +130,8 @@ public class ExperienceManager : MonoBehaviour
     private IEnumerator OpenLevelUpPanel()
     {
         optionSelected = false;
+        selectionUnlocked = false;
+
         OnLevelUp?.Invoke();
 
         ClearSpawnedButtons();
@@ -122,7 +139,8 @@ public class ExperienceManager : MonoBehaviour
         if (panel != null)
             panel.SetActive(true);
 
-        List<AbilityEntry> options = GetRandomAbilityOptions(optionsPerLevel);
+        List<AbilityEntry> options =
+            GetRandomAbilityOptions(optionsPerLevel);
 
         foreach (AbilityEntry ability in options)
             SpawnAbilityButton(ability);
@@ -134,13 +152,204 @@ public class ExperienceManager : MonoBehaviour
 
         UpdateInterface();
 
+        // Importante:
+        // El gameplay ya está pausado con Time.timeScale = 0,
+        // por eso todo el reveal usa tiempo NO escalado.
+        Canvas.ForceUpdateCanvases();
+
+        PrepareButtonsForReveal();
+
+        for (int i = 0; i < spawnedButtons.Count; i++)
+        {
+            GameObject buttonGO =
+                spawnedButtons[i];
+
+            if (buttonGO == null)
+                continue;
+
+            yield return StartCoroutine(
+                RevealButton(buttonGO));
+
+            if (optionRevealStagger > 0f &&
+                i < spawnedButtons.Count - 1)
+            {
+                yield return new WaitForSecondsRealtime(
+                    optionRevealStagger);
+            }
+        }
+
+        // Pequeña protección contra clicks instantáneos.
+        if (selectionUnlockDelay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(
+                selectionUnlockDelay);
+        }
+
+        selectionUnlocked = true;
+        SetButtonsSelectable(true);
+
         while (!optionSelected)
             yield return null;
+
+        selectionUnlocked = false;
+        SetButtonsSelectable(false);
 
         if (panel != null)
             panel.SetActive(false);
 
         ClearSpawnedButtons();
+    }
+
+    private void PrepareButtonsForReveal()
+    {
+        foreach (GameObject buttonGO in spawnedButtons)
+        {
+            if (buttonGO == null)
+                continue;
+
+            CanvasGroup group =
+                buttonGO.GetComponent<CanvasGroup>();
+
+            if (group == null)
+                group = buttonGO.AddComponent<CanvasGroup>();
+
+            group.alpha = 0f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+
+            Button button =
+                buttonGO.GetComponentInChildren<Button>(true);
+
+            if (button != null)
+                button.interactable = false;
+
+            Vector3 baseScale =
+                buttonGO.transform.localScale;
+
+            buttonGO.transform.localScale =
+                baseScale *
+                Mathf.Clamp01(optionRevealStartScale);
+        }
+    }
+
+    private IEnumerator RevealButton(
+        GameObject buttonGO)
+    {
+        if (buttonGO == null)
+            yield break;
+
+        CanvasGroup group =
+            buttonGO.GetComponent<CanvasGroup>();
+
+        if (group == null)
+            group = buttonGO.AddComponent<CanvasGroup>();
+
+        float startScale =
+            Mathf.Clamp01(optionRevealStartScale);
+
+        Vector3 targetScale =
+            buttonGO.transform.localScale;
+
+        // Recover the original scale from the prepared scale.
+        if (startScale > 0.001f)
+        {
+            targetScale /=
+                startScale;
+        }
+        else
+        {
+            // En caso de Start Scale = 0, usamos escala 1 como destino.
+            targetScale =
+                Vector3.one;
+        }
+
+        Vector3 initialScale =
+            targetScale * startScale;
+
+        buttonGO.transform.localScale =
+            initialScale;
+
+        if (optionRevealDuration <= 0f)
+        {
+            buttonGO.transform.localScale =
+                targetScale;
+
+            group.alpha = 1f;
+            yield break;
+        }
+
+        float elapsed = 0f;
+
+        while (elapsed < optionRevealDuration)
+        {
+            elapsed +=
+                Time.unscaledDeltaTime;
+
+            float t =
+                Mathf.Clamp01(
+                    elapsed /
+                    optionRevealDuration);
+
+            // Ease Out Back suave:
+            // aparece rápido y tiene un pequeño "pop".
+            const float overshoot = 1.15f;
+
+            float c1 =
+                overshoot;
+
+            float c3 =
+                c1 + 1f;
+
+            float eased =
+                1f +
+                c3 *
+                Mathf.Pow(t - 1f, 3f) +
+                c1 *
+                Mathf.Pow(t - 1f, 2f);
+
+            buttonGO.transform.localScale =
+                Vector3.LerpUnclamped(
+                    initialScale,
+                    targetScale,
+                    eased);
+
+            group.alpha = t;
+
+            yield return null;
+        }
+
+        buttonGO.transform.localScale =
+            targetScale;
+
+        group.alpha = 1f;
+    }
+
+    private void SetButtonsSelectable(
+        bool selectable)
+    {
+        foreach (GameObject buttonGO in spawnedButtons)
+        {
+            if (buttonGO == null)
+                continue;
+
+            CanvasGroup group =
+                buttonGO.GetComponent<CanvasGroup>();
+
+            if (group != null)
+            {
+                group.interactable =
+                    selectable;
+
+                group.blocksRaycasts =
+                    selectable;
+            }
+
+            Button button =
+                buttonGO.GetComponentInChildren<Button>(true);
+
+            if (button != null)
+                button.interactable = selectable;
+        }
     }
 
     private void SpawnAbilityButton(AbilityEntry ability)
@@ -171,8 +380,13 @@ public class ExperienceManager : MonoBehaviour
 
     public void ApplySelectedAbility(AbilityEntry selectedAbility)
     {
-        if (optionSelected || selectedAbility == null || runInventory == null)
+        if (!selectionUnlocked ||
+            optionSelected ||
+            selectedAbility == null ||
+            runInventory == null)
+        {
             return;
+        }
 
         if (!runInventory.AddOrUpgrade(selectedAbility))
         {
@@ -185,8 +399,13 @@ public class ExperienceManager : MonoBehaviour
 
     public void ApplyHealOption(float healPercent)
     {
-        if (optionSelected || playerContext == null || playerContext.PlayerController == null)
+        if (!selectionUnlocked ||
+            optionSelected ||
+            playerContext == null ||
+            playerContext.PlayerController == null)
+        {
             return;
+        }
 
         int maxHealth = playerContext.PlayerController.MaxHealth;
         int healAmount = Mathf.Max(1, Mathf.CeilToInt(maxHealth * healPercent));
