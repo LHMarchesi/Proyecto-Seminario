@@ -330,6 +330,21 @@ public class EnemyStatusEffectController : MonoBehaviour
     // ELECTRICITY
     // =====================================================
 
+    public void SetElectricityStunAllowed(bool allowed)
+    {
+        allowElectricityStun = allowed;
+
+        // Si se desactiva mientras había un hard-stun activo,
+        // liberamos únicamente ese stun. El DoT y VFX eléctricos continúan.
+        if (!allowElectricityStun)
+        {
+            stunUntil = 0f;
+
+            if (ownsEnemyDisable || animatorFrozen)
+                EndStun();
+        }
+    }
+
     public void ApplyElectricity(ElectricityApplicationData data)
     {
         if (enemy == null || enemy.IsDead()) return;
@@ -362,7 +377,7 @@ public class EnemyStatusEffectController : MonoBehaviour
         }
 
         EnsureElectricityVFX(data.vfxPrefab, data.vfxLocalOffset);
-        if (allowElectricityStun && data.stunDuration > 0f)
+        if (CanApplyHardStun() && data.stunDuration > 0f)
             BeginStun();
         if (electricityRoutine == null)
             electricityRoutine = StartCoroutine(ElectricityRoutine());
@@ -409,10 +424,32 @@ public class EnemyStatusEffectController : MonoBehaviour
         electricityRoutine = null;
     }
 
+    private bool CanApplyHardStun()
+    {
+        if (!allowElectricityStun ||
+            enemy == null ||
+            enemy.IsDead())
+        {
+            return false;
+        }
+
+        // Los bosses no pueden usar el mismo hard-stun de enemigos comunes.
+        // Ese stun deshabilita BaseEnemy.enabled; en DragonBoss eso apaga
+        // toda la máquina de ataques y fases. Electricity conserva VFX y DoT.
+        if (enemy is DragonBoss)
+            return false;
+
+        return true;
+    }
+
     private void BeginStun()
     {
-        if (enemy == null || enemy.IsDead())
+        if (enemy == null ||
+            enemy.IsDead() ||
+            enemy is DragonBoss)
+        {
             return;
+        }
 
         if (!ownsEnemyDisable)
         {

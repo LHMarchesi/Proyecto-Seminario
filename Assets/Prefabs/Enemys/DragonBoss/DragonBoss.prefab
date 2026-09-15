@@ -1540,6 +1540,10 @@ MonoBehaviour:
   finalDoor: {fileID: 0}
   deathVFX: {fileID: 0}
   deathVFXLifetime: 4
+  deathSound: {fileID: 0}
+  deathSoundVolume: 1
+  deathSoundSpatialBlend: 0
+  deathDisappearDelay: 0.15
   flightAnchor: {fileID: 0}
   flightPoints: []
   groundAnchor: {fileID: 0}
@@ -1575,7 +1579,7 @@ MonoBehaviour:
   rangedAttackAnimation: RangeAttack_Boss
   enrageAnimation: EntryFase3_Boss
   phase1Duration: 30.3
-  phase3HealthPercent: 0.35
+  phase3HealthPercent: 0.355
   minimumPhase2Duration: 8
   phase3AirDuration: 27.5
   phase3TakeoffDuration: 1.5
