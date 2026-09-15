@@ -330,25 +330,6 @@ public class EnemyStatusEffectController : MonoBehaviour
     // ELECTRICITY
     // =====================================================
 
-    public void SetElectricityStunAllowed(bool allowed)
-    {
-        allowElectricityStun = allowed;
-
-        // Si se desactiva el stun mientras ya estaba aplicado,
-        // liberamos únicamente el hard-stun.
-        // El VFX y el daño por segundo de Electricity continúan.
-        if (!allowElectricityStun)
-        {
-            stunUntil = 0f;
-
-            if (ownsEnemyDisable ||
-                animatorFrozen)
-            {
-                EndStun();
-            }
-        }
-    }
-
     public void ApplyElectricity(ElectricityApplicationData data)
     {
         if (enemy == null || enemy.IsDead()) return;
